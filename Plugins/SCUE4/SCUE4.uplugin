@@ -1,0 +1,37 @@
+{
+	"FileVersion": 1,
+	"Version": 1,
+	"VersionName": "1.0.0",
+	"FriendlyName": "{SC} Secure-Client [Anti-Cheat]",
+	"Description": "Secure-Client is a C++ Plugin designed to provide intuitive anti-cheat capability for your PC Games.",
+	"Category": "Data",
+	"CreatedBy": "(C) Bruno Xavier Leite",
+	"CreatedByURL": "http://brunoxavierleite.com",
+	"DocsURL": "https://forums.unrealengine.com",
+	"MarketplaceURL": "",
+	"SupportURL": "mailto:bruno_xavier_@msn.com",
+	"Modules": [
+		{
+			"Name": "SCUE4",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32"
+			]
+		},
+		{
+			"Name": "KGenerator",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32"
+			]
+		}
+	],
+	"EnabledByDefault": false,
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"Installed": false
+}
