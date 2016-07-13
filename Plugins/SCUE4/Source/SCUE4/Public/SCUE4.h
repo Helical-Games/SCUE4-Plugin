@@ -42,7 +42,7 @@ static const FString SC_KEY = ":WM,7YAC=o0{tTxm}+_!)*r[bfklpK-F.z]%Ju8ZgIi/HXGqj
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /** Encryption:: Custom Caesar Cipher ^ Byte Mangling. */
 
-static FORCEINLINE FString FEncode(FString Input) {
+static inline FString FEncode(FString Input) {
 	for (int I = 0; I<Input.Len(); I++) {
 		int ID = -1; for (auto CH : SC_DIC) {
 			ID++; if (Input[I]==CH) {Input[I]=SC_KEY[ID]; ID=-1; break;}
@@ -51,7 +51,7 @@ static FORCEINLINE FString FEncode(FString Input) {
 	return *Input;
 }
 
-static FORCEINLINE FString FDecode(FString Input) {
+static inline FString FDecode(FString Input) {
 	for (int I = 0; I<Input.Len(); I++) {
 		int ID = -1; for (auto CH : SC_KEY) {
 			ID++; if (Input[I]==CH) {Input[I]=SC_DIC[ID]; ID=-1; break;}
@@ -60,7 +60,7 @@ static FORCEINLINE FString FDecode(FString Input) {
 	return *Input;
 }
 
-static FORCEINLINE FString FEncode(FString Key, FString Input) {
+static inline FString FEncode(FString Key, FString Input) {
 	for (int I = 0; I<Input.Len(); I++) {
 		int ID = -1; for (auto CH : SC_DIC) {
 			ID++; if (Input[I]==CH) {Input[I]=Key[ID]; ID=-1; break;}
@@ -69,7 +69,7 @@ static FORCEINLINE FString FEncode(FString Key, FString Input) {
 	return *Input;
 }
 
-static FORCEINLINE FString FDecode(FString Key, FString Input) {
+static inline FString FDecode(FString Key, FString Input) {
 	for (int I = 0; I<Input.Len(); I++) {
 		int ID = -1; for (auto CH : Key) {
 			ID++; if (Input[I]==CH) {Input[I]=SC_DIC[ID]; ID=-1; break;}
@@ -127,7 +127,7 @@ public:
 	////////////////////////////////////////////////////////////
 
 	/** Gets value using Global Key. */
-	FORCEINLINE bool GetValue() {
+	bool GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -150,7 +150,7 @@ public:
 	}}}
 
 	/** Gets value from Custom Key. */
-	FORCEINLINE bool GetValue(FString* Key) {
+	bool GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
@@ -171,7 +171,7 @@ public:
 	}}
 
 	/** Sets value using Internal or Global Key. */
-	FORCEINLINE void SetValue(const bool Input) {
+	void SetValue(const bool Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -186,7 +186,7 @@ public:
 	}Internal=FString(*SC_KEY);}}
 
 	/** Sets value from Custom Key. */
-	FORCEINLINE void SetValue(FString* Key, const bool Input) {
+	void SetValue(FString* Key, const bool Input) {
 		switch (Flag) {
 			case 0:
 				this->Shift = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
@@ -226,7 +226,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeBool &operator = (const FSafeBool &B) {
+	inline FSafeBool &operator = (const FSafeBool &B) {
 		this->Internal = B.Internal;
 		this->TrueValue = B.TrueValue;
 		this->Shift = B.Shift;
@@ -234,11 +234,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeBool &operator = (const bool &B) {
+	inline FSafeBool &operator = (const bool &B) {
 		this->SetValue(B); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueValue;
 		Ar << this->Shift;
@@ -274,7 +274,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE uint8 GetValue() {
+	uint8 GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -296,7 +296,7 @@ public:
 				return 0;
 	}}}
 
-	FORCEINLINE uint8 GetValue(FString* Key) {
+	uint8 GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
@@ -316,7 +316,7 @@ public:
 			return 0;
 	}}
 
-	FORCEINLINE void SetValue(uint8 Input) {
+	void SetValue(uint8 Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -330,7 +330,7 @@ public:
 					Flag = 0; this->Shift = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, uint8 Input) {
+	void SetValue(FString* Key, uint8 Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -373,7 +373,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeByte &operator = (const FSafeByte &B) {
+	inline FSafeByte &operator = (const FSafeByte &B) {
 		this->Internal = B.Internal;
 		this->TrueValue = B.TrueValue;
 		this->Shift = B.Shift;
@@ -381,11 +381,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeByte &operator = (const uint8 &B) {
+	inline FSafeByte &operator = (const uint8 &B) {
 		this->SetValue(B); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueValue;
 		Ar << this->Shift;
@@ -422,7 +422,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE int32 GetValue() {
+	int32 GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -444,7 +444,7 @@ public:
 				return 0;
 	}}}
 
-	FORCEINLINE int32 GetValue(FString* Key) {
+	int32 GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
@@ -464,7 +464,7 @@ public:
 			return 0;
 	}}
 
-	FORCEINLINE void SetValue(int32 Input) {
+	void SetValue(int32 Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -478,7 +478,7 @@ public:
 					Flag = 0; this->Shift = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, int32 Input) {
+	void SetValue(FString* Key, int32 Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -521,7 +521,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeInt &operator = (const FSafeInt &I) {
+	inline FSafeInt &operator = (const FSafeInt &I) {
 		this->Internal = I.Internal;
 		this->TrueValue = I.TrueValue;
 		this->Shift = I.Shift;
@@ -529,11 +529,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeInt &operator = (const int32 &I) {
+	inline FSafeInt &operator = (const int32 &I) {
 		this->SetValue(I); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueValue;
 		Ar << this->Shift;
@@ -570,7 +570,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE float GetValue() {
+	float GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -592,7 +592,7 @@ public:
 				return 0.f;
 	}}}
 
-	FORCEINLINE float GetValue(FString* Key) {
+	float GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
@@ -612,7 +612,7 @@ public:
 			return 0.f;
 	}}
 
-	FORCEINLINE void SetValue(float Input) {
+	void SetValue(float Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -626,7 +626,7 @@ public:
 					Flag = 0; this->Shift = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, float Input) {
+	void SetValue(FString* Key, float Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -669,7 +669,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeFloat &operator = (const FSafeFloat &F) {
+	inline FSafeFloat &operator = (const FSafeFloat &F) {
 		this->Internal = F.Internal;
 		this->TrueValue = F.TrueValue;
 		this->Shift = F.Shift;
@@ -677,11 +677,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeFloat &operator = (const float &F) {
+	inline FSafeFloat &operator = (const float &F) {
 		this->SetValue(F); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueValue;
 		Ar << this->Shift;
@@ -718,7 +718,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FName GetValue() {
+	FName GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -740,7 +740,7 @@ public:
 				return TEXT("");
 	}}}
 
-	FORCEINLINE FName GetValue(FString* Key) {
+	FName GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
@@ -760,7 +760,7 @@ public:
 			return TEXT("");
 	}}
 
-	FORCEINLINE void SetValue(FName Input) {
+	void SetValue(FName Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -774,7 +774,7 @@ public:
 					Flag = 0; this->Shift = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, FName Input) {
+	void SetValue(FString* Key, FName Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -817,7 +817,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeName &operator = (const FSafeName &N) {
+	inline FSafeName &operator = (const FSafeName &N) {
 		this->Internal = N.Internal;
 		this->TrueValue = N.TrueValue;
 		this->Shift = N.Shift;
@@ -825,11 +825,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeName &operator = (const FName &N) {
+	inline FSafeName &operator = (const FName &N) {
 		this->SetValue(N); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueValue;
 		Ar << this->Shift;
@@ -866,7 +866,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FString GetValue() {
+	FString GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -888,7 +888,7 @@ public:
 				return TEXT("");
 	}}}
 
-	FORCEINLINE FString GetValue(FString* Key) {
+	FString GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
@@ -908,7 +908,7 @@ public:
 			return TEXT("");
 	}}
 
-	FORCEINLINE void SetValue(FString Input) {
+	void SetValue(FString Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -922,7 +922,7 @@ public:
 					Flag = 0; this->Shift = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, FString Input) {
+	void SetValue(FString* Key, FString Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -965,7 +965,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeString &operator = (const FSafeString &S) {
+	inline FSafeString &operator = (const FSafeString &S) {
 		this->Internal = S.Internal;
 		this->TrueValue = S.TrueValue;
 		this->Shift = S.Shift;
@@ -973,11 +973,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeString &operator = (const FString &S) {
+	inline FSafeString &operator = (const FString &S) {
 		this->SetValue(S); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueValue;
 		Ar << this->Shift;
@@ -1014,7 +1014,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FText GetValue() {
+	FText GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -1037,7 +1037,7 @@ public:
 				return FText::GetEmpty();
 	}}}
 
-	FORCEINLINE FText GetValue(FString* Key) {
+	FText GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
@@ -1057,7 +1057,7 @@ public:
 			return FText::GetEmpty();
 	}}
 
-	FORCEINLINE void SetValue(FText Input) {
+	void SetValue(FText Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -1071,7 +1071,7 @@ public:
 					Flag = 0; this->Shift = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, FText Input) {
+	void SetValue(FString* Key, FText Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -1114,7 +1114,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeText &operator = (const FSafeText &T) {
+	inline FSafeText &operator = (const FSafeText &T) {
 		this->Internal = T.Internal;
 		this->TrueValue = T.TrueValue;
 		this->Shift = T.Shift;
@@ -1122,11 +1122,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeText &operator = (const FText &T) {
+	inline FSafeText &operator = (const FText &T) {
 		this->SetValue(T); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueValue;
 		Ar << this->Shift;
@@ -1169,7 +1169,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FVector2D GetValue() {
+	FVector2D GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -1195,7 +1195,7 @@ public:
 				return FVector2D::ZeroVector;
 	}}}
 
-	FORCEINLINE FVector2D GetValue(FString* Key) {
+	FVector2D GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
@@ -1219,7 +1219,7 @@ public:
 			return FVector2D::ZeroVector;
 	}}
 
-	FORCEINLINE void SetValue(FVector2D Input) {
+	void SetValue(FVector2D Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -1237,7 +1237,7 @@ public:
 					this->ShiftX = NULL; this->ShiftY = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, FVector2D Input) {
+	void SetValue(FString* Key, FVector2D Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -1298,7 +1298,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeVector2D &operator = (const FSafeVector2D &V) {
+	inline FSafeVector2D &operator = (const FSafeVector2D &V) {
 		this->Internal = V.Internal;
 		this->TrueX = V.TrueX; this->TrueY = V.TrueY;
 		this->ShiftX = V.ShiftX; this->ShiftY = V.ShiftY;
@@ -1306,11 +1306,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeVector2D &operator = (const FVector2D &V) {
+	inline FSafeVector2D &operator = (const FVector2D &V) {
 		this->SetValue(V); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueX;
 		Ar << this->TrueY;
@@ -1361,7 +1361,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FVector GetValue() {
+	FVector GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -1387,7 +1387,7 @@ public:
 				return FVector::ZeroVector;
 	}}}
 
-	FORCEINLINE FVector GetValue(FString* Key) {
+	FVector GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
@@ -1411,7 +1411,7 @@ public:
 			return FVector::ZeroVector;
 	}}
 
-	FORCEINLINE void SetValue(FVector Input) {
+	void SetValue(FVector Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -1431,7 +1431,7 @@ public:
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, FVector Input) {
+	void SetValue(FString* Key, FVector Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -1500,7 +1500,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeVector3D &operator = (const FSafeVector3D &V) {
+	inline FSafeVector3D &operator = (const FSafeVector3D &V) {
 		this->Internal = V.Internal;
 		this->TrueX = V.TrueX; this->TrueY = V.TrueY; this->TrueZ = V.TrueZ;
 		this->ShiftX = V.ShiftX; this->ShiftY = V.ShiftY; this->ShiftZ = V.ShiftZ;
@@ -1508,11 +1508,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeVector3D &operator = (const FVector &V) {
+	inline FSafeVector3D &operator = (const FVector &V) {
 		this->SetValue(V); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueX;
 		Ar << this->TrueY;
@@ -1571,7 +1571,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FVector4 GetValue() {
+	FVector4 GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -1597,7 +1597,7 @@ public:
 				return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
 	}}}
 
-	FORCEINLINE FVector4 GetValue(FString* Key) {
+	FVector4 GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
@@ -1621,7 +1621,7 @@ public:
 			return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
 	}}
 
-	FORCEINLINE void SetValue(FVector4* Input) {
+	void SetValue(FVector4* Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = *Input;
@@ -1643,7 +1643,7 @@ public:
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL; this->ShiftW = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, FVector4* Input) {
+	void SetValue(FString* Key, FVector4* Input) {
 		#if WITH_EDITOR
 		this->Unsafe = *Input;
 		#endif
@@ -1720,7 +1720,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeVector4D &operator = (const FSafeVector4D &V) {
+	inline FSafeVector4D &operator = (const FSafeVector4D &V) {
 		this->Internal = V.Internal;
 		this->TrueX = V.TrueX; this->TrueY = V.TrueY; this->TrueZ = V.TrueZ; this->TrueW = V.TrueW;
 		this->ShiftX = V.ShiftX; this->ShiftY = V.ShiftY; this->ShiftZ = V.ShiftZ; this->ShiftW = V.ShiftW;
@@ -1728,11 +1728,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeVector4D &operator = (FVector4 &V) {
+	inline FSafeVector4D &operator = (FVector4 &V) {
 		this->SetValue(&V); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueX;
 		Ar << this->TrueY;
@@ -1793,7 +1793,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FLinearColor GetValue() {
+	FLinearColor GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -1819,7 +1819,7 @@ public:
 				return FLinearColor::FLinearColor();
 	}}}
 
-	FORCEINLINE FLinearColor GetValue(FString* Key) {
+	FLinearColor GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
@@ -1843,7 +1843,7 @@ public:
 			return FLinearColor::FLinearColor();
 	}}
 
-	FORCEINLINE void SetValue(FLinearColor* Input) {
+	void SetValue(FLinearColor* Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = *Input;
@@ -1865,7 +1865,7 @@ public:
 					this->ShiftR = NULL; this->ShiftG = NULL; this->ShiftB = NULL; this->ShiftA = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, FLinearColor* Input) {
+	void SetValue(FString* Key, FLinearColor* Input) {
 		#if WITH_EDITOR
 		this->Unsafe = *Input;
 		#endif
@@ -1928,7 +1928,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeColor &operator = (const FSafeColor &C) {
+	inline FSafeColor &operator = (const FSafeColor &C) {
 		this->Internal = C.Internal;
 		this->TrueR = C.TrueR; this->TrueG = C.TrueG; this->TrueB = C.TrueB; this->TrueA = C.TrueA;
 		this->ShiftR = C.ShiftR; this->ShiftG = C.ShiftG; this->ShiftB = C.ShiftB; this->ShiftA = C.ShiftA;
@@ -1936,11 +1936,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeColor &operator = (FLinearColor &C) {
+	inline FSafeColor &operator = (FLinearColor &C) {
 		this->SetValue(&C); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueR;
 		Ar << this->TrueG;
@@ -1995,7 +1995,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FRotator GetValue() {
+	FRotator GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
 			Internal = FString(*SC_KEY);
 			switch (Flag) {
@@ -2021,7 +2021,7 @@ public:
 				return FRotator::ZeroRotator;
 	}}}
 
-	FORCEINLINE FRotator GetValue(FString* Key) {
+	FRotator GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
@@ -2045,7 +2045,7 @@ public:
 			return FRotator::ZeroRotator;
 	}}
 
-	FORCEINLINE void SetValue(FRotator Input) {
+	void SetValue(FRotator Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
 			#if WITH_EDITOR
 			this->Unsafe = Input;
@@ -2065,7 +2065,7 @@ public:
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
 	}Internal=FString(*SC_KEY);}}
 
-	FORCEINLINE void SetValue(FString* Key, FRotator Input) {
+	void SetValue(FString* Key, FRotator Input) {
 		#if WITH_EDITOR
 		this->Unsafe = Input;
 		#endif
@@ -2134,7 +2134,7 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeRotator &operator = (const FSafeRotator &R) {
+	inline FSafeRotator &operator = (const FSafeRotator &R) {
 		this->Internal = R.Internal;
 		this->TrueX = R.TrueX; this->TrueY = R.TrueY; this->TrueZ = R.TrueZ;
 		this->ShiftX = R.ShiftX; this->ShiftY = R.ShiftY; this->ShiftZ = R.ShiftZ;
@@ -2142,11 +2142,11 @@ public:
 		return *this;
 	}
 	
-	FORCEINLINE FSafeRotator &operator = (const FRotator &R) {
+	inline FSafeRotator &operator = (const FRotator &R) {
 		this->SetValue(R); return *this;
 	}
 
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
+	inline FArchive &operator << (FArchive &Ar) { 
 		Ar << this->Flag;
 		Ar << this->TrueX;
 		Ar << this->TrueY;
@@ -2184,7 +2184,7 @@ public:
 
 	////////////////////////////////////////////////////////////
 
-	FORCEINLINE FTransform GetValue() {
+	FTransform GetValue() {
 		#if WITH_EDITOR
 		this->Unsafe = FTransform::FTransform(this->Rotation.GetValue(),this->Position.GetValue(),this->Scale.GetValue()); return this->Unsafe;
 		#else
@@ -2192,7 +2192,7 @@ public:
 		#endif
 	}
 
-	FORCEINLINE FTransform GetValue(FString* Key) {
+	FTransform GetValue(FString* Key) {
 		#if WITH_EDITOR
 		this->Unsafe = FTransform::FTransform(this->Rotation.GetValue(*&Key),this->Position.GetValue(*&Key),this->Scale.GetValue(*&Key));
 		return this->Unsafe;
@@ -2201,7 +2201,7 @@ public:
 		#endif
 	}
 
-	FORCEINLINE void SetValue(FTransform* Input) {
+	void SetValue(FTransform* Input) {
 		#if WITH_EDITOR
 		this->Unsafe = *Input;
 		#endif
@@ -2210,7 +2210,7 @@ public:
 		this->Rotation.SetValue(Input->GetRotation().Rotator());
 	}
 
-	FORCEINLINE void SetValue(FString* Key, FTransform* Input) {
+	void SetValue(FString* Key, FTransform* Input) {
 		this->Scale.SetValue(*&Key,Input->GetScale3D());
 		this->Position.SetValue(*&Key,Input->GetLocation());
 		this->Rotation.SetValue(*&Key,Input->GetRotation().Rotator());
@@ -2240,14 +2240,14 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Operators
 
-	FORCEINLINE FSafeTransform &operator = (const FSafeTransform &T) {
+	inline FSafeTransform &operator = (const FSafeTransform &T) {
 		this->Scale = T.Scale;
 		this->Position = T.Position;
 		this->Rotation = T.Rotation;
 		return *this;
 	}
 	
-	FORCEINLINE FSafeTransform &operator = (const FTransform &T) {
+	inline FSafeTransform &operator = (const FTransform &T) {
 		this->Scale = T.GetScale3D();
 		this->Position = T.GetLocation();
 		this->Rotation = T.Rotator();
@@ -2266,55 +2266,55 @@ public:
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeBool &FSB, FSafeBool &B) {
+inline bool operator == (FSafeBool &FSB, FSafeBool &B) {
 	return  (FSB.GetValue()==B.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeBool &FSB, FSafeBool &B) {
+inline bool operator != (FSafeBool &FSB, FSafeBool &B) {
 	return (FSB.GetValue()!=B.GetValue());
 }
 
-FORCEINLINE bool operator && (FSafeBool &FSB, FSafeBool &B) {
+inline bool operator && (FSafeBool &FSB, FSafeBool &B) {
 	return (FSB.GetValue()&&B.GetValue());
 }
 
-FORCEINLINE bool operator || (FSafeBool &FSB, FSafeBool &B) {
+inline bool operator || (FSafeBool &FSB, FSafeBool &B) {
 	return (FSB.GetValue()||B.GetValue());
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeBool &FSB, const bool &B) {
+inline bool operator == (FSafeBool &FSB, const bool &B) {
 	return (FSB.GetValue()==B);
 }
 
-FORCEINLINE bool operator != (FSafeBool &FSB, const bool &B) {
+inline bool operator != (FSafeBool &FSB, const bool &B) {
 	return (FSB.GetValue()!=B);
 }
 
-FORCEINLINE bool operator && (FSafeBool &FSB, const bool &B) {
+inline bool operator && (FSafeBool &FSB, const bool &B) {
 	return (FSB.GetValue()&&B);
 }
 
-FORCEINLINE bool operator || (FSafeBool &FSB, const bool &B) {
+inline bool operator || (FSafeBool &FSB, const bool &B) {
 	return (FSB.GetValue()||B);
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const bool &B, FSafeBool &FSB) {
+inline bool operator == (const bool &B, FSafeBool &FSB) {
 	return (B==FSB.GetValue());
 }
 
-FORCEINLINE bool operator != (const bool &B, FSafeBool &FSB) {
+inline bool operator != (const bool &B, FSafeBool &FSB) {
 	return (B!=FSB.GetValue());
 }
 
-FORCEINLINE bool operator && (const bool &B, FSafeBool &FSB) {
+inline bool operator && (const bool &B, FSafeBool &FSB) {
 	return (B&&FSB.GetValue());
 }
 
-FORCEINLINE bool operator || (const bool &B, FSafeBool &FSB) {
+inline bool operator || (const bool &B, FSafeBool &FSB) {
 	return (B||FSB.GetValue());
 }
 
@@ -2322,261 +2322,261 @@ FORCEINLINE bool operator || (const bool &B, FSafeBool &FSB) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeByte &FSB, FSafeByte &B) {
+inline bool operator == (FSafeByte &FSB, FSafeByte &B) {
 	return (FSB.GetValue()==B.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeByte &FSB, FSafeByte &B) {
+inline bool operator != (FSafeByte &FSB, FSafeByte &B) {
 	return (FSB.GetValue()!=B.GetValue());
 }
 
-FORCEINLINE bool operator > (FSafeByte &FSB, FSafeByte &B) {
+inline bool operator > (FSafeByte &FSB, FSafeByte &B) {
 	return (FSB.GetValue()>B.GetValue());
 }
 
-FORCEINLINE bool operator < (FSafeByte &FSB, FSafeByte &B) {
+inline bool operator < (FSafeByte &FSB, FSafeByte &B) {
 	return (FSB.GetValue()<B.GetValue());
 }
 
-FORCEINLINE bool operator >= (FSafeByte &FSB, FSafeByte &B) {
+inline bool operator >= (FSafeByte &FSB, FSafeByte &B) {
 	return (FSB.GetValue()>=B.GetValue());
 }
 
-FORCEINLINE bool operator <= (FSafeByte &FSB, FSafeByte &B) {
+inline bool operator <= (FSafeByte &FSB, FSafeByte &B) {
 	return (FSB.GetValue()<=B.GetValue());
 }
 
-FORCEINLINE FSafeByte operator + (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator + (FSafeByte &FSB, FSafeByte &B) {
 	return FSafeByte(FSB.GetValue()+B.GetValue());
 }
 
-FORCEINLINE FSafeByte operator - (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator - (FSafeByte &FSB, FSafeByte &B) {
 	return FSafeByte(FSB.GetValue()-B.GetValue());
 }
 
-FORCEINLINE FSafeByte operator * (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator * (FSafeByte &FSB, FSafeByte &B) {
 	return FSafeByte(FSB.GetValue()*B.GetValue());
 }
 
-FORCEINLINE FSafeByte operator / (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator / (FSafeByte &FSB, FSafeByte &B) {
 	return FSafeByte(FSB.GetValue()/B.GetValue());
 }
 
-FORCEINLINE FSafeByte operator ++ (FSafeByte &FSB) {
+inline FSafeByte operator ++ (FSafeByte &FSB) {
 	auto Local = FSB.GetValue(); Local++;
 	return FSafeByte(Local);
 }
 
-FORCEINLINE FSafeByte operator -- (FSafeByte &FSB) {
+inline FSafeByte operator -- (FSafeByte &FSB) {
 	auto Local = FSB.GetValue(); Local--;
 	return FSafeByte(Local);
 }
 
-FORCEINLINE FSafeByte operator ~ (FSafeByte &FSB) {
+inline FSafeByte operator ~ (FSafeByte &FSB) {
 	auto Local = FSB.GetValue();
 	return FSafeByte(~Local);
 }
 
-FORCEINLINE FSafeByte operator += (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator += (FSafeByte &FSB, FSafeByte &B) {
 	auto Local = FSB.GetValue(); auto Plus = B.GetValue();
 	return FSafeByte((Local+=Plus));
 }
 
-FORCEINLINE FSafeByte operator -= (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator -= (FSafeByte &FSB, FSafeByte &B) {
 	auto Local = FSB.GetValue(); auto Minus = B.GetValue();
 	return FSafeByte((Local-=Minus));
 }
 
-FORCEINLINE FSafeByte operator % (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator % (FSafeByte &FSB, FSafeByte &B) {
 	auto Local = FSB.GetValue(); auto Mod = B.GetValue();
 	return FSafeByte((Local%Mod));
 }
 
-FORCEINLINE FSafeByte operator & (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator & (FSafeByte &FSB, FSafeByte &B) {
 	auto Local = FSB.GetValue(); auto An = B.GetValue();
 	return FSafeByte((Local&An));
 }
 
-FORCEINLINE FSafeByte operator | (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator | (FSafeByte &FSB, FSafeByte &B) {
 	auto Local = FSB.GetValue(); auto Orr = B.GetValue();
 	return FSafeByte((Local|Orr));
 }
 
-FORCEINLINE FSafeByte operator ^ (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator ^ (FSafeByte &FSB, FSafeByte &B) {
 	auto Local = FSB.GetValue(); auto To = B.GetValue();
 	return FSafeByte((Local^To));
 }
 
-FORCEINLINE FSafeByte operator >> (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator >> (FSafeByte &FSB, FSafeByte &B) {
 	auto Local = FSB.GetValue(); auto To = B.GetValue();
 	return FSafeByte((Local>>To));
 }
 
-FORCEINLINE FSafeByte operator << (FSafeByte &FSB, FSafeByte &B) {
+inline FSafeByte operator << (FSafeByte &FSB, FSafeByte &B) {
 	auto Local = FSB.GetValue(); auto To = B.GetValue();
 	return FSafeByte((Local<<To));
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeByte &FSB, const uint8 &B) {
+inline bool operator == (FSafeByte &FSB, const uint8 &B) {
 	return (FSB.GetValue()==B);
 }
 
-FORCEINLINE bool operator != (FSafeByte &FSB, const uint8 &B) {
+inline bool operator != (FSafeByte &FSB, const uint8 &B) {
 	return (FSB.GetValue()!=B);
 }
 
-FORCEINLINE bool operator > (FSafeByte &FSB, const uint8 &B) {
+inline bool operator > (FSafeByte &FSB, const uint8 &B) {
 	return (FSB.GetValue()>B);
 }
 
-FORCEINLINE bool operator < (FSafeByte &FSB, const uint8 &B) {
+inline bool operator < (FSafeByte &FSB, const uint8 &B) {
 	return (FSB.GetValue()<B);
 }
 
-FORCEINLINE bool operator >= (FSafeByte &FSB, const uint8 &B) {
+inline bool operator >= (FSafeByte &FSB, const uint8 &B) {
 	return (FSB.GetValue()>=B);
 }
 
-FORCEINLINE bool operator <= (FSafeByte &FSB, const uint8 &B) {
+inline bool operator <= (FSafeByte &FSB, const uint8 &B) {
 	return (FSB.GetValue()<=B);
 }
 
-FORCEINLINE FSafeByte operator + (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator + (FSafeByte &FSB, const uint8 &B) {
 	return FSafeByte(FSB.GetValue()+B);
 }
 
-FORCEINLINE FSafeByte operator - (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator - (FSafeByte &FSB, const uint8 &B) {
 	return FSafeByte(FSB.GetValue()-B);
 }
 
-FORCEINLINE FSafeByte operator * (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator * (FSafeByte &FSB, const uint8 &B) {
 	return FSafeByte(FSB.GetValue()*B);
 }
 
-FORCEINLINE FSafeByte operator / (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator / (FSafeByte &FSB, const uint8 &B) {
 	return FSafeByte(FSB.GetValue()/B);
 }
 
-FORCEINLINE FSafeByte operator += (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator += (FSafeByte &FSB, const uint8 &B) {
 	auto Local = FSB.GetValue();
 	return FSafeByte((Local+=B));
 }
 
-FORCEINLINE FSafeByte operator -= (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator -= (FSafeByte &FSB, const uint8 &B) {
 	auto Local = FSB.GetValue();
 	return FSafeByte((Local-=B));
 }
 
-FORCEINLINE FSafeByte operator % (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator % (FSafeByte &FSB, const uint8 &B) {
 	auto Local = FSB.GetValue();
 	return FSafeByte((Local%B));
 }
 
-FORCEINLINE FSafeByte operator & (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator & (FSafeByte &FSB, const uint8 &B) {
 	auto Local = FSB.GetValue();
 	return FSafeByte((Local&B));
 }
 
-FORCEINLINE FSafeByte operator | (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator | (FSafeByte &FSB, const uint8 &B) {
 	auto Local = FSB.GetValue();
 	return FSafeByte((Local|B));
 }
 
-FORCEINLINE FSafeByte operator ^ (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator ^ (FSafeByte &FSB, const uint8 &B) {
 	auto Local = FSB.GetValue();
 	return FSafeByte((Local^B));
 }
 
-FORCEINLINE FSafeByte operator >> (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator >> (FSafeByte &FSB, const uint8 &B) {
 	auto Local = FSB.GetValue();
 	return FSafeByte((Local>>B));
 }
 
-FORCEINLINE FSafeByte operator << (FSafeByte &FSB, const uint8 &B) {
+inline FSafeByte operator << (FSafeByte &FSB, const uint8 &B) {
 	auto Local = FSB.GetValue();
 	return FSafeByte((Local<<B));
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const uint8 &B, FSafeByte &FSB) {
+inline bool operator == (const uint8 &B, FSafeByte &FSB) {
 	return (B==FSB.GetValue());
 }
 
-FORCEINLINE bool operator != (const uint8 &B, FSafeByte &FSB) {
+inline bool operator != (const uint8 &B, FSafeByte &FSB) {
 	return (B!=FSB.GetValue());
 }
 
-FORCEINLINE bool operator > (const uint8 &B, FSafeByte &FSB) {
+inline bool operator > (const uint8 &B, FSafeByte &FSB) {
 	return (B>FSB.GetValue());
 }
 
-FORCEINLINE bool operator < (const uint8 &B, FSafeByte &FSB) {
+inline bool operator < (const uint8 &B, FSafeByte &FSB) {
 	return (B<FSB.GetValue());
 }
 
-FORCEINLINE bool operator >= (const uint8 &B, FSafeByte &FSB) {
+inline bool operator >= (const uint8 &B, FSafeByte &FSB) {
 	return (B>=FSB.GetValue());
 }
 
-FORCEINLINE bool operator <= (const uint8 &B, FSafeByte &FSB) {
+inline bool operator <= (const uint8 &B, FSafeByte &FSB) {
 	return (B<=FSB.GetValue());
 }
 
-FORCEINLINE uint8 operator + (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator + (uint8 &B, FSafeByte &FSB) {
 	return (B+FSB.GetValue());
 }
 
-FORCEINLINE uint8 operator - (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator - (uint8 &B, FSafeByte &FSB) {
 	return (B-FSB.GetValue());
 }
 
-FORCEINLINE uint8 operator * (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator * (uint8 &B, FSafeByte &FSB) {
 	return (B*FSB.GetValue());
 }
 
-FORCEINLINE uint8 operator / (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator / (uint8 &B, FSafeByte &FSB) {
 	return (B/FSB.GetValue());
 }
 
-FORCEINLINE uint8 operator += (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator += (uint8 &B, FSafeByte &FSB) {
 	auto Local = FSB.GetValue();
 	return ((B+=Local));
 }
 
-FORCEINLINE uint8 operator -= (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator -= (uint8 &B, FSafeByte &FSB) {
 	auto Local = FSB.GetValue();
 	return ((B-=Local));
 }
 
-FORCEINLINE uint8 operator % (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator % (uint8 &B, FSafeByte &FSB) {
 	auto Mod = FSB.GetValue();
 	return ((B%Mod));
 }
 
-FORCEINLINE uint8 operator & (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator & (uint8 &B, FSafeByte &FSB) {
 	auto Local = FSB.GetValue();
 	return ((B&Local));
 }
 
-FORCEINLINE uint8 operator | (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator | (uint8 &B, FSafeByte &FSB) {
 	auto Local = FSB.GetValue();
 	return ((B|Local));
 }
 
-FORCEINLINE uint8 operator ^ (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator ^ (uint8 &B, FSafeByte &FSB) {
 	auto Local = FSB.GetValue();
 	return ((B^Local));
 }
 
-FORCEINLINE uint8 operator >> (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator >> (uint8 &B, FSafeByte &FSB) {
 	auto Local = FSB.GetValue();
 	return ((B>>Local));
 }
 
-FORCEINLINE uint8 operator << (uint8 &B, FSafeByte &FSB) {
+inline uint8 operator << (uint8 &B, FSafeByte &FSB) {
 	auto Local = FSB.GetValue();
 	return ((B<<Local));
 }
@@ -2585,261 +2585,261 @@ FORCEINLINE uint8 operator << (uint8 &B, FSafeByte &FSB) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeInt &FSI, FSafeInt &I) {
+inline bool operator == (FSafeInt &FSI, FSafeInt &I) {
 	return (FSI.GetValue() == I.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeInt &FSI, FSafeInt &I) {
+inline bool operator != (FSafeInt &FSI, FSafeInt &I) {
 	return (FSI.GetValue()!=I.GetValue());
 }
 
-FORCEINLINE bool operator > (FSafeInt &FSI, FSafeInt &I) {
+inline bool operator > (FSafeInt &FSI, FSafeInt &I) {
 	return (FSI.GetValue()>I.GetValue());
 }
 
-FORCEINLINE bool operator < (FSafeInt &FSI, FSafeInt &I) {
+inline bool operator < (FSafeInt &FSI, FSafeInt &I) {
 	return (FSI.GetValue()<I.GetValue());
 }
 
-FORCEINLINE bool operator >= (FSafeInt &FSI, FSafeInt &I) {
+inline bool operator >= (FSafeInt &FSI, FSafeInt &I) {
 	return (FSI.GetValue()>=I.GetValue());
 }
 
-FORCEINLINE bool operator <= (FSafeInt &FSI, FSafeInt &I) {
+inline bool operator <= (FSafeInt &FSI, FSafeInt &I) {
 	return (FSI.GetValue()<=I.GetValue());
 }
 
-FORCEINLINE FSafeInt operator + (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator + (FSafeInt &FSI, FSafeInt &I) {
 	return FSafeInt(FSI.GetValue()+I.GetValue());
 }
 
-FORCEINLINE FSafeInt operator - (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator - (FSafeInt &FSI, FSafeInt &I) {
 	return FSafeInt(FSI.GetValue()-I.GetValue());
 }
 
-FORCEINLINE FSafeInt operator * (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator * (FSafeInt &FSI, FSafeInt &I) {
 	return FSafeInt(FSI.GetValue()*I.GetValue());
 }
 
-FORCEINLINE FSafeInt operator / (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator / (FSafeInt &FSI, FSafeInt &I) {
 	return FSafeInt(FSI.GetValue()/I.GetValue());
 }
 
-FORCEINLINE FSafeInt operator ++ (FSafeInt &FSI) {
+inline FSafeInt operator ++ (FSafeInt &FSI) {
 	auto Local = FSI.GetValue(); Local++;
 	return FSafeInt(Local);
 }
 
-FORCEINLINE FSafeInt operator -- (FSafeInt &FSI) {
+inline FSafeInt operator -- (FSafeInt &FSI) {
 	auto Local = FSI.GetValue(); Local--;
 	return FSafeInt(Local);
 }
 
-FORCEINLINE FSafeInt operator ~ (FSafeInt &FSI) {
+inline FSafeInt operator ~ (FSafeInt &FSI) {
 	auto Local = FSI.GetValue();
 	return FSafeInt(~Local);
 }
 
-FORCEINLINE FSafeInt operator += (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator += (FSafeInt &FSI, FSafeInt &I) {
 	auto Local = FSI.GetValue(); auto Plus = I.GetValue();
 	return FSafeInt((Local+=Plus));
 }
 
-FORCEINLINE FSafeInt operator -= (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator -= (FSafeInt &FSI, FSafeInt &I) {
 	auto Local = FSI.GetValue(); auto Minus = I.GetValue();
 	return FSafeInt((Local-=Minus));
 }
 
-FORCEINLINE FSafeInt operator % (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator % (FSafeInt &FSI, FSafeInt &I) {
 	auto Local = FSI.GetValue(); auto Mod = I.GetValue();
 	return FSafeInt((Local%Mod));
 }
 
-FORCEINLINE FSafeInt operator & (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator & (FSafeInt &FSI, FSafeInt &I) {
 	auto Local = FSI.GetValue(); auto An = I.GetValue();
 	return FSafeInt((Local&An));
 }
 
-FORCEINLINE FSafeInt operator | (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator | (FSafeInt &FSI, FSafeInt &I) {
 	auto Local = FSI.GetValue(); auto Orr = I.GetValue();
 	return FSafeInt((Local|Orr));
 }
 
-FORCEINLINE FSafeInt operator ^ (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator ^ (FSafeInt &FSI, FSafeInt &I) {
 	auto Local = FSI.GetValue(); auto To = I.GetValue();
 	return FSafeInt((Local^To));
 }
 
-FORCEINLINE FSafeInt operator >> (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator >> (FSafeInt &FSI, FSafeInt &I) {
 	auto Local = FSI.GetValue(); auto To = I.GetValue();
 	return FSafeInt((Local>>To));
 }
 
-FORCEINLINE FSafeInt operator << (FSafeInt &FSI, FSafeInt &I) {
+inline FSafeInt operator << (FSafeInt &FSI, FSafeInt &I) {
 	auto Local = FSI.GetValue(); auto To = I.GetValue();
 	return FSafeInt((Local<<To));
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeInt &FSI, const int32 &I) {
+inline bool operator == (FSafeInt &FSI, const int32 &I) {
 	return (FSI.GetValue()==I);
 }
 
-FORCEINLINE bool operator != (FSafeInt &FSI, const int32 &I) {
+inline bool operator != (FSafeInt &FSI, const int32 &I) {
 	return (FSI.GetValue()!=I);
 }
 
-FORCEINLINE bool operator > (FSafeInt &FSI, const int32 &I) {
+inline bool operator > (FSafeInt &FSI, const int32 &I) {
 	return (FSI.GetValue()>I);
 }
 
-FORCEINLINE bool operator < (FSafeInt &FSI, const int32 &I) {
+inline bool operator < (FSafeInt &FSI, const int32 &I) {
 	return (FSI.GetValue()<I);
 }
 
-FORCEINLINE bool operator >= (FSafeInt &FSI, const int32 &I) {
+inline bool operator >= (FSafeInt &FSI, const int32 &I) {
 	return (FSI.GetValue()>=I);
 }
 
-FORCEINLINE bool operator <= (FSafeInt &FSI, const int32 &I) {
+inline bool operator <= (FSafeInt &FSI, const int32 &I) {
 	return (FSI.GetValue()<=I);
 }
 
-FORCEINLINE FSafeInt operator + (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator + (FSafeInt &FSI, const int32 &I) {
 	return FSafeInt(FSI.GetValue()+I);
 }
 
-FORCEINLINE FSafeInt operator - (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator - (FSafeInt &FSI, const int32 &I) {
 	return FSafeInt(FSI.GetValue()-I);
 }
 
-FORCEINLINE FSafeInt operator * (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator * (FSafeInt &FSI, const int32 &I) {
 	return FSafeInt(FSI.GetValue()*I);
 }
 
-FORCEINLINE FSafeInt operator / (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator / (FSafeInt &FSI, const int32 &I) {
 	return FSafeInt(FSI.GetValue()/I);
 }
 
-FORCEINLINE FSafeInt operator += (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator += (FSafeInt &FSI, const int32 &I) {
 	auto Local = FSI.GetValue();
 	return FSafeInt((Local+=I));
 }
 
-FORCEINLINE FSafeInt operator -= (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator -= (FSafeInt &FSI, const int32 &I) {
 	auto Local = FSI.GetValue();
 	return FSafeInt((Local-=I));
 }
 
-FORCEINLINE FSafeInt operator % (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator % (FSafeInt &FSI, const int32 &I) {
 	auto Local = FSI.GetValue();
 	return FSafeInt((Local%I));
 }
 
-FORCEINLINE FSafeInt operator & (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator & (FSafeInt &FSI, const int32 &I) {
 	auto Local = FSI.GetValue();
 	return FSafeInt((Local&I));
 }
 
-FORCEINLINE FSafeInt operator | (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator | (FSafeInt &FSI, const int32 &I) {
 	auto Local = FSI.GetValue();
 	return FSafeInt((Local|I));
 }
 
-FORCEINLINE FSafeInt operator ^ (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator ^ (FSafeInt &FSI, const int32 &I) {
 	auto Local = FSI.GetValue();
 	return FSafeInt((Local^I));
 }
 
-FORCEINLINE FSafeInt operator >> (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator >> (FSafeInt &FSI, const int32 &I) {
 	auto Local = FSI.GetValue();
 	return FSafeInt((Local>>I));
 }
 
-FORCEINLINE FSafeInt operator << (FSafeInt &FSI, const int32 &I) {
+inline FSafeInt operator << (FSafeInt &FSI, const int32 &I) {
 	auto Local = FSI.GetValue();
 	return FSafeInt((Local<<I));
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const int32 &I, FSafeInt &FSI) {
+inline bool operator == (const int32 &I, FSafeInt &FSI) {
 	return (I==FSI.GetValue());
 }
 
-FORCEINLINE bool operator != (const int32 &I, FSafeInt &FSI) {
+inline bool operator != (const int32 &I, FSafeInt &FSI) {
 	return (I!=FSI.GetValue());
 }
 
-FORCEINLINE bool operator > (const int32 &I, FSafeInt &FSI) {
+inline bool operator > (const int32 &I, FSafeInt &FSI) {
 	return (I>FSI.GetValue());
 }
 
-FORCEINLINE bool operator < (const int32 &I, FSafeInt &FSI) {
+inline bool operator < (const int32 &I, FSafeInt &FSI) {
 	return (I<FSI.GetValue());
 }
 
-FORCEINLINE bool operator >= (const int32 &I, FSafeInt &FSI) {
+inline bool operator >= (const int32 &I, FSafeInt &FSI) {
 	return (I>=FSI.GetValue());
 }
 
-FORCEINLINE bool operator <= (const int32 &I, FSafeInt &FSI) {
+inline bool operator <= (const int32 &I, FSafeInt &FSI) {
 	return (I<=FSI.GetValue());
 }
 
-FORCEINLINE int32 operator + (int32 &I, FSafeInt &FSI) {
+inline int32 operator + (int32 &I, FSafeInt &FSI) {
 	return (I+FSI.GetValue());
 }
 
-FORCEINLINE int32 operator - (int32 &I, FSafeInt &FSI) {
+inline int32 operator - (int32 &I, FSafeInt &FSI) {
 	return (I-FSI.GetValue());
 }
 
-FORCEINLINE int32 operator * (int32 &I, FSafeInt &FSI) {
+inline int32 operator * (int32 &I, FSafeInt &FSI) {
 	return (I*FSI.GetValue());
 }
 
-FORCEINLINE int32 operator / (int32 &I, FSafeInt &FSI) {
+inline int32 operator / (int32 &I, FSafeInt &FSI) {
 	return (I/FSI.GetValue());
 }
 
-FORCEINLINE int32 operator += (int32 &I, FSafeInt &FSI) {
+inline int32 operator += (int32 &I, FSafeInt &FSI) {
 	auto Local = FSI.GetValue();
 	return ((I+=Local));
 }
 
-FORCEINLINE int32 operator -= (int32 &I, FSafeInt &FSI) {
+inline int32 operator -= (int32 &I, FSafeInt &FSI) {
 	auto Local = FSI.GetValue();
 	return ((I-=Local));
 }
 
-FORCEINLINE int32 operator % (int32 &I, FSafeInt &FSI) {
+inline int32 operator % (int32 &I, FSafeInt &FSI) {
 	auto Mod = FSI.GetValue();
 	return ((I%Mod));
 }
 
-FORCEINLINE int32 operator & (int32 &I, FSafeInt &FSI) {
+inline int32 operator & (int32 &I, FSafeInt &FSI) {
 	auto Local = FSI.GetValue();
 	return ((I&Local));
 }
 
-FORCEINLINE int32 operator | (int32 &I, FSafeInt &FSI) {
+inline int32 operator | (int32 &I, FSafeInt &FSI) {
 	auto Local = FSI.GetValue();
 	return ((I|Local));
 }
 
-FORCEINLINE int32 operator ^ (int32 &I, FSafeInt &FSI) {
+inline int32 operator ^ (int32 &I, FSafeInt &FSI) {
 	auto Local = FSI.GetValue();
 	return ((I^Local));
 }
 
-FORCEINLINE int32 operator >> (int32 &I, FSafeInt &FSI) {
+inline int32 operator >> (int32 &I, FSafeInt &FSI) {
 	auto Local = FSI.GetValue();
 	return ((I>>Local));
 }
 
-FORCEINLINE int32 operator << (int32 &I, FSafeInt &FSI) {
+inline int32 operator << (int32 &I, FSafeInt &FSI) {
 	auto Local = FSI.GetValue();
 	return ((I<<Local));
 }
@@ -2848,181 +2848,181 @@ FORCEINLINE int32 operator << (int32 &I, FSafeInt &FSI) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeFloat &FSF, FSafeFloat &F) {
+inline bool operator == (FSafeFloat &FSF, FSafeFloat &F) {
 	return (FSF.GetValue()==F.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeFloat &FSF, FSafeFloat &F) {
+inline bool operator != (FSafeFloat &FSF, FSafeFloat &F) {
 	return (FSF.GetValue()!=F.GetValue());
 }
 
-FORCEINLINE bool operator > (FSafeFloat &FSF, FSafeFloat &F) {
+inline bool operator > (FSafeFloat &FSF, FSafeFloat &F) {
 	return (FSF.GetValue()>F.GetValue());
 }
 
-FORCEINLINE bool operator < (FSafeFloat &FSF, FSafeFloat &F) {
+inline bool operator < (FSafeFloat &FSF, FSafeFloat &F) {
 	return (FSF.GetValue()<F.GetValue());
 }
 
-FORCEINLINE bool operator >= (FSafeFloat &FSF, FSafeFloat &F) {
+inline bool operator >= (FSafeFloat &FSF, FSafeFloat &F) {
 	return (FSF.GetValue()>=F.GetValue());
 }
 
-FORCEINLINE bool operator <= (FSafeFloat &FSF, FSafeFloat &F) {
+inline bool operator <= (FSafeFloat &FSF, FSafeFloat &F) {
 	return (FSF.GetValue()<=F.GetValue());
 }
 
-FORCEINLINE FSafeFloat operator + (FSafeFloat &FSF, FSafeFloat &F) {
+inline FSafeFloat operator + (FSafeFloat &FSF, FSafeFloat &F) {
 	return FSafeFloat(FSF.GetValue()+F.GetValue());
 }
 
-FORCEINLINE FSafeFloat operator - (FSafeFloat &FSF, FSafeFloat &F) {
+inline FSafeFloat operator - (FSafeFloat &FSF, FSafeFloat &F) {
 	return FSafeFloat(FSF.GetValue()-F.GetValue());
 }
 
-FORCEINLINE FSafeFloat operator * (FSafeFloat &FSF, FSafeFloat &F) {
+inline FSafeFloat operator * (FSafeFloat &FSF, FSafeFloat &F) {
 	return FSafeFloat(FSF.GetValue()*F.GetValue());
 }
 
-FORCEINLINE FSafeFloat operator / (FSafeFloat &FSF, FSafeFloat &F) {
+inline FSafeFloat operator / (FSafeFloat &FSF, FSafeFloat &F) {
 	return FSafeFloat(FSF.GetValue()/F.GetValue());
 }
 
-FORCEINLINE FSafeFloat operator ++ (FSafeFloat &FSF) {
+inline FSafeFloat operator ++ (FSafeFloat &FSF) {
 	auto Local = FSF.GetValue(); Local++;
 	return FSafeFloat(Local);
 }
 
-FORCEINLINE FSafeFloat operator -- (FSafeFloat &FSF) {
+inline FSafeFloat operator -- (FSafeFloat &FSF) {
 	auto Local = FSF.GetValue(); Local--;
 	return FSafeFloat(Local);
 }
 
-FORCEINLINE FSafeFloat operator += (FSafeFloat &FSF, FSafeFloat &F) {
+inline FSafeFloat operator += (FSafeFloat &FSF, FSafeFloat &F) {
 	auto Local = FSF.GetValue(); auto Plus = F.GetValue();
 	return FSafeFloat((Local+=Plus));
 }
 
-FORCEINLINE FSafeFloat operator -= (FSafeFloat &FSF, FSafeFloat &F) {
+inline FSafeFloat operator -= (FSafeFloat &FSF, FSafeFloat &F) {
 	auto Local = FSF.GetValue(); auto Minus = F.GetValue();
 	return FSafeFloat((Local-=Minus));
 }
 
-FORCEINLINE FSafeFloat operator % (FSafeFloat &FSF, FSafeFloat &F) {
+inline FSafeFloat operator % (FSafeFloat &FSF, FSafeFloat &F) {
 	auto Local = FSF.GetValue(); auto Mod = F.GetValue();
 	return FSafeFloat(FGenericPlatformMath::Fmod(Local,Mod));
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeFloat &FSF, const float &F) {
+inline bool operator == (FSafeFloat &FSF, const float &F) {
 	return (FSF.GetValue()==F);
 }
 
-FORCEINLINE bool operator != (FSafeFloat &FSF, const float &F) {
+inline bool operator != (FSafeFloat &FSF, const float &F) {
 	return (FSF.GetValue()!=F);
 }
 
-FORCEINLINE bool operator > (FSafeFloat &FSF, const float &F) {
+inline bool operator > (FSafeFloat &FSF, const float &F) {
 	return (FSF.GetValue()>F);
 }
 
-FORCEINLINE bool operator < (FSafeFloat &FSF, const float &F) {
+inline bool operator < (FSafeFloat &FSF, const float &F) {
 	return (FSF.GetValue()<F);
 }
 
-FORCEINLINE bool operator >= (FSafeFloat &FSF, const float &F) {
+inline bool operator >= (FSafeFloat &FSF, const float &F) {
 	return (FSF.GetValue()>=F);
 }
 
-FORCEINLINE bool operator <= (FSafeFloat &FSF, const float &F) {
+inline bool operator <= (FSafeFloat &FSF, const float &F) {
 	return (FSF.GetValue()<=F);
 }
 
-FORCEINLINE FSafeFloat operator + (FSafeFloat &FSF, const float &F) {
+inline FSafeFloat operator + (FSafeFloat &FSF, const float &F) {
 	return FSafeFloat(FSF.GetValue()+F);
 }
 
-FORCEINLINE FSafeFloat operator - (FSafeFloat &FSF, const float &F) {
+inline FSafeFloat operator - (FSafeFloat &FSF, const float &F) {
 	return FSafeFloat(FSF.GetValue()-F);
 }
 
-FORCEINLINE FSafeFloat operator * (FSafeFloat &FSF, const float &F) {
+inline FSafeFloat operator * (FSafeFloat &FSF, const float &F) {
 	return FSafeFloat(FSF.GetValue()*F);
 }
 
-FORCEINLINE FSafeFloat operator / (FSafeFloat &FSF, const float &F) {
+inline FSafeFloat operator / (FSafeFloat &FSF, const float &F) {
 	return FSafeFloat(FSF.GetValue()/F);
 }
 
-FORCEINLINE FSafeFloat operator += (FSafeFloat &FSF, const float &F) {
+inline FSafeFloat operator += (FSafeFloat &FSF, const float &F) {
 	auto Local = FSF.GetValue();
 	return FSafeFloat((Local+=F));
 }
 
-FORCEINLINE FSafeFloat operator -= (FSafeFloat &FSF, const float &F) {
+inline FSafeFloat operator -= (FSafeFloat &FSF, const float &F) {
 	auto Local = FSF.GetValue();
 	return FSafeFloat((Local-=F));
 }
 
-FORCEINLINE FSafeFloat operator % (FSafeFloat &FSF, const float &F) {
+inline FSafeFloat operator % (FSafeFloat &FSF, const float &F) {
 	auto Local = FSF.GetValue();
 	return FSafeFloat(FGenericPlatformMath::Fmod(Local,F));
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const float &F, FSafeFloat &FSF) {
+inline bool operator == (const float &F, FSafeFloat &FSF) {
 	return (F==FSF.GetValue());
 }
 
-FORCEINLINE bool operator != (const float &F, FSafeFloat &FSF) {
+inline bool operator != (const float &F, FSafeFloat &FSF) {
 	return (F!=FSF.GetValue());
 }
 
-FORCEINLINE bool operator > (const float &F, FSafeFloat &FSF) {
+inline bool operator > (const float &F, FSafeFloat &FSF) {
 	return (F>FSF.GetValue());
 }
 
-FORCEINLINE bool operator < (const float &F, FSafeFloat &FSF) {
+inline bool operator < (const float &F, FSafeFloat &FSF) {
 	return (F<FSF.GetValue());
 }
 
-FORCEINLINE bool operator >= (const float &F, FSafeFloat &FSF) {
+inline bool operator >= (const float &F, FSafeFloat &FSF) {
 	return (F>=FSF.GetValue());
 }
 
-FORCEINLINE bool operator <= (const float &F, FSafeFloat &FSF) {
+inline bool operator <= (const float &F, FSafeFloat &FSF) {
 	return (F<=FSF.GetValue());
 }
 
-FORCEINLINE float operator + (float &F, FSafeFloat &FSF) {
+inline float operator + (float &F, FSafeFloat &FSF) {
 	return (F+FSF.GetValue());
 }
 
-FORCEINLINE float operator - (float &F, FSafeFloat &FSF) {
+inline float operator - (float &F, FSafeFloat &FSF) {
 	return (F-FSF.GetValue());
 }
 
-FORCEINLINE float operator * (float &F, FSafeFloat &FSF) {
+inline float operator * (float &F, FSafeFloat &FSF) {
 	return (F*FSF.GetValue());
 }
 
-FORCEINLINE float operator / (float &F, FSafeFloat &FSF) {
+inline float operator / (float &F, FSafeFloat &FSF) {
 	return (F/FSF.GetValue());
 }
 
-FORCEINLINE float operator += (float &F, FSafeFloat &FSF) {
+inline float operator += (float &F, FSafeFloat &FSF) {
 	auto Local = FSF.GetValue();
 	return ((F+=Local));
 }
 
-FORCEINLINE float operator -= (float &F, FSafeFloat &FSF) {
+inline float operator -= (float &F, FSafeFloat &FSF) {
 	auto Local = FSF.GetValue();
 	return ((F-=Local));
 }
 
-FORCEINLINE float operator % (float &F, FSafeFloat &FSF) {
+inline float operator % (float &F, FSafeFloat &FSF) {
 	auto Mod = FSF.GetValue();
 	return (FGenericPlatformMath::Fmod(F,Mod));
 }
@@ -3031,79 +3031,79 @@ FORCEINLINE float operator % (float &F, FSafeFloat &FSF) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeName &FSN, FSafeName &N) {
+inline bool operator == (FSafeName &FSN, FSafeName &N) {
 	return (FSN.GetValue().IsEqual(N.GetValue(),ENameCase::CaseSensitive,true));
 }
 
-FORCEINLINE bool operator != (FSafeName &FSN, FSafeName &N) {
+inline bool operator != (FSafeName &FSN, FSafeName &N) {
 	return (!FSN.GetValue().IsEqual(N.GetValue(),ENameCase::CaseSensitive,true));
 }
 
-FORCEINLINE bool operator > (FSafeName &FSN, FSafeName &N) {
+inline bool operator > (FSafeName &FSN, FSafeName &N) {
 	return (FSN.GetValue()>N.GetValue());
 }
 
-FORCEINLINE bool operator < (FSafeName &FSN, FSafeName &N) {
+inline bool operator < (FSafeName &FSN, FSafeName &N) {
 	return (FSN.GetValue()<N.GetValue());
 }
 
-FORCEINLINE FSafeName operator + (FSafeName &FSN, FSafeName &N) {
+inline FSafeName operator + (FSafeName &FSN, FSafeName &N) {
 	return FSafeName(*(FSN.GetValue().ToString().Append(N.GetValue().ToString())));
 }
 
-FORCEINLINE FSafeName operator += (FSafeName &FSN, FSafeName &N) {
+inline FSafeName operator += (FSafeName &FSN, FSafeName &N) {
 	*&FSN = FSafeName(*(FSN.GetValue().ToString().Append(N.GetValue().ToString()))); return *&FSN;
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeName &FSN, FName &N) {
+inline bool operator == (FSafeName &FSN, FName &N) {
 	return (FSN.GetValue().IsEqual(N,ENameCase::CaseSensitive,true));
 }
 
-FORCEINLINE bool operator != (FSafeName &FSN, FName &N) {
+inline bool operator != (FSafeName &FSN, FName &N) {
 	return (!FSN.GetValue().IsEqual(N,ENameCase::CaseSensitive,true));
 }
 
-FORCEINLINE bool operator > (FSafeName &FSN, FName &N) {
+inline bool operator > (FSafeName &FSN, FName &N) {
 	return (FSN.GetValue()>N);
 }
 
-FORCEINLINE bool operator < (FSafeName &FSN, FName &N) {
+inline bool operator < (FSafeName &FSN, FName &N) {
 	return (FSN.GetValue()<N);
 }
 
-FORCEINLINE FSafeName operator + (FSafeName &FSN, FName &N) {
+inline FSafeName operator + (FSafeName &FSN, FName &N) {
 	return FSafeName(*(FSN.GetValue().ToString().Append(N.ToString())));
 }
 
-FORCEINLINE FSafeName operator += (FSafeName &FSN, FName &N) {
+inline FSafeName operator += (FSafeName &FSN, FName &N) {
 	*&FSN = FSafeName(*(FSN.GetValue().ToString().Append(N.ToString()))); return *&FSN;
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (FName &N, FSafeName &FSN) {
+inline bool operator == (FName &N, FSafeName &FSN) {
 	return (N.IsEqual(FSN.GetValue(),ENameCase::CaseSensitive,true));
 }
 
-FORCEINLINE bool operator != (FName &N, FSafeName &FSN) {
+inline bool operator != (FName &N, FSafeName &FSN) {
 	return (!N.IsEqual(FSN.GetValue(),ENameCase::CaseSensitive,true));
 }
 
-FORCEINLINE bool operator > (FName &N, FSafeName &FSN) {
+inline bool operator > (FName &N, FSafeName &FSN) {
 	return (N>FSN.GetValue());
 }
 
-FORCEINLINE bool operator < (FName &N, FSafeName &FSN) {
+inline bool operator < (FName &N, FSafeName &FSN) {
 	return (N<FSN.GetValue());
 }
 
-FORCEINLINE FName operator + (FName &N, FSafeName &FSN) {
+inline FName operator + (FName &N, FSafeName &FSN) {
 	return FName(*(N.ToString().Append(FSN.GetValue().ToString())));
 }
 
-FORCEINLINE FName operator += (FName &N, FSafeName &FSN) {
+inline FName operator += (FName &N, FSafeName &FSN) {
 	*&N = FName(*(N.ToString().Append(FSN.GetValue().ToString()))); return *&N;
 }
 
@@ -3111,79 +3111,79 @@ FORCEINLINE FName operator += (FName &N, FSafeName &FSN) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeText &FST, FSafeText &T) {
+inline bool operator == (FSafeText &FST, FSafeText &T) {
 	return (FST.GetValue().EqualTo(T.GetValue()));
 }
 
-FORCEINLINE bool operator != (FSafeText &FST, FSafeText &T) {
+inline bool operator != (FSafeText &FST, FSafeText &T) {
 	return (!FST.GetValue().EqualTo(T.GetValue()));
 }
 
-FORCEINLINE bool operator > (FSafeText &FST, FSafeText &T) {
+inline bool operator > (FSafeText &FST, FSafeText &T) {
 	return (FST.GetValue().ToString()>T.GetValue().ToString());
 }
 
-FORCEINLINE bool operator < (FSafeText &FST, FSafeText &T) {
+inline bool operator < (FSafeText &FST, FSafeText &T) {
 	return (FST.GetValue().ToString()<T.GetValue().ToString());
 }
 
-FORCEINLINE FSafeText operator + (FSafeText &FST, FSafeText &T) {
+inline FSafeText operator + (FSafeText &FST, FSafeText &T) {
 	return FSafeText(FText::Format(FST.GetValue(),T.GetValue()));
 }
 
-FORCEINLINE FSafeText operator += (FSafeText &FST, FSafeText &T) {
+inline FSafeText operator += (FSafeText &FST, FSafeText &T) {
 	*&FST = FSafeText(FText::Format(FST.GetValue(),T.GetValue())); return *&FST;
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeText &FST, FText &T) {
+inline bool operator == (FSafeText &FST, FText &T) {
 	return (FST.GetValue().EqualTo(T));
 }
 
-FORCEINLINE bool operator != (FSafeText &FST, FText &T) {
+inline bool operator != (FSafeText &FST, FText &T) {
 	return (!FST.GetValue().EqualTo(T));
 }
 
-FORCEINLINE bool operator > (FSafeText &FST, FText &T) {
+inline bool operator > (FSafeText &FST, FText &T) {
 	return (FST.GetValue().ToString()>T.ToString());
 }
 
-FORCEINLINE bool operator < (FSafeText &FST, FText &T) {
+inline bool operator < (FSafeText &FST, FText &T) {
 	return (FST.GetValue().ToString()<T.ToString());
 }
 
-FORCEINLINE FSafeText operator + (FSafeText &FST, FText &T) {
+inline FSafeText operator + (FSafeText &FST, FText &T) {
 	return FSafeText(FText::Format(FST.GetValue(),T));
 }
 
-FORCEINLINE FSafeText operator += (FSafeText &FST, FText &T) {
+inline FSafeText operator += (FSafeText &FST, FText &T) {
 	*&FST = FSafeText(FText::Format(FST.GetValue(),T)); return *&FST;
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (FText &T, FSafeText &FST) {
+inline bool operator == (FText &T, FSafeText &FST) {
 	return (T.EqualTo(FST.GetValue()));
 }
 
-FORCEINLINE bool operator != (FText &T, FSafeText &FST) {
+inline bool operator != (FText &T, FSafeText &FST) {
 	return (!T.EqualTo(FST.GetValue()));
 }
 
-FORCEINLINE bool operator > (FText &T, FSafeText &FST) {
+inline bool operator > (FText &T, FSafeText &FST) {
 	return (T.ToString()>FST.GetValue().ToString());
 }
 
-FORCEINLINE bool operator < (FText &T, FSafeText &FST) {
+inline bool operator < (FText &T, FSafeText &FST) {
 	return (T.ToString()<FST.GetValue().ToString());
 }
 
-FORCEINLINE FText operator + (FText &T, FSafeText &FST) {
+inline FText operator + (FText &T, FSafeText &FST) {
 	return FText::Format(T,FST.GetValue());
 }
 
-FORCEINLINE FText operator += (FText &T, FSafeText &FST) {
+inline FText operator += (FText &T, FSafeText &FST) {
 	*&T = FText::Format(T,FST.GetValue()); return *&T;
 }
 
@@ -3191,79 +3191,79 @@ FORCEINLINE FText operator += (FText &T, FSafeText &FST) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeString &FSS, FSafeString &S) {
+inline bool operator == (FSafeString &FSS, FSafeString &S) {
 	return (FSS.GetValue().Equals(S.GetValue(),ESearchCase::CaseSensitive));
 }
 
-FORCEINLINE bool operator != (FSafeString &FSS, FSafeString &S) {
+inline bool operator != (FSafeString &FSS, FSafeString &S) {
 	return (!FSS.GetValue().Equals(S.GetValue(),ESearchCase::CaseSensitive));
 }
 
-FORCEINLINE bool operator > (FSafeString &FSS, FSafeString &S) {
+inline bool operator > (FSafeString &FSS, FSafeString &S) {
 	return (FSS.GetValue()>S.GetValue());
 }
 
-FORCEINLINE bool operator < (FSafeString &FSS, FSafeString &S) {
+inline bool operator < (FSafeString &FSS, FSafeString &S) {
 	return (FSS.GetValue()<S.GetValue());
 }
 
-FORCEINLINE FSafeString operator + (FSafeString &FSS, FSafeString &S) {
+inline FSafeString operator + (FSafeString &FSS, FSafeString &S) {
 	return FSafeString(*(FSS.GetValue().Append(S.GetValue()))); return *&FSS;
 }
 
-FORCEINLINE FSafeString operator += (FSafeString &FSS, FSafeString &S) {
+inline FSafeString operator += (FSafeString &FSS, FSafeString &S) {
 	*&FSS = FSafeString(*(FSS.GetValue().Append(S.GetValue()))); return *&FSS;
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeString &FSS, FString &S) {
+inline bool operator == (FSafeString &FSS, FString &S) {
 	return (FSS.GetValue().Equals(S,ESearchCase::CaseSensitive));
 }
 
-FORCEINLINE bool operator != (FSafeString &FSS, FString &S) {
+inline bool operator != (FSafeString &FSS, FString &S) {
 	return (!FSS.GetValue().Equals(S,ESearchCase::CaseSensitive));
 }
 
-FORCEINLINE bool operator > (FSafeString &FSS, FString &S) {
+inline bool operator > (FSafeString &FSS, FString &S) {
 	return (FSS.GetValue()>S);
 }
 
-FORCEINLINE bool operator < (FSafeString &FSS, FString &S) {
+inline bool operator < (FSafeString &FSS, FString &S) {
 	return (FSS.GetValue()<S);
 }
 
-FORCEINLINE FSafeString operator + (FSafeString &FSS, FString &S) {
+inline FSafeString operator + (FSafeString &FSS, FString &S) {
 	return FSafeString(*(FSS.GetValue().Append(S)));
 }
 
-FORCEINLINE FSafeString operator += (FSafeString &FSS, FString &S) {
+inline FSafeString operator += (FSafeString &FSS, FString &S) {
 	*&FSS = FSafeString(*(FSS.GetValue().Append(S))); return *&FSS;
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (FString &S, FSafeString &FSS) {
+inline bool operator == (FString &S, FSafeString &FSS) {
 	return (S.Equals(FSS.GetValue(),ESearchCase::CaseSensitive));
 }
 
-FORCEINLINE bool operator != (FString &S, FSafeString &FSS) {
+inline bool operator != (FString &S, FSafeString &FSS) {
 	return (!S.Equals(FSS.GetValue(),ESearchCase::CaseSensitive));
 }
 
-FORCEINLINE bool operator > (FString &S, FSafeString &FSS) {
+inline bool operator > (FString &S, FSafeString &FSS) {
 	return (S>FSS.GetValue());
 }
 
-FORCEINLINE bool operator < (FString &S, FSafeString &FSS) {
+inline bool operator < (FString &S, FSafeString &FSS) {
 	return (S<FSS.GetValue());
 }
 
-FORCEINLINE FString operator + (FString &S, FSafeString &FSS) {
+inline FString operator + (FString &S, FSafeString &FSS) {
 	return FString(*(S.Append(FSS.GetValue())));
 }
 
-FORCEINLINE FString operator += (FString &S, FSafeString &FSS) {
+inline FString operator += (FString &S, FSafeString &FSS) {
 	*&S = FString(*(S.Append(FSS.GetValue()))); return *&S;
 }
 
@@ -3271,67 +3271,67 @@ FORCEINLINE FString operator += (FString &S, FSafeString &FSS) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline bool operator == (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return (FSV.GetValue()==V.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline bool operator != (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return (FSV.GetValue()!=V.GetValue());
 }
 
-FORCEINLINE bool operator > (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline bool operator > (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return (FSV.GetValue()>V.GetValue());
 }
 
-FORCEINLINE bool operator < (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline bool operator < (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return (FSV.GetValue()<V.GetValue());
 }
 
-FORCEINLINE bool operator >= (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline bool operator >= (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return (FSV.GetValue()>=V.GetValue());
 }
 
-FORCEINLINE bool operator <= (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline bool operator <= (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return (FSV.GetValue()<=V.GetValue());
 }
 
-FORCEINLINE FSafeVector2D operator + (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline FSafeVector2D operator + (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return FSafeVector2D(FSV.GetValue()+V.GetValue());
 }
 
-FORCEINLINE FSafeVector2D operator - (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline FSafeVector2D operator - (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return FSafeVector2D(FSV.GetValue()-V.GetValue());
 }
 
-FORCEINLINE FSafeVector2D operator * (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline FSafeVector2D operator * (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return FSafeVector2D(FSV.GetValue()*V.GetValue());
 }
 
-FORCEINLINE FSafeVector2D operator / (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline FSafeVector2D operator / (FSafeVector2D &FSV, FSafeVector2D &V) {
 	return FSafeVector2D(FSV.GetValue()/V.GetValue());
 }
 
-FORCEINLINE FSafeVector2D operator ++ (FSafeVector2D &FSV) {
+inline FSafeVector2D operator ++ (FSafeVector2D &FSV) {
 	auto Local = FSV.GetValue();
 	*&FSV = FSafeVector2D(Local.X+1,Local.Y+1); return *&FSV;
 }
 
-FORCEINLINE FSafeVector2D operator -- (FSafeVector2D &FSV) {
+inline FSafeVector2D operator -- (FSafeVector2D &FSV) {
 	auto Local = FSV.GetValue();
 	*&FSV = FSafeVector2D(Local.X-1,Local.Y-1); return *&FSV;
 }
 
-FORCEINLINE FSafeVector2D operator += (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline FSafeVector2D operator += (FSafeVector2D &FSV, FSafeVector2D &V) {
 	auto Local = FSV.GetValue(); auto Plus = V.GetValue();
 	return FSafeVector2D((Local+=Plus));
 }
 
-FORCEINLINE FSafeVector2D operator -= (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline FSafeVector2D operator -= (FSafeVector2D &FSV, FSafeVector2D &V) {
 	auto Local = FSV.GetValue(); auto Minus = V.GetValue();
 	return FSafeVector2D((Local-=Minus));
 }
 
-FORCEINLINE FSafeVector2D operator % (FSafeVector2D &FSV, FSafeVector2D &V) {
+inline FSafeVector2D operator % (FSafeVector2D &FSV, FSafeVector2D &V) {
 	auto Local = FSV.GetValue(); auto Mod = V.GetValue();
 	auto X = Local.X; auto Y = Local.Y; auto MX = Mod.X; auto MY = Mod.Y; 
 	return FSafeVector2D(FVector2D(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY)));
@@ -3339,57 +3339,57 @@ FORCEINLINE FSafeVector2D operator % (FSafeVector2D &FSV, FSafeVector2D &V) {
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeVector2D &FSV, const FVector2D &V) {
+inline bool operator == (FSafeVector2D &FSV, const FVector2D &V) {
 	return (FSV.GetValue()==V);
 }
 
-FORCEINLINE bool operator != (FSafeVector2D &FSV, const FVector2D &V) {
+inline bool operator != (FSafeVector2D &FSV, const FVector2D &V) {
 	return (FSV.GetValue()!=V);
 }
 
-FORCEINLINE bool operator > (FSafeVector2D &FSV, const FVector2D &V) {
+inline bool operator > (FSafeVector2D &FSV, const FVector2D &V) {
 	return (FSV.GetValue()>V);
 }
 
-FORCEINLINE bool operator < (FSafeVector2D &FSV, const FVector2D &V) {
+inline bool operator < (FSafeVector2D &FSV, const FVector2D &V) {
 	return (FSV.GetValue()<V);
 }
 
-FORCEINLINE bool operator >= (FSafeVector2D &FSV, const FVector2D &V) {
+inline bool operator >= (FSafeVector2D &FSV, const FVector2D &V) {
 	return (FSV.GetValue()>=V);
 }
 
-FORCEINLINE bool operator <= (FSafeVector2D &FSV, const FVector2D &V) {
+inline bool operator <= (FSafeVector2D &FSV, const FVector2D &V) {
 	return (FSV.GetValue()<=V);
 }
 
-FORCEINLINE FSafeVector2D operator + (FSafeVector2D &FSV, const FVector2D &V) {
+inline FSafeVector2D operator + (FSafeVector2D &FSV, const FVector2D &V) {
 	return FSafeVector2D(FSV.GetValue()+V);
 }
 
-FORCEINLINE FSafeVector2D operator - (FSafeVector2D &FSV, const FVector2D &V) {
+inline FSafeVector2D operator - (FSafeVector2D &FSV, const FVector2D &V) {
 	return FSafeVector2D(FSV.GetValue()-V);
 }
 
-FORCEINLINE FSafeVector2D operator * (FSafeVector2D &FSV, const FVector2D &V) {
+inline FSafeVector2D operator * (FSafeVector2D &FSV, const FVector2D &V) {
 	return FSafeVector2D(FSV.GetValue()*V);
 }
 
-FORCEINLINE FSafeVector2D operator / (FSafeVector2D &FSV, const FVector2D &V) {
+inline FSafeVector2D operator / (FSafeVector2D &FSV, const FVector2D &V) {
 	return FSafeVector2D(FSV.GetValue()/V);
 }
 
-FORCEINLINE FSafeVector2D operator += (FSafeVector2D &FSV, const FVector2D &V) {
+inline FSafeVector2D operator += (FSafeVector2D &FSV, const FVector2D &V) {
 	auto Local = FSV.GetValue();
 	return FSafeVector2D((Local+=V));
 }
 
-FORCEINLINE FSafeVector2D operator -= (FSafeVector2D &FSV, const FVector2D &V) {
+inline FSafeVector2D operator -= (FSafeVector2D &FSV, const FVector2D &V) {
 	auto Local = FSV.GetValue();
 	return FSafeVector2D((Local-=V));
 }
 
-FORCEINLINE FSafeVector2D operator % (FSafeVector2D &FSV, const FVector2D &V) {
+inline FSafeVector2D operator % (FSafeVector2D &FSV, const FVector2D &V) {
 	auto Local = FSV.GetValue();
 	auto X = Local.X; auto Y = Local.Y;
 	auto MX = V.X; auto MY = V.Y; 
@@ -3398,57 +3398,57 @@ FORCEINLINE FSafeVector2D operator % (FSafeVector2D &FSV, const FVector2D &V) {
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const FVector2D &V, FSafeVector2D &FSV) {
+inline bool operator == (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V==FSV.GetValue());
 }
 
-FORCEINLINE bool operator != (const FVector2D &V, FSafeVector2D &FSV) {
+inline bool operator != (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V!=FSV.GetValue());
 }
 
-FORCEINLINE bool operator > (const FVector2D &V, FSafeVector2D &FSV) {
+inline bool operator > (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V>FSV.GetValue());
 }
 
-FORCEINLINE bool operator < (const FVector2D &V, FSafeVector2D &FSV) {
+inline bool operator < (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V<FSV.GetValue());
 }
 
-FORCEINLINE bool operator >= (const FVector2D &V, FSafeVector2D &FSV) {
+inline bool operator >= (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V>=FSV.GetValue());
 }
 
-FORCEINLINE bool operator <= (const FVector2D &V, FSafeVector2D &FSV) {
+inline bool operator <= (const FVector2D &V, FSafeVector2D &FSV) {
 	return (FSV.GetValue()<=V);
 }
 
-FORCEINLINE FVector2D operator + (const FVector2D &V, FSafeVector2D &FSV) {
+inline FVector2D operator + (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V+FSV.GetValue());
 }
 
-FORCEINLINE FVector2D operator - (const FVector2D &V, FSafeVector2D &FSV) {
+inline FVector2D operator - (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V-FSV.GetValue());
 }
 
-FORCEINLINE FVector2D operator * (const FVector2D &V, FSafeVector2D &FSV) {
+inline FVector2D operator * (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V*FSV.GetValue());
 }
 
-FORCEINLINE FVector2D operator / (const FVector2D &V, FSafeVector2D &FSV) {
+inline FVector2D operator / (const FVector2D &V, FSafeVector2D &FSV) {
 	return (V/FSV.GetValue());
 }
 
-FORCEINLINE FVector2D operator += (FVector2D &V, FSafeVector2D &FSV) {
+inline FVector2D operator += (FVector2D &V, FSafeVector2D &FSV) {
 	auto Local = FSV.GetValue();
 	return (V+=Local);
 }
 
-FORCEINLINE FVector2D operator -= (FVector2D &V, FSafeVector2D &FSV) {
+inline FVector2D operator -= (FVector2D &V, FSafeVector2D &FSV) {
 	auto Local = FSV.GetValue();
 	return (V-=Local);
 }
 
-FORCEINLINE FVector2D operator % (const FVector2D &V, FSafeVector2D &FSV) {
+inline FVector2D operator % (const FVector2D &V, FSafeVector2D &FSV) {
 	auto Local = FSV.GetValue();
 	auto X = V.X; auto Y = V.Y; 
 	auto MX = Local.X; auto MY = Local.Y;
@@ -3459,67 +3459,67 @@ FORCEINLINE FVector2D operator % (const FVector2D &V, FSafeVector2D &FSV) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline bool operator == (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return (FSV.GetValue()==V.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline bool operator != (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return (FSV.GetValue()!=V.GetValue());
 }
 
-FORCEINLINE bool operator > (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline bool operator > (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return ((FSV.GetValue().X>V.GetValue().X)&&(FSV.GetValue().Y>V.GetValue().Y)&&(FSV.GetValue().Z>V.GetValue().Z));
 }
 
-FORCEINLINE bool operator < (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline bool operator < (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return ((FSV.GetValue().X<V.GetValue().X)&&(FSV.GetValue().Y<V.GetValue().Y)&&(FSV.GetValue().Z<V.GetValue().Z));
 }
 
-FORCEINLINE bool operator >= (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline bool operator >= (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return ((FSV.GetValue().X>=V.GetValue().X)&&(FSV.GetValue().Y>=V.GetValue().Y)&&(FSV.GetValue().Z>=V.GetValue().Z));
 }
 
-FORCEINLINE bool operator <= (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline bool operator <= (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return ((FSV.GetValue().X<=V.GetValue().X)&&(FSV.GetValue().Y<=V.GetValue().Y)&&(FSV.GetValue().Z<=V.GetValue().Z));
 }
 
-FORCEINLINE FSafeVector3D operator + (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline FSafeVector3D operator + (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return FSafeVector3D(FSV.GetValue()+V.GetValue());
 }
 
-FORCEINLINE FSafeVector3D operator - (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline FSafeVector3D operator - (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return FSafeVector3D(FSV.GetValue()-V.GetValue());
 }
 
-FORCEINLINE FSafeVector3D operator * (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline FSafeVector3D operator * (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return FSafeVector3D(FSV.GetValue()*V.GetValue());
 }
 
-FORCEINLINE FSafeVector3D operator / (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline FSafeVector3D operator / (FSafeVector3D &FSV, FSafeVector3D &V) {
 	return FSafeVector3D(FSV.GetValue()/V.GetValue());
 }
 
-FORCEINLINE FSafeVector3D operator ++ (FSafeVector3D &FSV) {
+inline FSafeVector3D operator ++ (FSafeVector3D &FSV) {
 	auto Local = FSV.GetValue();
 	*&FSV = FSafeVector3D(Local.X+1,Local.Y+1,Local.Z+1); return *&FSV;
 }
 
-FORCEINLINE FSafeVector3D operator -- (FSafeVector3D &FSV) {
+inline FSafeVector3D operator -- (FSafeVector3D &FSV) {
 	auto Local = FSV.GetValue();
 	*&FSV = FSafeVector3D(Local.X-1,Local.Y-1,Local.Z-1); return *&FSV;
 }
 
-FORCEINLINE FSafeVector3D operator += (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline FSafeVector3D operator += (FSafeVector3D &FSV, FSafeVector3D &V) {
 	auto Local = FSV.GetValue(); auto Plus = V.GetValue();
 	return FSafeVector3D((Local+=Plus));
 }
 
-FORCEINLINE FSafeVector3D operator -= (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline FSafeVector3D operator -= (FSafeVector3D &FSV, FSafeVector3D &V) {
 	auto Local = FSV.GetValue(); auto Minus = V.GetValue();
 	return FSafeVector3D((Local-=Minus));
 }
 
-FORCEINLINE FSafeVector3D operator % (FSafeVector3D &FSV, FSafeVector3D &V) {
+inline FSafeVector3D operator % (FSafeVector3D &FSV, FSafeVector3D &V) {
 	auto Local = FSV.GetValue(); auto Mod = V.GetValue();
 	auto X = Local.X; auto Y = Local.Y; auto Z = Local.Z;
 	auto MX = Mod.X; auto MY = Mod.Y;  auto MZ = Mod.Z;
@@ -3528,57 +3528,57 @@ FORCEINLINE FSafeVector3D operator % (FSafeVector3D &FSV, FSafeVector3D &V) {
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeVector3D &FSV, const FVector &V) {
+inline bool operator == (FSafeVector3D &FSV, const FVector &V) {
 	return (FSV.GetValue()==V);
 }
 
-FORCEINLINE bool operator != (FSafeVector3D &FSV, const FVector &V) {
+inline bool operator != (FSafeVector3D &FSV, const FVector &V) {
 	return (FSV.GetValue()!=V);
 }
 
-FORCEINLINE bool operator > (FSafeVector3D &FSV, const FVector &V) {
+inline bool operator > (FSafeVector3D &FSV, const FVector &V) {
 	return ((FSV.GetValue().X>V.X)&&(FSV.GetValue().Y>V.Y)&&(FSV.GetValue().Z>V.Z));
 }
 
-FORCEINLINE bool operator < (FSafeVector3D &FSV, const FVector &V) {
+inline bool operator < (FSafeVector3D &FSV, const FVector &V) {
 	return ((FSV.GetValue().X<V.X)&&(FSV.GetValue().Y<V.Y)&&(FSV.GetValue().Z<V.Z));
 }
 
-FORCEINLINE bool operator >= (FSafeVector3D &FSV, const FVector &V) {
+inline bool operator >= (FSafeVector3D &FSV, const FVector &V) {
 	return ((FSV.GetValue().X>=V.X)&&(FSV.GetValue().Y>=V.Y)&&(FSV.GetValue().Z>=V.Z));
 }
 
-FORCEINLINE bool operator <= (FSafeVector3D &FSV, const FVector &V) {
+inline bool operator <= (FSafeVector3D &FSV, const FVector &V) {
 	return ((FSV.GetValue().X<=V.X)&&(FSV.GetValue().Y<=V.Y)&&(FSV.GetValue().Z<=V.Z));
 }
 
-FORCEINLINE FSafeVector3D operator + (FSafeVector3D &FSV, const FVector &V) {
+inline FSafeVector3D operator + (FSafeVector3D &FSV, const FVector &V) {
 	return FSafeVector3D(FSV.GetValue()+V);
 }
 
-FORCEINLINE FSafeVector3D operator - (FSafeVector3D &FSV, const FVector &V) {
+inline FSafeVector3D operator - (FSafeVector3D &FSV, const FVector &V) {
 	return FSafeVector3D(FSV.GetValue()-V);
 }
 
-FORCEINLINE FSafeVector3D operator * (FSafeVector3D &FSV, const FVector &V) {
+inline FSafeVector3D operator * (FSafeVector3D &FSV, const FVector &V) {
 	return FSafeVector3D(FSV.GetValue()*V);
 }
 
-FORCEINLINE FSafeVector3D operator / (FSafeVector3D &FSV, const FVector &V) {
+inline FSafeVector3D operator / (FSafeVector3D &FSV, const FVector &V) {
 	return FSafeVector3D(FSV.GetValue()/V);
 }
 
-FORCEINLINE FSafeVector3D operator += (FSafeVector3D &FSV, const FVector &V) {
+inline FSafeVector3D operator += (FSafeVector3D &FSV, const FVector &V) {
 	auto Local = FSV.GetValue();
 	return FSafeVector3D((Local+=V));
 }
 
-FORCEINLINE FSafeVector3D operator -= (FSafeVector3D &FSV, const FVector &V) {
+inline FSafeVector3D operator -= (FSafeVector3D &FSV, const FVector &V) {
 	auto Local = FSV.GetValue();
 	return FSafeVector3D((Local-=V));
 }
 
-FORCEINLINE FSafeVector3D operator % (FSafeVector3D &FSV, const FVector &V) {
+inline FSafeVector3D operator % (FSafeVector3D &FSV, const FVector &V) {
 	auto Local = FSV.GetValue();
 	auto X = Local.X; auto Y = Local.Y; auto Z = Local.Z;
 	auto MX = V.X; auto MY = V.Y; auto MZ = V.Z;
@@ -3587,57 +3587,57 @@ FORCEINLINE FSafeVector3D operator % (FSafeVector3D &FSV, const FVector &V) {
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const FVector &V, FSafeVector3D &FSV) {
+inline bool operator == (const FVector &V, FSafeVector3D &FSV) {
 	return (V==FSV.GetValue());
 }
 
-FORCEINLINE bool operator != (const FVector &V, FSafeVector3D &FSV) {
+inline bool operator != (const FVector &V, FSafeVector3D &FSV) {
 	return (V!=FSV.GetValue());
 }
 
-FORCEINLINE bool operator > (const FVector &V, FSafeVector3D &FSV) {
+inline bool operator > (const FVector &V, FSafeVector3D &FSV) {
 	return ((V.X>FSV.GetValue().X)&&(V.Y>FSV.GetValue().Y)&&(V.Z>FSV.GetValue().Z));
 }
 
-FORCEINLINE bool operator < (const FVector &V, FSafeVector3D &FSV) {
+inline bool operator < (const FVector &V, FSafeVector3D &FSV) {
 	return ((V.X<FSV.GetValue().X)&&(V.Y<FSV.GetValue().Y)&&(V.Z<FSV.GetValue().Z));
 }
 
-FORCEINLINE bool operator >= (const FVector &V, FSafeVector3D &FSV) {
+inline bool operator >= (const FVector &V, FSafeVector3D &FSV) {
 	return ((V.X>=FSV.GetValue().X)&&(V.Y>=FSV.GetValue().Y)&&(V.Z>=FSV.GetValue().Z));
 }
 
-FORCEINLINE bool operator <= (const FVector &V, FSafeVector3D &FSV) {
+inline bool operator <= (const FVector &V, FSafeVector3D &FSV) {
 	return ((V.X<=FSV.GetValue().X)&&(V.Y<=FSV.GetValue().Y)&&(V.Z<=FSV.GetValue().Z));
 }
 
-FORCEINLINE FVector operator + (const FVector &V, FSafeVector3D &FSV) {
+inline FVector operator + (const FVector &V, FSafeVector3D &FSV) {
 	return (V+FSV.GetValue());
 }
 
-FORCEINLINE FVector operator - (const FVector &V, FSafeVector3D &FSV) {
+inline FVector operator - (const FVector &V, FSafeVector3D &FSV) {
 	return (V-FSV.GetValue());
 }
 
-FORCEINLINE FVector operator * (const FVector &V, FSafeVector3D &FSV) {
+inline FVector operator * (const FVector &V, FSafeVector3D &FSV) {
 	return (V*FSV.GetValue());
 }
 
-FORCEINLINE FVector operator / (const FVector &V, FSafeVector3D &FSV) {
+inline FVector operator / (const FVector &V, FSafeVector3D &FSV) {
 	return (V/FSV.GetValue());
 }
 
-FORCEINLINE FVector operator += (FVector &V, FSafeVector3D &FSV) {
+inline FVector operator += (FVector &V, FSafeVector3D &FSV) {
 	auto Local = FSV.GetValue();
 	return (V+=Local);
 }
 
-FORCEINLINE FVector operator -= (FVector &V, FSafeVector3D &FSV) {
+inline FVector operator -= (FVector &V, FSafeVector3D &FSV) {
 	auto Local = FSV.GetValue();
 	return (V-=Local);
 }
 
-FORCEINLINE FVector operator % (const FVector &V, FSafeVector3D &FSV) {
+inline FVector operator % (const FVector &V, FSafeVector3D &FSV) {
 	auto Local = FSV.GetValue();
 	auto X = V.X; auto Y = V.Y; auto Z = V.Z;
 	auto MX = Local.X; auto MY = Local.Y; auto MZ = Local.Z;
@@ -3648,72 +3648,72 @@ FORCEINLINE FVector operator % (const FVector &V, FSafeVector3D &FSV) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline bool operator == (FSafeVector4D &FSV, FSafeVector4D &V) {
 	return (FSV.GetValue()==V.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline bool operator != (FSafeVector4D &FSV, FSafeVector4D &V) {
 	return (FSV.GetValue()!=V.GetValue());
 }
 
-FORCEINLINE bool operator > (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline bool operator > (FSafeVector4D &FSV, FSafeVector4D &V) {
 	return ((FSV.GetValue().X>V.GetValue().X)&&(FSV.GetValue().Y>V.GetValue().Y)&&(FSV.GetValue().Z>V.GetValue().Z)&&(FSV.GetValue().W>V.GetValue().W));
 }
 
-FORCEINLINE bool operator < (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline bool operator < (FSafeVector4D &FSV, FSafeVector4D &V) {
 	return ((FSV.GetValue().X<V.GetValue().X)&&(FSV.GetValue().Y<V.GetValue().Y)&&(FSV.GetValue().Z<V.GetValue().Z)&&(FSV.GetValue().W<V.GetValue().W));
 }
 
-FORCEINLINE bool operator >= (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline bool operator >= (FSafeVector4D &FSV, FSafeVector4D &V) {
 	return ((FSV.GetValue().X>=V.GetValue().X)&&(FSV.GetValue().Y>=V.GetValue().Y)&&(FSV.GetValue().Z>=V.GetValue().Z)&&(FSV.GetValue().W>=V.GetValue().W));
 }
 
-FORCEINLINE bool operator <= (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline bool operator <= (FSafeVector4D &FSV, FSafeVector4D &V) {
 	return ((FSV.GetValue().X<=V.GetValue().X)&&(FSV.GetValue().Y<=V.GetValue().Y)&&(FSV.GetValue().Z<=V.GetValue().Z)&&(FSV.GetValue().W<=V.GetValue().W));
 }
 
-FORCEINLINE FSafeVector4D operator + (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline FSafeVector4D operator + (FSafeVector4D &FSV, FSafeVector4D &V) {
 	auto Local = (FSV.GetValue()+V.GetValue());
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator - (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline FSafeVector4D operator - (FSafeVector4D &FSV, FSafeVector4D &V) {
 	auto Local = (FSV.GetValue()-V.GetValue());
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator * (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline FSafeVector4D operator * (FSafeVector4D &FSV, FSafeVector4D &V) {
 	auto Local = (FSV.GetValue()*V.GetValue());
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator / (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline FSafeVector4D operator / (FSafeVector4D &FSV, FSafeVector4D &V) {
 	auto Local = (FSV.GetValue()/V.GetValue());
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator ++ (FSafeVector4D &FSV) {
+inline FSafeVector4D operator ++ (FSafeVector4D &FSV) {
 	auto Local = FSV.GetValue();
 	*&FSV = FSafeVector4D(Local.X+1,Local.Y+1,Local.Z+1,Local.W+1); return *&FSV;
 }
 
-FORCEINLINE FSafeVector4D operator -- (FSafeVector4D &FSV) {
+inline FSafeVector4D operator -- (FSafeVector4D &FSV) {
 	auto Local = FSV.GetValue();
 	*&FSV = FSafeVector4D(Local.X-1,Local.Y-1,Local.Z-1,Local.W-1); return *&FSV;
 }
 
-FORCEINLINE FSafeVector4D operator += (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline FSafeVector4D operator += (FSafeVector4D &FSV, FSafeVector4D &V) {
 	auto L = FSV.GetValue(); auto R = V.GetValue(); auto Local = (L+=R);
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator -= (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline FSafeVector4D operator -= (FSafeVector4D &FSV, FSafeVector4D &V) {
 	auto L = FSV.GetValue(); auto R = V.GetValue();
 	auto Local = FVector4((L.X-=R.X),(L.Y-=R.Y),(L.Z-=R.Z),(L.W-=R.W));
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator % (FSafeVector4D &FSV, FSafeVector4D &V) {
+inline FSafeVector4D operator % (FSafeVector4D &FSV, FSafeVector4D &V) {
 	auto Local = FSV.GetValue(); auto Mod = V.GetValue();
 	auto X = Local.X; auto Y = Local.Y; auto Z = Local.Z; auto W = Local.W;
 	auto MX = Mod.X; auto MY = Mod.Y;  auto MZ = Mod.Z; auto MW = Mod.W;
@@ -3723,62 +3723,62 @@ FORCEINLINE FSafeVector4D operator % (FSafeVector4D &FSV, FSafeVector4D &V) {
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeVector4D &FSV, const FVector4 &V) {
+inline bool operator == (FSafeVector4D &FSV, const FVector4 &V) {
 	return (FSV.GetValue()==V);
 }
 
-FORCEINLINE bool operator != (FSafeVector4D &FSV, const FVector4 &V) {
+inline bool operator != (FSafeVector4D &FSV, const FVector4 &V) {
 	return (FSV.GetValue()!=V);
 }
 
-FORCEINLINE bool operator > (FSafeVector4D &FSV, const FVector4 &V) {
+inline bool operator > (FSafeVector4D &FSV, const FVector4 &V) {
 	return ((FSV.GetValue().X>V.X)&&(FSV.GetValue().Y>V.Y)&&(FSV.GetValue().Z>V.Z)&&(FSV.GetValue().W>V.W));
 }
 
-FORCEINLINE bool operator < (FSafeVector4D &FSV, const FVector4 &V) {
+inline bool operator < (FSafeVector4D &FSV, const FVector4 &V) {
 	return ((FSV.GetValue().X<V.X)&&(FSV.GetValue().Y<V.Y)&&(FSV.GetValue().Z<V.Z)&&(FSV.GetValue().W>V.W));
 }
 
-FORCEINLINE bool operator >= (FSafeVector4D &FSV, const FVector4 &V) {
+inline bool operator >= (FSafeVector4D &FSV, const FVector4 &V) {
 	return ((FSV.GetValue().X>=V.X)&&(FSV.GetValue().Y>=V.Y)&&(FSV.GetValue().Z>=V.Z));
 }
 
-FORCEINLINE bool operator <= (FSafeVector4D &FSV, const FVector4 &V) {
+inline bool operator <= (FSafeVector4D &FSV, const FVector4 &V) {
 	return ((FSV.GetValue().X<=V.X)&&(FSV.GetValue().Y<=V.Y)&&(FSV.GetValue().Z<=V.Z));
 }
 
-FORCEINLINE FSafeVector4D operator + (FSafeVector4D &FSV, const FVector4 &V) {
+inline FSafeVector4D operator + (FSafeVector4D &FSV, const FVector4 &V) {
 	auto Local = (FSV.GetValue()+V);
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator - (FSafeVector4D &FSV, const FVector4 &V) {
+inline FSafeVector4D operator - (FSafeVector4D &FSV, const FVector4 &V) {
 	auto Local = (FSV.GetValue()-V);
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator * (FSafeVector4D &FSV, const FVector4 &V) {
+inline FSafeVector4D operator * (FSafeVector4D &FSV, const FVector4 &V) {
 	auto Local = (FSV.GetValue()*V);
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator / (FSafeVector4D &FSV, const FVector4 &V) {
+inline FSafeVector4D operator / (FSafeVector4D &FSV, const FVector4 &V) {
 	auto Local = (FSV.GetValue()/V);
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator += (FSafeVector4D &FSV, const FVector4 &V) {
+inline FSafeVector4D operator += (FSafeVector4D &FSV, const FVector4 &V) {
 	auto L = FSV.GetValue(); auto Local = (L+=V);
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator -= (FSafeVector4D &FSV, const FVector4 &V) {
+inline FSafeVector4D operator -= (FSafeVector4D &FSV, const FVector4 &V) {
 	auto L = FSV.GetValue();
 	auto Local = FVector4((L.X-=V.X),(L.Y-=V.Y),(L.Z-=V.Z),(L.W-=V.W));
 	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
 }
 
-FORCEINLINE FSafeVector4D operator % (FSafeVector4D &FSV, const FVector4 &V) {
+inline FSafeVector4D operator % (FSafeVector4D &FSV, const FVector4 &V) {
 	auto Local = FSV.GetValue();
 	auto MX = V.X; auto MY = V.Y;  auto MZ = V.Z; auto MW = V.W;
 	auto X = Local.X; auto Y = Local.Y; auto Z = Local.Z; auto W = Local.W;
@@ -3788,56 +3788,56 @@ FORCEINLINE FSafeVector4D operator % (FSafeVector4D &FSV, const FVector4 &V) {
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const FVector4 &V, FSafeVector4D &FSV) {
+inline bool operator == (const FVector4 &V, FSafeVector4D &FSV) {
 	return (V==FSV.GetValue());
 }
 
-FORCEINLINE bool operator != (const FVector4 &V, FSafeVector4D &FSV) {
+inline bool operator != (const FVector4 &V, FSafeVector4D &FSV) {
 	return (V!=FSV.GetValue());
 }
 
-FORCEINLINE bool operator > (const FVector4 &V, FSafeVector4D &FSV) {
+inline bool operator > (const FVector4 &V, FSafeVector4D &FSV) {
 	return ((V.X>FSV.GetValue().X)&&(V.Y>FSV.GetValue().Y)&&(V.Z>FSV.GetValue().Z)&&(V.W>FSV.GetValue().W));
 }
 
-FORCEINLINE bool operator < (const FVector4 &V, FSafeVector4D &FSV) {
+inline bool operator < (const FVector4 &V, FSafeVector4D &FSV) {
 	return ((V.X<FSV.GetValue().X)&&(V.Y<FSV.GetValue().Y)&&(V.Z<FSV.GetValue().Z)&&(V.W<FSV.GetValue().W));
 }
 
-FORCEINLINE bool operator >= (const FVector4 &V, FSafeVector4D &FSV) {
+inline bool operator >= (const FVector4 &V, FSafeVector4D &FSV) {
 	return ((V.X>=FSV.GetValue().X)&&(V.Y>=FSV.GetValue().Y)&&(V.Z>=FSV.GetValue().Z)&&(V.W>=FSV.GetValue().W));
 }
 
-FORCEINLINE bool operator <= (const FVector4 &V, FSafeVector4D &FSV) {
+inline bool operator <= (const FVector4 &V, FSafeVector4D &FSV) {
 	return ((V.X<=FSV.GetValue().X)&&(V.Y<=FSV.GetValue().Y)&&(V.Z<=FSV.GetValue().Z)&&(V.W<=FSV.GetValue().W));
 }
 
-FORCEINLINE FVector4 operator + (const FVector4 &V, FSafeVector4D &FSV) {
+inline FVector4 operator + (const FVector4 &V, FSafeVector4D &FSV) {
 	return (V+FSV.GetValue());
 }
 
-FORCEINLINE FVector4 operator - (const FVector4 &V, FSafeVector4D &FSV) {
+inline FVector4 operator - (const FVector4 &V, FSafeVector4D &FSV) {
 	return (V-FSV.GetValue());
 }
 
-FORCEINLINE FVector4 operator * (const FVector4 &V, FSafeVector4D &FSV) {
+inline FVector4 operator * (const FVector4 &V, FSafeVector4D &FSV) {
 	return (V*FSV.GetValue());
 }
 
-FORCEINLINE FVector4 operator / (const FVector4 &V, FSafeVector4D &FSV) {
+inline FVector4 operator / (const FVector4 &V, FSafeVector4D &FSV) {
 	return (V/FSV.GetValue());
 }
 
-FORCEINLINE FVector4 operator += (FVector4 &V, FSafeVector4D &FSV) {
+inline FVector4 operator += (FVector4 &V, FSafeVector4D &FSV) {
 	auto Local = FSV.GetValue();
 	return (V+=Local);
 }
 
-FORCEINLINE FVector4 operator -= (FVector4 &V, FSafeVector4D &FSV) {
+inline FVector4 operator -= (FVector4 &V, FSafeVector4D &FSV) {
 	auto Local = FSV.GetValue(); V = (V-Local); return Local;
 }
 
-FORCEINLINE FVector4 operator % (const FVector4 &V, FSafeVector4D &FSV) {
+inline FVector4 operator % (const FVector4 &V, FSafeVector4D &FSV) {
 	auto Local = FSV.GetValue();
 	auto X = V.X; auto Y = V.Y; auto Z = V.Z; auto W = V.W;
 	auto MX = Local.X; auto MY = Local.Y; auto MZ = Local.Z; auto MW = Local.W;
@@ -3848,31 +3848,31 @@ FORCEINLINE FVector4 operator % (const FVector4 &V, FSafeVector4D &FSV) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeColor &FSC, FSafeColor &C) {
+inline bool operator == (FSafeColor &FSC, FSafeColor &C) {
 	return (FSC.GetValue()==C.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeColor &FSC, FSafeColor &C) {
+inline bool operator != (FSafeColor &FSC, FSafeColor &C) {
 	return (FSC.GetValue()!=C.GetValue());
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeColor &FSC, const FLinearColor &C) {
+inline bool operator == (FSafeColor &FSC, const FLinearColor &C) {
 	return (FSC.GetValue()==C);
 }
 
-FORCEINLINE bool operator != (FSafeColor &FSC, const FLinearColor &C) {
+inline bool operator != (FSafeColor &FSC, const FLinearColor &C) {
 	return (FSC.GetValue()!=C);
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const FLinearColor &C, FSafeColor &FSC) {
+inline bool operator == (const FLinearColor &C, FSafeColor &FSC) {
 	return (C==FSC.GetValue());
 }
 
-FORCEINLINE bool operator != (const FLinearColor &C, FSafeColor &FSC) {
+inline bool operator != (const FLinearColor &C, FSafeColor &FSC) {
 	return (C!=FSC.GetValue());
 }
 
@@ -3880,71 +3880,71 @@ FORCEINLINE bool operator != (const FLinearColor &C, FSafeColor &FSC) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeRotator &FSR, FSafeRotator &R) {
+inline bool operator == (FSafeRotator &FSR, FSafeRotator &R) {
 	return (FSR.GetValue()==R.GetValue());
 }
 
-FORCEINLINE bool operator != (FSafeRotator &FSR, FSafeRotator &R) {
+inline bool operator != (FSafeRotator &FSR, FSafeRotator &R) {
 	return (FSR.GetValue()!=R.GetValue());
 }
 
-FORCEINLINE bool operator > (FSafeRotator &FSR, FSafeRotator &R) {
+inline bool operator > (FSafeRotator &FSR, FSafeRotator &R) {
 	return ((FSR.GetValue().Pitch>R.GetValue().Pitch)&&(FSR.GetValue().Yaw>R.GetValue().Yaw)&&(FSR.GetValue().Roll>R.GetValue().Roll));
 }
 
-FORCEINLINE bool operator < (FSafeRotator &FSR, FSafeRotator &R) {
+inline bool operator < (FSafeRotator &FSR, FSafeRotator &R) {
 	return ((FSR.GetValue().Pitch<R.GetValue().Pitch)&&(FSR.GetValue().Yaw<R.GetValue().Yaw)&&(FSR.GetValue().Roll<R.GetValue().Roll));
 }
 
-FORCEINLINE bool operator >= (FSafeRotator &FSR, FSafeRotator &R) {
+inline bool operator >= (FSafeRotator &FSR, FSafeRotator &R) {
 	return ((FSR.GetValue().Pitch>=R.GetValue().Pitch)&&(FSR.GetValue().Yaw>=R.GetValue().Yaw)&&(FSR.GetValue().Roll>=R.GetValue().Roll));
 }
 
-FORCEINLINE bool operator <= (FSafeRotator &FSR, FSafeRotator &R) {
+inline bool operator <= (FSafeRotator &FSR, FSafeRotator &R) {
 	return ((FSR.GetValue().Pitch<=R.GetValue().Pitch)&&(FSR.GetValue().Yaw<=R.GetValue().Yaw)&&(FSR.GetValue().Roll<=R.GetValue().Roll));
 }
 
-FORCEINLINE FSafeRotator operator + (FSafeRotator &FSR, FSafeRotator &R) {
+inline FSafeRotator operator + (FSafeRotator &FSR, FSafeRotator &R) {
 	return FSafeRotator(FSR.GetValue()+R.GetValue());
 }
 
-FORCEINLINE FSafeRotator operator - (FSafeRotator &FSR, FSafeRotator &R) {
+inline FSafeRotator operator - (FSafeRotator &FSR, FSafeRotator &R) {
 	return FSafeRotator(FSR.GetValue()-R.GetValue());
 }
 
-FORCEINLINE FSafeRotator operator * (FSafeRotator &FSR, FSafeRotator &R) {
+inline FSafeRotator operator * (FSafeRotator &FSR, FSafeRotator &R) {
 	auto A = FSR.GetValue(); auto B = R.GetValue();
 	auto Rotator = FRotator(A.Pitch*B.Pitch,A.Yaw*B.Yaw,A.Roll*B.Roll);
 	return FSafeRotator(Rotator);
 }
 
-FORCEINLINE FSafeRotator operator / (FSafeRotator &FSR, FSafeRotator &R) {
+inline FSafeRotator operator / (FSafeRotator &FSR, FSafeRotator &R) {
 	auto A = FSR.GetValue(); auto B = R.GetValue();
 	auto Rotator = FRotator(A.Pitch/B.Pitch,A.Yaw/B.Yaw,A.Roll/B.Roll);
 	return FSafeRotator(Rotator);
 }
 
-FORCEINLINE FSafeRotator operator ++ (FSafeRotator &FSR) {
+inline FSafeRotator operator ++ (FSafeRotator &FSR) {
 	auto Local = FSR.GetValue();
 	*&FSR = FSafeRotator(Local.Pitch+1,Local.Yaw+1,Local.Roll+1); return *&FSR;
 }
 
-FORCEINLINE FSafeRotator operator -- (FSafeRotator &FSR) {
+inline FSafeRotator operator -- (FSafeRotator &FSR) {
 	auto Local = FSR.GetValue();
 	*&FSR = FSafeRotator(Local.Pitch-1,Local.Yaw-1,Local.Roll-1); return *&FSR;
 }
 
-FORCEINLINE FSafeRotator operator += (FSafeRotator &FSR, FSafeRotator &R) {
+inline FSafeRotator operator += (FSafeRotator &FSR, FSafeRotator &R) {
 	auto Local = FSR.GetValue(); auto Plus = R.GetValue();
 	return FSafeRotator((Local+=Plus));
 }
 
-FORCEINLINE FSafeRotator operator -= (FSafeRotator &FSR, FSafeRotator &R) {
+inline FSafeRotator operator -= (FSafeRotator &FSR, FSafeRotator &R) {
 	auto Local = FSR.GetValue(); auto Minus = R.GetValue();
 	return FSafeRotator((Local-=Minus));
 }
 
-FORCEINLINE FSafeRotator operator % (FSafeRotator &FSR, FSafeRotator &R) {
+inline FSafeRotator operator % (FSafeRotator &FSR, FSafeRotator &R) {
 	auto Local = FSR.GetValue(); auto Mod = R.GetValue();
 	auto X = Local.Pitch; auto Y = Local.Yaw; auto Z = Local.Roll;
 	auto MX = Mod.Pitch; auto MY = Mod.Yaw;  auto MZ = Mod.Roll;
@@ -3953,61 +3953,61 @@ FORCEINLINE FSafeRotator operator % (FSafeRotator &FSR, FSafeRotator &R) {
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeRotator &FSR, const FRotator &R) {
+inline bool operator == (FSafeRotator &FSR, const FRotator &R) {
 	return (FSR.GetValue()==R);
 }
 
-FORCEINLINE bool operator != (FSafeRotator &FSR, const FRotator &R) {
+inline bool operator != (FSafeRotator &FSR, const FRotator &R) {
 	return (FSR.GetValue()!=R);
 }
 
-FORCEINLINE bool operator > (FSafeRotator &FSR, const FRotator &R) {
+inline bool operator > (FSafeRotator &FSR, const FRotator &R) {
 	return ((FSR.GetValue().Pitch>R.Pitch)&&(FSR.GetValue().Yaw>R.Yaw)&&(FSR.GetValue().Roll>R.Roll));
 }
 
-FORCEINLINE bool operator < (FSafeRotator &FSR, const FRotator &R) {
+inline bool operator < (FSafeRotator &FSR, const FRotator &R) {
 	return ((FSR.GetValue().Pitch<R.Pitch)&&(FSR.GetValue().Yaw<R.Yaw)&&(FSR.GetValue().Roll<R.Roll));
 }
 
-FORCEINLINE bool operator >= (FSafeRotator &FSR, const FRotator &R) {
+inline bool operator >= (FSafeRotator &FSR, const FRotator &R) {
 	return ((FSR.GetValue().Pitch>=R.Pitch)&&(FSR.GetValue().Yaw>=R.Yaw)&&(FSR.GetValue().Roll>=R.Roll));
 }
 
-FORCEINLINE bool operator <= (FSafeRotator &FSR, const FRotator &R) {
+inline bool operator <= (FSafeRotator &FSR, const FRotator &R) {
 	return ((FSR.GetValue().Pitch<=R.Pitch)&&(FSR.GetValue().Yaw<=R.Yaw)&&(FSR.GetValue().Roll<=R.Roll));
 }
 
-FORCEINLINE FSafeRotator operator + (FSafeRotator &FSR, const FRotator &R) {
+inline FSafeRotator operator + (FSafeRotator &FSR, const FRotator &R) {
 	return FSafeRotator(FSR.GetValue()+R);
 }
 
-FORCEINLINE FSafeRotator operator - (FSafeRotator &FSR, const FRotator &R) {
+inline FSafeRotator operator - (FSafeRotator &FSR, const FRotator &R) {
 	return FSafeRotator(FSR.GetValue()-R);
 }
 
-FORCEINLINE FSafeRotator operator * (FSafeRotator &FSR, const FRotator &R) {
+inline FSafeRotator operator * (FSafeRotator &FSR, const FRotator &R) {
 	auto Local = FSR.GetValue();
 	auto Rotator = FRotator(Local.Pitch*R.Pitch,Local.Yaw*R.Yaw,Local.Roll*R.Roll);
 	return FSafeRotator(Rotator);
 }
 
-FORCEINLINE FSafeRotator operator / (FSafeRotator &FSR, const FRotator &R) {
+inline FSafeRotator operator / (FSafeRotator &FSR, const FRotator &R) {
 	auto Local = FSR.GetValue();
 	auto Rotator = FRotator(Local.Pitch/R.Pitch,Local.Yaw/R.Yaw,Local.Roll/R.Roll);
 	return FSafeRotator(Rotator);
 }
 
-FORCEINLINE FSafeRotator operator += (FSafeRotator &FSR, const FRotator &R) {
+inline FSafeRotator operator += (FSafeRotator &FSR, const FRotator &R) {
 	auto Local = FSR.GetValue();
 	return FSafeRotator((Local+=R));
 }
 
-FORCEINLINE FSafeRotator operator -= (FSafeRotator &FSR, const FRotator &R) {
+inline FSafeRotator operator -= (FSafeRotator &FSR, const FRotator &R) {
 	auto Local = FSR.GetValue();
 	return FSafeRotator((Local-=R));
 }
 
-FORCEINLINE FSafeRotator operator % (FSafeRotator &FSR, const FRotator &R) {
+inline FSafeRotator operator % (FSafeRotator &FSR, const FRotator &R) {
 	auto Local = FSR.GetValue();
 	auto X = Local.Pitch; auto Y = Local.Yaw; auto Z = Local.Roll;
 	auto MX = R.Pitch; auto MY = R.Yaw; auto MZ = R.Roll;
@@ -4016,59 +4016,59 @@ FORCEINLINE FSafeRotator operator % (FSafeRotator &FSR, const FRotator &R) {
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const FRotator &R, FSafeRotator &FSR) {
+inline bool operator == (const FRotator &R, FSafeRotator &FSR) {
 	return (R==FSR.GetValue());
 }
 
-FORCEINLINE bool operator != (const FRotator &R, FSafeRotator &FSR) {
+inline bool operator != (const FRotator &R, FSafeRotator &FSR) {
 	return (R!=FSR.GetValue());
 }
 
-FORCEINLINE bool operator > (const FRotator &R, FSafeRotator &FSR) {
+inline bool operator > (const FRotator &R, FSafeRotator &FSR) {
 	return ((R.Pitch>FSR.GetValue().Pitch)&&(R.Yaw>FSR.GetValue().Yaw)&&(R.Roll>FSR.GetValue().Roll));
 }
 
-FORCEINLINE bool operator < (const FRotator &R, FSafeRotator &FSR) {
+inline bool operator < (const FRotator &R, FSafeRotator &FSR) {
 	return ((R.Pitch<FSR.GetValue().Pitch)&&(R.Yaw<FSR.GetValue().Yaw)&&(R.Roll<FSR.GetValue().Roll));
 }
 
-FORCEINLINE bool operator >= (const FRotator &R, FSafeRotator &FSR) {
+inline bool operator >= (const FRotator &R, FSafeRotator &FSR) {
 	return ((R.Pitch>=FSR.GetValue().Pitch)&&(R.Yaw>=FSR.GetValue().Yaw)&&(R.Roll>=FSR.GetValue().Roll));
 }
 
-FORCEINLINE bool operator <= (const FRotator &R, FSafeRotator &FSR) {
+inline bool operator <= (const FRotator &R, FSafeRotator &FSR) {
 	return ((R.Pitch<=FSR.GetValue().Pitch)&&(R.Yaw<=FSR.GetValue().Yaw)&&(R.Roll<=FSR.GetValue().Roll));
 }
 
-FORCEINLINE FRotator operator + (const FRotator &R, FSafeRotator &FSR) {
+inline FRotator operator + (const FRotator &R, FSafeRotator &FSR) {
 	return (R+FSR.GetValue());
 }
 
-FORCEINLINE FRotator operator - (const FRotator &R, FSafeRotator &FSR) {
+inline FRotator operator - (const FRotator &R, FSafeRotator &FSR) {
 	return (R-FSR.GetValue());
 }
 
-FORCEINLINE FRotator operator * (const FRotator &R, FSafeRotator &FSR) {
+inline FRotator operator * (const FRotator &R, FSafeRotator &FSR) {
 	auto Local = FSR.GetValue();
 	return FRotator(R.Pitch*Local.Pitch,R.Yaw*Local.Yaw,R.Roll*Local.Roll);
 }
 
-FORCEINLINE FRotator operator / (const FRotator &R, FSafeRotator &FSR) {
+inline FRotator operator / (const FRotator &R, FSafeRotator &FSR) {
 	auto Local = FSR.GetValue();
 	return FRotator(R.Pitch/Local.Pitch,R.Yaw/Local.Yaw,R.Roll/Local.Roll);
 }
 
-FORCEINLINE FRotator operator += (FRotator &R, FSafeRotator &FSR) {
+inline FRotator operator += (FRotator &R, FSafeRotator &FSR) {
 	auto Local = FSR.GetValue();
 	return (R+=Local);
 }
 
-FORCEINLINE FRotator operator -= (FRotator &R, FSafeRotator &FSR) {
+inline FRotator operator -= (FRotator &R, FSafeRotator &FSR) {
 	auto Local = FSR.GetValue();
 	return (R-=Local);
 }
 
-FORCEINLINE FRotator operator % (const FRotator &R, FSafeRotator &FSR) {
+inline FRotator operator % (const FRotator &R, FSafeRotator &FSR) {
 	auto Local = FSR.GetValue();
 	auto X = R.Pitch; auto Y = R.Yaw; auto Z = R.Roll;
 	auto MX = Local.Pitch; auto MY = Local.Yaw; auto MZ = Local.Roll;
@@ -4079,36 +4079,36 @@ FORCEINLINE FRotator operator % (const FRotator &R, FSafeRotator &FSR) {
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeTransform &FST, FSafeTransform &T) {
+inline bool operator == (FSafeTransform &FST, FSafeTransform &T) {
 	auto Local = FST.GetValue(); auto To = T.GetValue();
 	return ((Local.GetLocation()==To.GetLocation())&&(Local.GetRotation()==To.GetRotation())&&(Local.GetScale3D()==To.GetScale3D()));
 }
 
-FORCEINLINE bool operator != (FSafeTransform &FST, FSafeTransform &T) {
+inline bool operator != (FSafeTransform &FST, FSafeTransform &T) {
 	auto Local = FST.GetValue(); auto To = T.GetValue();
 	return ((Local.GetLocation()!=To.GetLocation())&&(Local.GetRotation()!=To.GetRotation())&&(Local.GetScale3D()!=To.GetScale3D()));
 }
 
 /* Native -> FSafe */
 
-FORCEINLINE bool operator == (FSafeTransform &FST, const FTransform &T) {
+inline bool operator == (FSafeTransform &FST, const FTransform &T) {
 	auto Local = FST.GetValue();
 	return ((Local.GetLocation()==T.GetLocation())&&(Local.GetRotation()==T.GetRotation())&&(Local.GetScale3D()==T.GetScale3D()));
 }
 
-FORCEINLINE bool operator != (FSafeTransform &FST, const FTransform &T) {
+inline bool operator != (FSafeTransform &FST, const FTransform &T) {
 	auto Local = FST.GetValue();
 	return ((Local.GetLocation()!=T.GetLocation())&&(Local.GetRotation()!=T.GetRotation())&&(Local.GetScale3D()!=T.GetScale3D()));
 }
 
 /* FSafe -> Native */
 
-FORCEINLINE bool operator == (const FTransform &T, FSafeTransform &FST) {
+inline bool operator == (const FTransform &T, FSafeTransform &FST) {
 	auto Local = FST.GetValue();
 	return ((T.GetLocation()==Local.GetLocation())&&(T.GetRotation()==Local.GetRotation())&&(T.GetScale3D()==Local.GetScale3D()));
 }
 
-FORCEINLINE bool operator != (const FTransform &T, FSafeTransform &FST) {
+inline bool operator != (const FTransform &T, FSafeTransform &FST) {
 	auto Local = FST.GetValue();
 	return ((T.GetLocation()!=Local.GetLocation())&&(T.GetRotation()!=Local.GetRotation())&&(T.GetScale3D()!=Local.GetScale3D()));
 }
@@ -4193,13 +4193,15 @@ public:
 	//
 	/* ~Le Vsauce is real cool. */
 	void GameGuard() {
+	#if PLATFORM_WINDOWS && !WITH_EDITOR
 		if (!GuardProcess.IsValid() || !FPlatformProcess::IsProcRunning(GuardProcess)) {InvokeGuard();}
 		if (!this->AllowDebugging) {if (IsDebuggerPresent() || HasDebugger() || HasThreat()) {FGenericPlatformMisc::RequestExit(false);}}
+	#endif
 	}
 	//
 	/* ~Le Vsauce is real cool. */
 	bool IsDebuggerPresent() {
-	#if PLATFORM_WINDOWS
+	#if PLATFORM_WINDOWS && !WITH_EDITOR
 		HINSTANCE Kernel = LoadLibraryEx(TEXT("kernel32.dll"),NULL,0);
 		FARPROC IDebuggerPresent = GetProcAddress(Kernel,"IsDebuggerPresent");
 		if(IDebuggerPresent && IDebuggerPresent()) {FreeLibrary(Kernel); return true;}
@@ -4212,18 +4214,17 @@ public:
 	/* ~Le Vsauce is real cool. */
 	inline bool HasDebugger() {
 	#if PLATFORM_WINDOWS
-		#if !WITH_EDITOR
-		#if PLATFORM_32BITS
-		__try {
-			__asm __emit 0xF3
-			__asm __emit 0x64
-			__asm __emit 0xF1
-		} __except(EXCEPTION_EXECUTE_HANDLER) {
+		#if !WITH_EDITOR && PLATFORM_32BITS
+			__try {
+				__asm __emit 0xF3
+				__asm __emit 0x64
+				__asm __emit 0xF1
+			} __except(EXCEPTION_EXECUTE_HANDLER) {
+				return false;
+			} return true;
+		#else
 			return false;
-		} return true;
 		#endif
-		#endif
-		return false;
 	#else
 		return false;
 	#endif

@@ -2410,15 +2410,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Variables|Security", meta = (DisplayName = "= (Safe Transform)", CompactNodeTitle = "=", Keywords = "Security Set Safe Transform EQUAL ="))
 	static FTransform SCO_Pure_SetTransformEqualFST(UPARAM(ref)FTransform &NT, UPARAM(ref)FSafeTransform &FST);
 
-/* ToDo: Missing Operators: */
-	/* = == != && || */
-	/* > < >= <= + - * / ++ -- += -= % */
-	/* ~ & | ^ >> << */
-
-	/* FSafe -> FSafe */
-	/* Native -> FSafe */
-	/* FSafe -> Native */
-
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	#pragma endregion OPERATORS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
