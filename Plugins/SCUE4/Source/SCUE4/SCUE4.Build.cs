@@ -8,12 +8,11 @@ public class SCUE4 : ModuleRules {
 				"SCUE4X",
 				"Core",
 				"Engine",
+				"Projects",
 				"CoreUObject"
 			}
 		);
 		//
-		//
-		string DIRx86 = Path.Combine(ModuleDirectory,"../ThirdParty","x86");
-		string DIRx64 = Path.Combine(ModuleDirectory,"../ThirdParty","x64");
+		Definitions.Add("WITH_ANTI_CHEAT");
 	}
 }
