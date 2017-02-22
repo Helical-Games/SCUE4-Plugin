@@ -1,8 +1,13 @@
 {
 	"FileVersion": 1,
 	"Version": 1,
+<<<<<<< HEAD
 	"VersionName": "1.1.1",
 	"EngineVersion" : "4.15.0",
+=======
+	"VersionName": "1.0.1",
+	"EngineVersion" : "4.14.0",
+>>>>>>> origin/master
 	"FriendlyName": "Secure-Client UE4",
 	"Description": "Secure-Client is an Encryption Plugin, a C++ system designed to provide intuitive anti-cheat capability for PC Games developed on Unreal Engine 4.",
 	"Category": "SYNAPTECH",

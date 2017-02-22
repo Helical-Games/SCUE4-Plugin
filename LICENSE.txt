@@ -8,4 +8,8 @@ https://publish.unrealengine.com/faq
 
 
 Unreal Marketplace page:
+<<<<<<< HEAD
 https://www.unrealengine.com/marketplace/scue4-anti-cheat-solution
+=======
+https://www.unrealengine.com/marketplace/scue4-anti-cheat-solution
+>>>>>>> origin/master

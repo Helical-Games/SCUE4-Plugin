@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 This Anti-Cheat system implements a variety of techniques I've learned along the time (while making, playing and cheating games), to invalidate any memory injection into your most important stored values during game runtime.
 Just like CheatEngine injects code in your game, this Plugin enables you to fight back and punch the cheater in totally non intrusive ways. There's no data collected from hardware, no player privacy infringement or anything like that involved.
 A great solution to keep cheaters away from your game front-end client with ease.
@@ -126,4 +127,134 @@ You don't have to config anything for this, it's automatic; Just setup the requi
 
 [More Info]:
 
+=======
+This Anti-Cheat system implements a variety of techniques I've learned along the time (while making, playing and cheating games), to invalidate any memory injection into your most important stored values during game runtime.
+Just like CheatEngine injects code in your game, this Plugin enables you to fight back and punch the cheater in totally non intrusive ways. There's no data collected from hardware, no player privacy infringement or anything like that involved.
+A great solution to keep cheaters away from your game front-end client with ease.
+And best thing is: you don't need to be an software engineer to use it!  I love how far Epic Games allow us to go with Blueprints, it's amazing.
+
+
+All you need for a start (very good step forward) to defend your UE4 game project against cheat creators and 100% BLOCK 'script kiddies' from cheating on your Windows games ever again with http://www.cheatengine.org/
+If you're making a game based on Windows and you don't know what Cheat-Engine is, you'd probably like to take a crash course here: http://forum.cheatengine.org/viewtopic.php?t=542093&sid=6ecd088ee59218ad0b8e5abb4ea928d0
+
+
+You can see the basics of how the tools work, in this video:
+http://www.youtube.com/watch?v=7qVIwZydW-g
+
+Cheating in Candy Crush with Cheat-Engine: http://sendvid.com/89re93xu
+
+
+----------
+
+
+º Some features:
+
+* No DRM; let people play your game offline and still no cheating.
+* Block CheatEngine + 165 other popular debuggers on Windows from reading your game RAM.
+* Special property types, blueprint compatible, blocks memory value injection.
+* No privacy violation; no special user credentials required to run.
+* Detects debuggers trying to attach the process.
+
+
+
+Some Drawbacks:
+
+
+Build for UE4 Windows games only (32bit & 64bit); (But it won't break your packaging for other platforms).
+Cheaters will complain at you. a lot.
+
+
+----------
+
+
+
+
+[Requirements]:
+° Both Key Generator and the External Scanner requires VS2015 runtime dependencies to run; you can find it at https://www.microsoft.com/en-us/download/details.aspx?id=48145
+° External Scanner also requires .NET 4 which is by default installed on up to date Windows desktops.
+
+
+[How To Use SCUE4]:
+
+(always backup your projects before installing plugins)
+° Close UE4, unzip the files provided into your UE4 game project's folder. Executable libraries and code will be added to your project's Plugins folder;
+Then right click your .uproject file and choose 'Generate Visual Studio project files'. Then open the .uproject file; around ~1.6GB of C++ code will be generated, so be patient.
+You may have to convert your project to C++ project first, simply adding an empty C++ Class to your game.
+
+° Open your game project in Unreal Editor, click Edit and go to 'Project Settings..'-> 'Maps & Modes'; In 'Game Instance Class' field, set 'SafeGameInstance' class as default.
+If you have another custom Game Instance, use it instead, but after installing the Secure-Client plugin you have to re-parent your Game Instance to be a child of SafeGameInstance.
+This will activate the anti-cheat system for your game. If you want the anti-cheat tool-set disabled, just replace the default Game Instance again.
+
+° To observe Game-Guard's behaviour while developing in Unreal Editor, and to activate the anti-debugger that is disabled by default, you have to:
+- Create or re-parent a GameInstance Blueprint from the 'SafeGameInstance' class and set it as default in Project Settings.
+- Uncheck the 'Hide Game-Guard' and 'Allow Debugging' check-boxes from the Details panel.
+- You most likely don't want to block debugging while developing your game, uncheck it only when packaging in Shipping Mode and ready to publish.
+
+° That simple, plugin is ready to use; Whenever you need a Safe Type in your Blueprint code, when creating a property in 'Variable Type' search for "Safe" and all available types shows.
+
+° There's also now a new 'K-Generator' toolbar button on your Unreal Editor's toolbar; you can use it to create custom encryption keys for your Get/Set encryption nodes.
+
+
+° The Key Generator creates a simple text file which you can copy new keys from, and paste into your Get/Set nodes if you desire to use custom encryption algorithm; but you don't have to.
+These custom keys are entirely optional, they provide slightly increased security for your game code. In case you don't provide any key, a default internal one is used.
+
+
+
+[FAQ]:
+
+
+° What is the performance impact in game when using SC Safe Types in Blueprint graphs?
+- The Safe Types provided to encrypt Blueprint properties have a very insignificant impact in your game code;
+- Each call to a Get/Set node has a function footprint ranging from 0.00ms to 0.01 milliseconds. In comparison: a single Tick Event call can sometimes eat up to 4.00ms.
+
+
+° What about Garbage Collection, how these types deal with GC?
+- The code generates no GC, UE4 will fire GC only when you destroy the Blueprint/Actor that was calling the Get/Set functions/nodes.
+
+
+° Which Types are Safe Type supported?
+- You can encrypt the usual types used for Blueprint properties, such as:
+
+Boolean
+Byte
+Integer
+Float
+Name
+String
+Text
+Vector
+Vector 2D
+Vector 4D
+Linear Color
+Rotator
+Transform
+
+
+° Does Safe Types support SaveGame tag, to be recorded by the Auto-Save Plugin?
+- Yes. Just enable SaveGame tag in advanced tab as usual and you easily get encrypted Save-Game data stored in your .sav files.
+
+
+° Is networking, replication, supported for Safe Types?
+- The idea is Yes, must be, but I'm still working on multiplayer code to make sure everything is bug-free when running in authoritative servers thus I'm not 100% sure on this one.
+
+
+° Why I mark any Safe Type as 'editable', but values in Details panel are disabled and I can't change them?
+- Because Safe Types are hidden and Unreal Engine's Editor doesn't know how to translate their encryption algorithm. Then what Details panel displays there is just a 'fake copy'
+- of the real value which is possible to change or read only through the Get/Set node functions. If you could change values from Details panel, hackers could use the same route to
+- trace the fake value and use it to change the real, encrypted one, without bothering with any encryption secrets.
+- So to say, the only way you can change encrypted values is really through the Get/Set nodes which you can use in Blueprint graphs and/or its Construction Script to set default values.
+
+
+° What if the Game-Guard external app gets cracked to never return any positives?
+- Then your game itself through the SafeGameInstance class will take over and run an internal Game-Guard system; the class is built to force a crash in the game if a malicious app is running.
+- This internal built-in code is compiled inside the game, packaged for Windows, and only runs slower than the external scanner, to not generate game-thread overhead.
+You don't have to config anything for this, it's automatic; Just setup the required GameInstance class.
+
+
+----- -----
+
+
+[More Info]:
+
+>>>>>>> origin/master
 https://forums.unrealengine.com/showthread.php?97229-Plugin-Anti-Cheat-System

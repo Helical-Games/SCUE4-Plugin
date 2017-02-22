@@ -14,7 +14,10 @@ public class SCUE4 : ModuleRules {
 		);
 		//
 		Definitions.Add("WITH_ANTI_CHEAT");
+<<<<<<< HEAD
 		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory,"Private"));
 		PublicIncludePaths.Add(Path.Combine(ModuleDirectory,"Public"));
+=======
+>>>>>>> origin/master
 	}
 }
