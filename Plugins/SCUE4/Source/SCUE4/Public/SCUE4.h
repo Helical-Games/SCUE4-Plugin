@@ -14,23 +14,20 @@
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 #if PLATFORM_WINDOWS
-	#include "AllowWindowsPlatformTypes.h"
-	#include <Windows.h>
-	#include <Winuser.h>
-	#include "HideWindowsPlatformTypes.h"
+ #include "AllowWindowsPlatformTypes.h"
+ #include <Windows.h>
+ #include <Winuser.h>
+ #include "HideWindowsPlatformTypes.h"
 #endif
 
 #pragma once
 #include "SCUE4.generated.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void LOG_SC(const bool Debug, const float Duration, const FColor Color, const FString Message);
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if PLATFORM_WINDOWS
 #pragma region SETTINGS
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Default SCUE4 Settings
 
@@ -48,10 +45,12 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if PLATFORM_WINDOWS
 #pragma endregion SETTINGS
 #pragma region ENCRYPTION SYSTEM
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/** Encryption:: Caesar Cipher ^ Byte Mangling. */
+/// Encryption:: Caesar Cipher ^ Byte Mangling
 
 static const FString ASCII_DIC = TEXT("0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ@~!#$%^&*()_-=+/|[]{}`;:,<>?.\\");
 static const FString ASCII_KEY = TEXT(":.,@#}{[=^otTxmY+_!)*rACbfklpKVFWz]%Ju8ZgIi/HXGqj$>2MhPwDd1BS7-(3sEn06c5yRe?9U`L&|OvaNQ;4~<\\");
@@ -93,8 +92,10 @@ static FORCEINLINE FString FDecode(FString Key, FString Input) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if PLATFORM_WINDOWS
 #pragma endregion ENCRYPTION SYSTEM
 #pragma region INTERNAL SCANNER
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Enumerator:: Internal Process Scanner
 
@@ -103,28 +104,30 @@ void FSCUE4_Enumerate();
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if PLATFORM_WINDOWS
 #pragma endregion INTERNAL SCANNER
 #pragma region CUSTOM TYPES
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Structs:: Custom 'Safe Types' for run-time data encryption
 
-/** {SC}: Safe Boolean Property;
+/** {S}: Safe Boolean Property;
  Use this data format to store sensible Bool values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeBool {
+struct SCUE4_API FSafeBool {
 	GENERATED_USTRUCT_BODY()
 private:
 
 	/** Internal Key. Can be replaced each operation if wanted. */
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
 	/** Default Memory Address. */
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueValue;
 
 	/** Alternative Memory Address. */
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Shift;
 
 	/** Flag will take the value from Address, clear it and shift them,
@@ -134,11 +137,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	bool Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	/** Gets value using Global Key. */
 	bool GetValue() {
@@ -147,18 +147,10 @@ public:
 			switch (Flag) {
 				case 0:
 					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-					#if WITH_EDITOR
-					return (this->Unsafe = FCString::ToBool(*FDecode(this->Shift)));
-					#else
 					return FCString::ToBool(*FDecode(this->Shift));
-					#endif
 				case 1:
 					Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-					#if WITH_EDITOR
-					return (this->Unsafe = FCString::ToBool(*FDecode(this->TrueValue)));
-					#else
 					return FCString::ToBool(*FDecode(this->TrueValue));
-					#endif
 			default:
 				return false;
 	}}}
@@ -168,18 +160,10 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-				#if WITH_EDITOR
-				return (this->Unsafe = FCString::ToBool(*FDecode(*Key,this->Shift)));
-				#else
 				return FCString::ToBool(*FDecode(*Key,this->Shift));
-				#endif
 			case 1:
 				Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-				#if WITH_EDITOR
-				return (this->Unsafe = FCString::ToBool(*FDecode(*Key,this->TrueValue)));
-				#else
 				return FCString::ToBool(*FDecode(*Key,this->TrueValue));
-				#endif
 		default:
 			return false;
 	}}
@@ -187,9 +171,6 @@ public:
 	/** Sets value using Internal or Global Key. */
 	void SetValue(const bool Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					this->Shift = FEncode((Input?TEXT("true"):TEXT("false")));
@@ -217,7 +198,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = TEXT("false");
 		Shift = TEXT("false");
-		Unsafe = false;
 		Flag = 0;
 	}
 
@@ -225,7 +205,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = FEncode((Input?TEXT("true"):TEXT("false")));
 		Shift = FEncode((Input?TEXT("true"):TEXT("false")));
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -233,7 +212,6 @@ public:
 		Internal = FString(*Key);
 		TrueValue = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
 		Shift = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -261,20 +239,20 @@ public:
 	}
 };
 
-/** {SC}: Safe Byte Property;
+/** {S}: Safe Byte Property;
  Use this data format to store sensible Byte values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeByte {
+struct SCUE4_API FSafeByte {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueValue;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Shift;
 
 	UPROPERTY(SaveGame)
@@ -282,11 +260,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	uint8 Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	uint8 GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -294,18 +269,10 @@ public:
 			switch (Flag) {
 				case 0:
 					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-					#if WITH_EDITOR
-					return (this->Unsafe = FCString::Atoi(*FDecode(this->Shift)));
-					#else
 					return FCString::Atoi(*FDecode(this->Shift));
-					#endif
 				case 1:
 					Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-					#if WITH_EDITOR
-					return (this->Unsafe = FCString::Atoi(*FDecode(this->TrueValue)));
-					#else
 					return FCString::Atoi(*FDecode(this->TrueValue));
-					#endif
 			default:
 				return 0;
 	}}}
@@ -314,27 +281,16 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-				#if WITH_EDITOR
-				return (this->Unsafe = FCString::Atoi(*FDecode(*Key,this->Shift)));
-				#else
 				return FCString::Atoi(*FDecode(*Key,this->Shift));
-				#endif
 			case 1:
 				Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-				#if WITH_EDITOR
-				return (this->Unsafe = FCString::Atoi(*FDecode(*Key,this->TrueValue)));
-				#else
 				return FCString::Atoi(*FDecode(*Key,this->TrueValue));
-				#endif
 		default:
 			return 0;
 	}}
 
 	void SetValue(uint8 Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					this->Shift = FEncode(FString::FromInt(Input));
@@ -345,9 +301,6 @@ public:
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, uint8 Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				this->Shift = FEncode(*Key,FString::FromInt(Input));
@@ -364,7 +317,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = TEXT("0");
 		Shift = TEXT("0");
-		Unsafe = 0;
 		Flag = 0;
 	}
 
@@ -372,7 +324,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = FEncode(FString::FromInt(Input));
 		Shift = FEncode(FString::FromInt(Input));
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -380,7 +331,6 @@ public:
 		Internal = FString(*Key);
 		TrueValue = FEncode(*Key,FString::FromInt(Input));
 		Shift = FEncode(*Key,FString::FromInt(Input));
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -409,20 +359,20 @@ public:
 
 };
 
-/** {SC}: Safe Int32 Property;
+/** {S}: Safe Int32 Property;
  Use this data format to store sensible Int values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeInt {
+struct SCUE4_API FSafeInt {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueValue;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Shift;
 
 	UPROPERTY(SaveGame)
@@ -430,11 +380,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	int32 Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	int32 GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -442,18 +389,10 @@ public:
 			switch (Flag) {
 				case 0:
 					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-					#if WITH_EDITOR
-					return (this->Unsafe = FCString::Atoi(*FDecode(this->Shift)));
-					#else
 					return FCString::Atoi(*FDecode(this->Shift));
-					#endif
 				case 1:
 					Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-					#if WITH_EDITOR
-					return (this->Unsafe = FCString::Atoi(*FDecode(this->TrueValue)));
-					#else
 					return FCString::Atoi(*FDecode(this->TrueValue));
-					#endif
 			default:
 				return 0;
 	}}}
@@ -462,27 +401,16 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-				#if WITH_EDITOR
-				return (this->Unsafe = FCString::Atoi(*FDecode(*Key,this->Shift)));
-				#else
 				return FCString::Atoi(*FDecode(*Key,this->Shift));
-				#endif
 			case 1:
 				Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-				#if WITH_EDITOR
-				return (this->Unsafe = FCString::Atoi(*FDecode(*Key,this->TrueValue)));
-				#else
 				return FCString::Atoi(*FDecode(*Key,this->TrueValue));
-				#endif
 		default:
 			return 0;
 	}}
 
 	void SetValue(int32 Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					this->Shift = FEncode(FString::FromInt(Input));
@@ -493,9 +421,6 @@ public:
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, int32 Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				this->Shift = FEncode(*Key,FString::FromInt(Input));
@@ -512,7 +437,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = TEXT("0");
 		Shift = TEXT("0");
-		Unsafe = 0;
 		Flag = 0;
 	}
 
@@ -520,7 +444,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = FEncode(FString::FromInt(Input));
 		Shift = FEncode(FString::FromInt(Input));
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -528,7 +451,6 @@ public:
 		Internal = FString(*Key);
 		TrueValue = FEncode(*Key,FString::FromInt(Input));
 		Shift = FEncode(*Key,FString::FromInt(Input));
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -557,20 +479,20 @@ public:
 
 };
 
-/** {SC}: Safe Float Property;
+/** {S}: Safe Float Property;
  Use this data format to store sensible Float values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeFloat {
+struct SCUE4_API FSafeFloat {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueValue;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Shift;
 
 	UPROPERTY(SaveGame)
@@ -578,11 +500,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	float Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	float GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -590,18 +509,10 @@ public:
 			switch (Flag) {
 				case 0:
 					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-					#if WITH_EDITOR
-					return (this->Unsafe = FCString::Atof(*FDecode(this->Shift)));
-					#else
 					return FCString::Atof(*FDecode(this->Shift));
-					#endif
 				case 1:
 					Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-					#if WITH_EDITOR
-					return (this->Unsafe = FCString::Atof(*FDecode(this->TrueValue)));
-					#else
 					return FCString::Atof(*FDecode(this->TrueValue));
-					#endif
 			default:
 				return 0.f;
 	}}}
@@ -610,46 +521,32 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-				#if WITH_EDITOR
-				return (this->Unsafe = FCString::Atof(*FDecode(*Key,this->Shift)));
-				#else
 				return FCString::Atof(*FDecode(*Key,this->Shift));
-				#endif
 			case 1:
 				Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-				#if WITH_EDITOR
-				return (this->Unsafe = FCString::Atof(*FDecode(*Key,this->TrueValue)));
-				#else
 				return FCString::Atof(*FDecode(*Key,this->TrueValue));
-				#endif
 		default:
 			return 0.f;
 	}}
 
 	void SetValue(float Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
-					this->Shift = FEncode(FString::SanitizeFloat(Input));
+					this->Shift = FEncode(FString::Printf(TEXT("%f"),Input));
 					Flag = 1; this->TrueValue = NULL;
 				case 1:
-					this->TrueValue = FEncode(FString::SanitizeFloat(Input));
+					this->TrueValue = FEncode(FString::Printf(TEXT("%f"),Input));
 					Flag = 0; this->Shift = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, float Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
-				this->Shift = FEncode(*Key,FString::SanitizeFloat(Input));
+				this->Shift = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
 				Flag = 1; this->TrueValue = NULL;
 			case 1:
-				this->TrueValue = FEncode(*Key,FString::SanitizeFloat(Input));
+				this->TrueValue = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
 				Flag = 0; this->Shift = NULL;
 	}Internal=FString(*Key);}
 
@@ -660,23 +557,20 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = TEXT("0.0");
 		Shift = TEXT("0.0");
-		Unsafe = 0.f;
 		Flag = 0;
 	}
 
 	FSafeFloat(const float Input) {
 		Internal = FString(*ASCII_KEY);
-		TrueValue = FEncode(FString::SanitizeFloat(Input));
-		Shift = FEncode(FString::SanitizeFloat(Input));
-		Unsafe = Input;
+		TrueValue = FEncode(FString::Printf(TEXT("%f"),Input));
+		Shift = FEncode(FString::Printf(TEXT("%f"),Input));
 		Flag = 0;
 	}
 
 	FSafeFloat(FString* Key, const float Input) {
 		Internal = FString(*Key);
-		TrueValue = FEncode(*Key,FString::SanitizeFloat(Input));
-		Shift = FEncode(*Key,FString::SanitizeFloat(Input));
-		Unsafe = Input;
+		TrueValue = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
+		Shift = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
 		Flag = 0;
 	}
 
@@ -705,20 +599,20 @@ public:
 
 };
 
-/** {SC}: Safe Name Property;
+/** {S}: Safe Name Property;
  Use this data format to store sensible Name values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeName {
+struct SCUE4_API FSafeName {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueValue;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Shift;
 
 	UPROPERTY(SaveGame)
@@ -726,11 +620,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FName Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	FName GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -738,18 +629,10 @@ public:
 			switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-				#if WITH_EDITOR
-				return FName::FName(this->Unsafe = *FDecode(this->Shift));
-				#else
 				return FName::FName(*FDecode(this->Shift));
-				#endif
 			case 1:
 				Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-				#if WITH_EDITOR
-				return FName::FName(this->Unsafe = *FDecode(this->TrueValue));
-				#else
 				return FName::FName(*FDecode(this->TrueValue));
-				#endif
 			default:
 				return TEXT("");
 	}}}
@@ -758,27 +641,16 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-				#if WITH_EDITOR
-				return FName::FName(this->Unsafe = *FDecode(*Key,this->Shift));
-				#else
 				return FName::FName(*FDecode(*Key,this->Shift));
-				#endif
 			case 1:
 				Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-				#if WITH_EDITOR
-				return FName::FName(this->Unsafe = *FDecode(*Key,this->TrueValue));
-				#else
 				return FName::FName(*FDecode(*Key,this->TrueValue));
-				#endif
 		default:
 			return TEXT("");
 	}}
 
 	void SetValue(FName Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					this->Shift = *FEncode(Input.ToString());
@@ -789,9 +661,6 @@ public:
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FName Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				this->Shift = *FEncode(*Key,Input.ToString());
@@ -808,7 +677,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = TEXT("");
 		Shift = TEXT("");
-		Unsafe = TEXT("");
 		Flag = 0;
 	}
 
@@ -816,7 +684,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = *FEncode(Input.ToString());
 		Shift = *FEncode(Input.ToString());
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -824,7 +691,6 @@ public:
 		Internal = FString(*Key);
 		TrueValue = *FEncode(*Key,Input.ToString());
 		Shift = *FEncode(*Key,Input.ToString());
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -853,20 +719,20 @@ public:
 
 };
 
-/** {SC}: Safe String Property;
+/** {S}: Safe String Property;
  Use this data format to store sensible String values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeString {
+struct SCUE4_API FSafeString {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueValue;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Shift;
 
 	UPROPERTY(SaveGame)
@@ -874,11 +740,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FString Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	FString GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -886,18 +749,10 @@ public:
 			switch (Flag) {
 				case 0:
 					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-					#if WITH_EDITOR
-					return FString::FString(this->Unsafe = *FDecode(this->Shift));
-					#else
 					return FString::FString(*FDecode(this->Shift));
-					#endif
 				case 1:
 					Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-					#if WITH_EDITOR
-					return FString::FString(this->Unsafe = *FDecode(this->TrueValue));
-					#else
 					return FString::FString(*FDecode(this->TrueValue));
-					#endif
 			default:
 				return TEXT("");
 	}}}
@@ -906,27 +761,16 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-				#if WITH_EDITOR
-				return FString::FString(this->Unsafe = *FDecode(*Key,this->Shift));
-				#else
 				return FString::FString(*FDecode(*Key,this->Shift));
-				#endif
 			case 1:
 				Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-				#if WITH_EDITOR
-				return FString::FString(this->Unsafe = *FDecode(*Key,this->TrueValue));
-				#else
 				return FString::FString(*FDecode(*Key,this->TrueValue));
-				#endif
 		default:
 			return TEXT("");
 	}}
 
 	void SetValue(FString Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					this->Shift = *FEncode(Input);
@@ -937,9 +781,6 @@ public:
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FString Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				this->Shift = *FEncode(*Key,Input);
@@ -956,7 +797,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = TEXT("");
 		Shift = TEXT("");
-		Unsafe = TEXT("");
 		Flag = 0;
 	}
 
@@ -964,7 +804,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = *FEncode(Input);
 		Shift = *FEncode(Input);
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -972,7 +811,6 @@ public:
 		Internal = FString(*Key);
 		TrueValue = *FEncode(*Key,Input);
 		Shift = *FEncode(*Key,Input);
-		Unsafe = TEXT("");
 		Flag = 0;
 	}
 
@@ -1001,20 +839,20 @@ public:
 
 };
 
-/** {SC}: Safe Text Property;
+/** {S}: Safe Text Property;
  Use this data format to store sensible Text values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeText {
+struct SCUE4_API FSafeText {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueValue;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Shift;
 
 	UPROPERTY(SaveGame)
@@ -1022,11 +860,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FText Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	FText GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -1034,19 +869,10 @@ public:
 			switch (Flag) {
 				case 0:
 					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-					#if WITH_EDITOR
-					//return FText::FText(this->Unsafe.FromString(FDecode(this->Shift)));
 					return FText::FromString(FDecode(this->Shift));
-					#else
-					return FText::FromString(FDecode(this->Shift));
-					#endif
 				case 1:
 					Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-					#if WITH_EDITOR
-					return FText::FText(this->Unsafe.FromString(FDecode(this->TrueValue)));
-					#else
 					return FText::FromString(FDecode(this->TrueValue));
-					#endif
 			default:
 				return FText::GetEmpty();
 	}}}
@@ -1055,27 +881,16 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = NULL;
-				#if WITH_EDITOR
-				return FText::FText(this->Unsafe.FromString(FDecode(*Key,this->Shift)));
-				#else
 				return FText::FromString(FDecode(*Key,this->Shift));
-				#endif
 			case 1:
 				Flag = 0; this->TrueValue = this->Shift; this->Shift = NULL;
-				#if WITH_EDITOR
-				return FText::FText(this->Unsafe.FromString(FDecode(*Key,this->TrueValue)));
-				#else
 				return FText::FromString(FDecode(*Key,this->TrueValue));
-				#endif
 		default:
 			return FText::GetEmpty();
 	}}
 
 	void SetValue(FText Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					this->Shift = *FEncode(Input.ToString());
@@ -1086,9 +901,6 @@ public:
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FText Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				this->Shift = *FEncode(*Key,Input.ToString());
@@ -1105,7 +917,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = TEXT("");
 		Shift = TEXT("");
-		Unsafe = FText::GetEmpty();
 		Flag = 0;
 	}
 
@@ -1113,7 +924,6 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueValue = *FEncode(Input.ToString());
 		Shift = *FEncode(Input.ToString());
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -1121,7 +931,6 @@ public:
 		Internal = FString(*Key);
 		TrueValue = *FEncode(*Key,Input.ToString());
 		Shift = *FEncode(*Key,Input.ToString());
-		Unsafe = Input;
 		Flag = 0;
 	}
 
@@ -1150,26 +959,26 @@ public:
 
 };
 
-/** {SC}: Safe Vector2D Property;
+/** {S}: Safe Vector2D Property;
  Use this data format to store sensible Vector2D values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeVector2D {
+struct SCUE4_API FSafeVector2D {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueX;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueY;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftX;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftY;
 
 	UPROPERTY(SaveGame)
@@ -1177,11 +986,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FVector2D Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	FVector2D GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -1191,20 +997,12 @@ public:
 					Flag = 1;
 					this->ShiftX = this->TrueX; this->ShiftY = this->TrueY;
 					this->TrueX = NULL; this->TrueY = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FVector2D::FVector2D(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)));
-					#else
 					return FVector2D::FVector2D(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)));
-					#endif
 				case 1:
 					Flag = 0;
 					this->TrueX = this->ShiftX; this->TrueY = this->ShiftY;
 					this->ShiftX = NULL; this->ShiftY = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FVector2D::FVector2D(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)));
-					#else
 					return FVector2D::FVector2D(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)));
-					#endif
 			default:
 				return FVector2D::ZeroVector;
 	}}}
@@ -1215,56 +1013,42 @@ public:
 				Flag = 1;
 				this->ShiftX = this->TrueX; this->ShiftY = this->TrueY;
 				this->TrueX = NULL; this->TrueY = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)));
-				#else
 				return FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)));
-				#endif
 			case 1:
 				Flag = 0;
 				this->TrueX = this->ShiftX; this->TrueY = this->ShiftY;
 				this->ShiftX = NULL; this->ShiftY = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)));
-				#else
 				return FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)));
-				#endif
 		default:
 			return FVector2D::ZeroVector;
 	}}
 
 	void SetValue(FVector2D Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = *FEncode(FString::SanitizeFloat(Input.X));
-					this->ShiftY = *FEncode(FString::SanitizeFloat(Input.Y));
+					this->ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+					this->ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
 					this->TrueX = NULL; this->TrueY = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueX = *FEncode(FString::SanitizeFloat(Input.X));
-					this->TrueY = *FEncode(FString::SanitizeFloat(Input.Y));
+					this->TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+					this->TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
 					this->ShiftX = NULL; this->ShiftY = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FVector2D Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = *FEncode(*Key,FString::SanitizeFloat(Input.X));
-				this->ShiftY = *FEncode(*Key,FString::SanitizeFloat(Input.Y));
+				this->ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+				this->ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
 				this->TrueX = NULL; this->TrueY = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueX = *FEncode(*Key,FString::SanitizeFloat(Input.X));
-				this->TrueY = *FEncode(*Key,FString::SanitizeFloat(Input.Y));
+				this->TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+				this->TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
 				this->ShiftX = NULL; this->ShiftY = NULL;
 	}Internal=FString(*Key);}
 
@@ -1275,37 +1059,33 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueX = TEXT(""); TrueY = TEXT("");
 		ShiftX = TEXT(""); ShiftY = TEXT("");
-		Unsafe = FVector2D::ZeroVector;
 		Flag = 0;
 	}
 
 	FSafeVector2D(const float X, const float Y) {
 		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::SanitizeFloat(X));
-		TrueY = *FEncode(FString::SanitizeFloat(Y));
-		ShiftX = *FEncode(FString::SanitizeFloat(X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Y));
-		Unsafe = FVector2D(X,Y);
+		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
+		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
+		ShiftX = *FEncode(FString::Printf(TEXT("%f"),X));
+		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
 		Flag = 0;
 	}
 
 	FSafeVector2D(const FVector2D Input) {
 		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::SanitizeFloat(Input.X));
-		TrueY = *FEncode(FString::SanitizeFloat(Input.Y));
-		ShiftX = *FEncode(FString::SanitizeFloat(Input.X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Input.Y));
-		Unsafe = Input;
+		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
 		Flag = 0;
 	}
 
 	FSafeVector2D(FString* Key, const FVector2D Input) {
 		Internal = FString(*Key);
-		TrueX = *FEncode(*Key,FString::SanitizeFloat(Input.X));
-		TrueY = *FEncode(*Key,FString::SanitizeFloat(Input.Y));
-		ShiftX = *FEncode(*Key,FString::SanitizeFloat(Input.X));
-		ShiftY = *FEncode(*Key,FString::SanitizeFloat(Input.Y));
-		Unsafe = FVector2D::ZeroVector;
+		TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+		TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+		ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+		ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
 		Flag = 0;
 	}
 
@@ -1336,42 +1116,38 @@ public:
 
 };
 
-/** {SC}: Safe Vector3D Property;
+/** {S}: Safe Vector3D Property;
  Use this data format to store sensible Vector3D values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeVector3D {
+struct SCUE4_API FSafeVector3D {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueX;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueY;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueZ;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftX;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftY;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftZ;
 
 	UPROPERTY(SaveGame)
 	uint8 Flag;
 
 public:
-
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FVector Unsafe;
 
 	////////////////////////////////////////////////////////////
 
@@ -1383,20 +1159,12 @@ public:
 					Flag = 1;
 					this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ;
 					this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FVector::FVector(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)));
-					#else
 					return FVector::FVector(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)));
-					#endif
 				case 1:
 					Flag = 0;
 					this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ;
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FVector::FVector(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)));
-					#else
 					return FVector::FVector(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)));
-					#endif
 			default:
 				return FVector::ZeroVector;
 	}}}
@@ -1407,60 +1175,46 @@ public:
 				Flag = 1;
 				this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ;
 				this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FVector::FVector(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)));
-				#else
 				return FVector::FVector(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)));
-				#endif
 			case 1:
 				Flag = 0;
 				this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ;
 				this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FVector::FVector(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)));
-				#else
 				return FVector::FVector(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)));
-				#endif
 		default:
 			return FVector::ZeroVector;
 	}}
 
 	void SetValue(FVector Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = *FEncode(FString::SanitizeFloat(Input.X));
-					this->ShiftY = *FEncode(FString::SanitizeFloat(Input.Y));
-					this->ShiftZ = *FEncode(FString::SanitizeFloat(Input.Z));
+					this->ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+					this->ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					this->ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
 					this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueX = *FEncode(FString::SanitizeFloat(Input.X));
-					this->TrueY = *FEncode(FString::SanitizeFloat(Input.Y));
-					this->TrueZ = *FEncode(FString::SanitizeFloat(Input.Z));
+					this->TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+					this->TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					this->TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FVector Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = *FEncode(*Key,FString::SanitizeFloat(Input.X));
-				this->ShiftY = *FEncode(*Key,FString::SanitizeFloat(Input.Y));
-				this->ShiftZ = *FEncode(*Key,FString::SanitizeFloat(Input.Z));
+				this->ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+				this->ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+				this->ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
 				this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueX = *FEncode(*Key,FString::SanitizeFloat(Input.X));
-				this->TrueY = *FEncode(*Key,FString::SanitizeFloat(Input.Y));
-				this->TrueZ = *FEncode(*Key,FString::SanitizeFloat(Input.Z));
+				this->TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+				this->TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+				this->TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
 				this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
 	}Internal=FString(*Key);}
 
@@ -1471,43 +1225,39 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueX = TEXT(""); TrueY = TEXT(""); TrueZ = TEXT("");
 		ShiftX = TEXT(""); ShiftY = TEXT(""); ShiftZ = TEXT("");
-		Unsafe = FVector::ZeroVector;
 		Flag = 0;
 	}
 
 	FSafeVector3D(const float X, const float Y, const float Z) {
 		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::SanitizeFloat(X));
-		TrueY = *FEncode(FString::SanitizeFloat(Y));
-		TrueZ = *FEncode(FString::SanitizeFloat(Z));
-		ShiftX = *FEncode(FString::SanitizeFloat(X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Y));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Z));
-		Unsafe = FVector(X,Y,Z);
+		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
+		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
+		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Z));
+		ShiftX = *FEncode(FString::Printf(TEXT("%f"),X));
+		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
+		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Z));
 		Flag = 0;
 	}
 
 	FSafeVector3D(const FVector Input) {
 		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::SanitizeFloat(Input.X));
-		TrueY = *FEncode(FString::SanitizeFloat(Input.Y));
-		TrueZ = *FEncode(FString::SanitizeFloat(Input.Z));
-		ShiftX = *FEncode(FString::SanitizeFloat(Input.X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Input.Y));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Input.Z));
-		Unsafe = Input;
+		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
+		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
 		Flag = 0;
 	}
 
 	FSafeVector3D(FString* Key, const FVector Input) {
 		Internal = FString(*Key);
-		TrueX = *FEncode(*Key,FString::SanitizeFloat(Input.X));
-		TrueY = *FEncode(*Key,FString::SanitizeFloat(Input.Y));
-		TrueZ = *FEncode(*Key,FString::SanitizeFloat(Input.Z));
-		ShiftX = *FEncode(*Key,FString::SanitizeFloat(Input.X));
-		ShiftY = *FEncode(*Key,FString::SanitizeFloat(Input.Y));
-		ShiftZ = *FEncode(*Key,FString::SanitizeFloat(Input.Z));
-		Unsafe = FVector::ZeroVector;
+		TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+		TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+		TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
+		ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+		ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+		ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
 		Flag = 0;
 	}
 
@@ -1540,38 +1290,38 @@ public:
 
 };
 
-/** {SC}: Safe Vector4D Property;
+/** {S}: Safe Vector4D Property;
  Use this data format to store sensible Vector4D values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeVector4D {
+struct SCUE4_API FSafeVector4D {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueX;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueY;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueZ;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueW;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftX;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftY;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftZ;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftW;
 
 	UPROPERTY(SaveGame)
@@ -1579,11 +1329,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FVector4 Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	FVector4 GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -1593,20 +1340,12 @@ public:
 					Flag = 1;
 					this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ; this->ShiftW = this->TrueW;
 					this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL; this->TrueW = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FVector4::FVector4(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)),FCString::Atof(*FDecode(this->ShiftW)));
-					#else
 					return FVector4::FVector4(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)),FCString::Atof(*FDecode(this->ShiftW)));
-					#endif
 				case 1:
 					Flag = 0;
 					this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ; this->TrueW = this->ShiftW;
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL; this->ShiftW = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FVector4::FVector4(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)),FCString::Atof(*FDecode(this->TrueW)));
-					#else
 					return FVector4::FVector4(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)),FCString::Atof(*FDecode(this->TrueW)));
-					#endif
 			default:
 				return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
 	}}}
@@ -1617,64 +1356,50 @@ public:
 				Flag = 1;
 				this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ; this->ShiftW = this->TrueW;
 				this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL; this->TrueW = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FVector4::FVector4(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)),FCString::Atof(*FDecode(*Key,this->ShiftW)));
-				#else
 				return FVector4::FVector4(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)),FCString::Atof(*FDecode(*Key,this->ShiftW)));
-				#endif
 			case 1:
 				Flag = 0;
 				this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ; this->TrueW = this->ShiftW;
 				this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL; this->ShiftW = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FVector4::FVector4(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)),FCString::Atof(*FDecode(*Key,this->TrueW)));
-				#else
 				return FVector4::FVector4(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)),FCString::Atof(*FDecode(*Key,this->TrueW)));
-				#endif
 		default:
 			return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
 	}}
 
 	void SetValue(FVector4* Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = *Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = *FEncode(FString::SanitizeFloat(Input->X));
-					this->ShiftY = *FEncode(FString::SanitizeFloat(Input->Y));
-					this->ShiftZ = *FEncode(FString::SanitizeFloat(Input->Z));
-					this->ShiftW = *FEncode(FString::SanitizeFloat(Input->W));
+					this->ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
+					this->ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
+					this->ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
+					this->ShiftW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
 					this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL; this->TrueW = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueX = *FEncode(FString::SanitizeFloat(Input->X));
-					this->TrueY = *FEncode(FString::SanitizeFloat(Input->Y));
-					this->TrueZ = *FEncode(FString::SanitizeFloat(Input->Z));
-					this->TrueW = *FEncode(FString::SanitizeFloat(Input->W));
+					this->TrueX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
+					this->TrueY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
+					this->TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
+					this->TrueW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL; this->ShiftW = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FVector4* Input) {
-		#if WITH_EDITOR
-		this->Unsafe = *Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = *FEncode(*Key,FString::SanitizeFloat(Input->X));
-				this->ShiftY = *FEncode(*Key,FString::SanitizeFloat(Input->Y));
-				this->ShiftZ = *FEncode(*Key,FString::SanitizeFloat(Input->Z));
-				this->ShiftW = *FEncode(*Key,FString::SanitizeFloat(Input->W));
+				this->ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
+				this->ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
+				this->ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
+				this->ShiftW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
 				this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL; this->TrueW = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueX = *FEncode(*Key,FString::SanitizeFloat(Input->X));
-				this->TrueY = *FEncode(*Key,FString::SanitizeFloat(Input->Y));
-				this->TrueZ = *FEncode(*Key,FString::SanitizeFloat(Input->Z));
-				this->TrueW = *FEncode(*Key,FString::SanitizeFloat(Input->W));
+				this->TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
+				this->TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
+				this->TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
+				this->TrueW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
 				this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL; this->ShiftW = NULL;
 	}Internal=FString(*Key);}
 
@@ -1685,49 +1410,45 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueX = TEXT(""); TrueY = TEXT(""); TrueZ = TEXT(""); TrueW = TEXT("");
 		ShiftX = TEXT(""); ShiftY = TEXT(""); ShiftZ = TEXT(""); ShiftW = TEXT("");
-		Unsafe = FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
 		Flag = 0;
 	}
 
 	FSafeVector4D(const float X, const float Y, const float Z, const float W) {
 		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::SanitizeFloat(X));
-		TrueY = *FEncode(FString::SanitizeFloat(Y));
-		TrueZ = *FEncode(FString::SanitizeFloat(Z));
-		TrueW = *FEncode(FString::SanitizeFloat(W));
-		ShiftX = *FEncode(FString::SanitizeFloat(X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Y));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Z));
-		ShiftW = *FEncode(FString::SanitizeFloat(W));
-		Unsafe = FVector4::FVector4(X,Y,Z,W);
+		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
+		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
+		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Z));
+		TrueW = *FEncode(FString::Printf(TEXT("%f"),W));
+		ShiftX = *FEncode(FString::Printf(TEXT("%f"),X));
+		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
+		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Z));
+		ShiftW = *FEncode(FString::Printf(TEXT("%f"),W));
 		Flag = 0;
 	}
 
 	FSafeVector4D(FVector4* Input) {
 		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::SanitizeFloat(Input->X));
-		TrueY = *FEncode(FString::SanitizeFloat(Input->Y));
-		TrueZ = *FEncode(FString::SanitizeFloat(Input->Z));
-		TrueW = *FEncode(FString::SanitizeFloat(Input->W));
-		ShiftX = *FEncode(FString::SanitizeFloat(Input->X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Input->Y));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Input->Z));
-		ShiftW = *FEncode(FString::SanitizeFloat(Input->W));
-		Unsafe = FVector4::FVector4(Input->X,Input->Y,Input->Z,Input->W);
+		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
+		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
+		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
+		TrueW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
+		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
+		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
+		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
+		ShiftW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
 		Flag = 0;
 	}
 
 	FSafeVector4D(FString* Key, FVector4* Input) {
 		Internal = FString(*Key);
-		TrueX = *FEncode(*Key,FString::SanitizeFloat(Input->X));
-		TrueY = *FEncode(*Key,FString::SanitizeFloat(Input->Y));
-		TrueZ = *FEncode(*Key,FString::SanitizeFloat(Input->Z));
-		TrueW = *FEncode(*Key,FString::SanitizeFloat(Input->W));
-		ShiftX = *FEncode(*Key,FString::SanitizeFloat(Input->X));
-		ShiftY = *FEncode(*Key,FString::SanitizeFloat(Input->Y));
-		ShiftZ = *FEncode(*Key,FString::SanitizeFloat(Input->Z));
-		ShiftW = *FEncode(*Key,FString::SanitizeFloat(Input->W));
-		Unsafe = FVector4::FVector4(Input->X,Input->Y,Input->Z,Input->W);
+		TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
+		TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
+		TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
+		TrueW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
+		ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
+		ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
+		ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
+		ShiftW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
 		Flag = 0;
 	}
 
@@ -1762,38 +1483,38 @@ public:
 
 };
 
-/** {SC}: Safe Color Property;
+/** {S}: Safe Color Property;
  Use this data format to store sensible Linear Color values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeColor {
+struct SCUE4_API FSafeColor {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueR;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueG;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueB;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueA;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftR;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftG;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftB;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftA;
 
 	UPROPERTY(SaveGame)
@@ -1801,11 +1522,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FLinearColor Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	FLinearColor GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -1815,20 +1533,12 @@ public:
 					Flag = 1;
 					this->ShiftR = this->TrueR; this->ShiftG = this->TrueG; this->ShiftB = this->TrueB; this->ShiftA = this->TrueA;
 					this->TrueR = NULL; this->TrueG = NULL; this->TrueB = NULL; this->TrueA = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FLinearColor::FLinearColor(FCString::Atof(*FDecode(this->ShiftR)),FCString::Atof(*FDecode(this->ShiftG)),FCString::Atof(*FDecode(this->ShiftB)),FCString::Atof(*FDecode(this->ShiftA)));
-					#else
 					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(this->ShiftR)),FCString::Atof(*FDecode(this->ShiftG)),FCString::Atof(*FDecode(this->ShiftB)),FCString::Atof(*FDecode(this->ShiftA)));
-					#endif
 				case 1:
 					Flag = 0;
 					this->TrueR = this->ShiftR; this->TrueG = this->ShiftG; this->TrueB = this->ShiftB; this->TrueA = this->ShiftA;
 					this->ShiftR = NULL; this->ShiftG = NULL; this->ShiftB = NULL; this->ShiftA = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FLinearColor::FLinearColor(FCString::Atof(*FDecode(this->TrueR)),FCString::Atof(*FDecode(this->TrueG)),FCString::Atof(*FDecode(this->TrueB)),FCString::Atof(*FDecode(this->TrueA)));
-					#else
 					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(this->TrueR)),FCString::Atof(*FDecode(this->TrueG)),FCString::Atof(*FDecode(this->TrueB)),FCString::Atof(*FDecode(this->TrueA)));
-					#endif
 			default:
 				return FLinearColor::FLinearColor();
 	}}}
@@ -1839,64 +1549,50 @@ public:
 				Flag = 1;
 				this->ShiftR = this->TrueR; this->ShiftG = this->TrueG; this->ShiftB = this->TrueB; this->ShiftA = this->TrueA;
 				this->TrueR = NULL; this->TrueG = NULL; this->TrueB = NULL; this->TrueA = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,this->ShiftR)),FCString::Atof(*FDecode(*Key,this->ShiftG)),FCString::Atof(*FDecode(*Key,this->ShiftB)),FCString::Atof(*FDecode(*Key,this->ShiftA)));
-				#else
 				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,this->ShiftR)),FCString::Atof(*FDecode(*Key,this->ShiftG)),FCString::Atof(*FDecode(*Key,this->ShiftB)),FCString::Atof(*FDecode(*Key,this->ShiftA)));
-				#endif
 			case 1:
 				Flag = 0;
 				this->TrueR = this->ShiftR; this->TrueG = this->ShiftG; this->TrueB = this->ShiftB; this->TrueA = this->ShiftA;
 				this->ShiftR = NULL; this->ShiftG = NULL; this->ShiftB = NULL; this->ShiftA = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,this->TrueR)),FCString::Atof(*FDecode(*Key,this->TrueG)),FCString::Atof(*FDecode(*Key,this->TrueB)),FCString::Atof(*FDecode(*Key,this->TrueA)));
-				#else
 				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,this->TrueR)),FCString::Atof(*FDecode(*Key,this->TrueG)),FCString::Atof(*FDecode(*Key,this->TrueB)),FCString::Atof(*FDecode(*Key,this->TrueA)));
-				#endif
 		default:
 			return FLinearColor::FLinearColor();
 	}}
 
 	void SetValue(FLinearColor* Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = *Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftR = *FEncode(FString::SanitizeFloat(Input->R));
-					this->ShiftG = *FEncode(FString::SanitizeFloat(Input->G));
-					this->ShiftB = *FEncode(FString::SanitizeFloat(Input->B));
-					this->ShiftA = *FEncode(FString::SanitizeFloat(Input->A));
+					this->ShiftR = *FEncode(FString::Printf(TEXT("%f"),Input->R));
+					this->ShiftG = *FEncode(FString::Printf(TEXT("%f"),Input->G));
+					this->ShiftB = *FEncode(FString::Printf(TEXT("%f"),Input->B));
+					this->ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
 					this->TrueR = NULL; this->TrueG = NULL; this->TrueB = NULL; this->TrueA = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueR = *FEncode(FString::SanitizeFloat(Input->R));
-					this->TrueG = *FEncode(FString::SanitizeFloat(Input->G));
-					this->TrueB = *FEncode(FString::SanitizeFloat(Input->B));
-					this->TrueA = *FEncode(FString::SanitizeFloat(Input->A));
+					this->TrueR = *FEncode(FString::Printf(TEXT("%f"),Input->R));
+					this->TrueG = *FEncode(FString::Printf(TEXT("%f"),Input->G));
+					this->TrueB = *FEncode(FString::Printf(TEXT("%f"),Input->B));
+					this->TrueA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
 					this->ShiftR = NULL; this->ShiftG = NULL; this->ShiftB = NULL; this->ShiftA = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FLinearColor* Input) {
-		#if WITH_EDITOR
-		this->Unsafe = *Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftR = *FEncode(*Key,FString::SanitizeFloat(Input->R));
-				this->ShiftG = *FEncode(*Key,FString::SanitizeFloat(Input->G));
-				this->ShiftB = *FEncode(*Key,FString::SanitizeFloat(Input->B));
-				this->ShiftA = *FEncode(FString::SanitizeFloat(Input->A));
+				this->ShiftR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->R));
+				this->ShiftG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->G));
+				this->ShiftB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->B));
+				this->ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
 				this->TrueR = NULL; this->TrueG = NULL; this->TrueB = NULL; this->TrueA = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueR = *FEncode(*Key,FString::SanitizeFloat(Input->R));
-				this->TrueG = *FEncode(*Key,FString::SanitizeFloat(Input->G));
-				this->TrueB = *FEncode(*Key,FString::SanitizeFloat(Input->B));
-				this->TrueA = *FEncode(*Key,FString::SanitizeFloat(Input->A));
+				this->TrueR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->R));
+				this->TrueG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->G));
+				this->TrueB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->B));
+				this->TrueA = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->A));
 				this->ShiftR = NULL; this->ShiftG = NULL; this->ShiftB = NULL; this->ShiftA = NULL;
 	}Internal=FString(*Key);}
 
@@ -1907,35 +1603,32 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueR = TEXT(""); TrueG = TEXT(""); TrueB = TEXT(""); TrueA = TEXT("");
 		ShiftR = TEXT(""); ShiftG = TEXT(""); ShiftB = TEXT(""); ShiftA = TEXT("");
-		Unsafe = FLinearColor::FLinearColor();
 		Flag = 0;
 	}
 
 	FSafeColor(const FLinearColor Input) {
 		Internal = FString(*ASCII_KEY);
-		TrueR = *FEncode(FString::SanitizeFloat(Input.R));
-		TrueG = *FEncode(FString::SanitizeFloat(Input.G));
-		TrueB = *FEncode(FString::SanitizeFloat(Input.B));
-		TrueA = *FEncode(FString::SanitizeFloat(Input.A));
-		ShiftR = *FEncode(FString::SanitizeFloat(Input.R));
-		ShiftG = *FEncode(FString::SanitizeFloat(Input.G));
-		ShiftB = *FEncode(FString::SanitizeFloat(Input.B));
-		ShiftA = *FEncode(FString::SanitizeFloat(Input.A));
-		Unsafe = Input;
+		TrueR = *FEncode(FString::Printf(TEXT("%f"),Input.R));
+		TrueG = *FEncode(FString::Printf(TEXT("%f"),Input.G));
+		TrueB = *FEncode(FString::Printf(TEXT("%f"),Input.B));
+		TrueA = *FEncode(FString::Printf(TEXT("%f"),Input.A));
+		ShiftR = *FEncode(FString::Printf(TEXT("%f"),Input.R));
+		ShiftG = *FEncode(FString::Printf(TEXT("%f"),Input.G));
+		ShiftB = *FEncode(FString::Printf(TEXT("%f"),Input.B));
+		ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input.A));
 		Flag = 0;
 	}
 
 	FSafeColor(FString* Key, const FLinearColor Input) {
 		Internal = FString(*Key);
-		TrueR = *FEncode(*Key,FString::SanitizeFloat(Input.R));
-		TrueG = *FEncode(*Key,FString::SanitizeFloat(Input.G));
-		TrueB = *FEncode(*Key,FString::SanitizeFloat(Input.B));
-		TrueA = *FEncode(*Key,FString::SanitizeFloat(Input.A));
-		ShiftR = *FEncode(*Key,FString::SanitizeFloat(Input.R));
-		ShiftG = *FEncode(*Key,FString::SanitizeFloat(Input.G));
-		ShiftB = *FEncode(*Key,FString::SanitizeFloat(Input.B));
-		ShiftA = *FEncode(*Key,FString::SanitizeFloat(Input.A));
-		Unsafe = Input;
+		TrueR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.R));
+		TrueG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.G));
+		TrueB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.B));
+		TrueA = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.A));
+		ShiftR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.R));
+		ShiftG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.G));
+		ShiftB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.B));
+		ShiftA = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.A));
 		Flag = 0;
 	}
 
@@ -1970,32 +1663,32 @@ public:
 
 };
 
-/** {SC}: Safe Rotator Property;
+/** {S}: Safe Rotator Property;
  Use this data format to store sensible Rotator values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeRotator {
+struct SCUE4_API FSafeRotator {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString Internal;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueX;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueY;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString TrueZ;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftX;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftY;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FString ShiftZ;
 
 	UPROPERTY(SaveGame)
@@ -2003,11 +1696,8 @@ private:
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FRotator Unsafe;
-
 	////////////////////////////////////////////////////////////
+	/// Accessors
 
 	FRotator GetValue() {
 		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
@@ -2017,20 +1707,12 @@ public:
 					Flag = 1;
 					this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ;
 					this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FRotator::FRotator(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)));
-					#else
 					return FRotator::FRotator(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)));
-					#endif
 				case 1:
 					Flag = 0;
 					this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ;
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
-					#if WITH_EDITOR
-					return Unsafe = FRotator::FRotator(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)));
-					#else
 					return FRotator::FRotator(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)));
-					#endif
 			default:
 				return FRotator::ZeroRotator;
 	}}}
@@ -2041,60 +1723,46 @@ public:
 				Flag = 1;
 				this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ;
 				this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FRotator::FRotator(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)));
-				#else
 				return FRotator::FRotator(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)));
-				#endif
 			case 1:
 				Flag = 0;
 				this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ;
 				this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
-				#if WITH_EDITOR
-				return Unsafe = FRotator::FRotator(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)));
-				#else
 				return FRotator::FRotator(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)));
-				#endif
 		default:
 			return FRotator::ZeroRotator;
 	}}
 
 	void SetValue(FRotator Input) {
 		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
-			#if WITH_EDITOR
-			this->Unsafe = Input;
-			#endif
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = *FEncode(FString::SanitizeFloat(Input.Pitch));
-					this->ShiftY = *FEncode(FString::SanitizeFloat(Input.Yaw));
-					this->ShiftZ = *FEncode(FString::SanitizeFloat(Input.Roll));
+					this->ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+					this->ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+					this->ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
 					this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueX = *FEncode(FString::SanitizeFloat(Input.Pitch));
-					this->TrueY = *FEncode(FString::SanitizeFloat(Input.Yaw));
-					this->TrueZ = *FEncode(FString::SanitizeFloat(Input.Roll));
+					this->TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+					this->TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+					this->TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
 					this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FRotator Input) {
-		#if WITH_EDITOR
-		this->Unsafe = Input;
-		#endif
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = *FEncode(*Key,FString::SanitizeFloat(Input.Pitch));
-				this->ShiftY = *FEncode(*Key,FString::SanitizeFloat(Input.Yaw));
-				this->ShiftZ = *FEncode(*Key,FString::SanitizeFloat(Input.Roll));
+				this->ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
+				this->ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
+				this->ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
 				this->TrueX = NULL; this->TrueY = NULL; this->TrueZ = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueX = *FEncode(*Key,FString::SanitizeFloat(Input.Pitch));
-				this->TrueY = *FEncode(*Key,FString::SanitizeFloat(Input.Yaw));
-				this->TrueZ = *FEncode(*Key,FString::SanitizeFloat(Input.Roll));
+				this->TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
+				this->TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
+				this->TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
 				this->ShiftX = NULL; this->ShiftY = NULL; this->ShiftZ = NULL;
 	}Internal=FString(*Key);}
 
@@ -2105,43 +1773,39 @@ public:
 		Internal = FString(*ASCII_KEY);
 		TrueX = TEXT(""); TrueY = TEXT(""); TrueZ = TEXT("");
 		ShiftX = TEXT(""); ShiftY = TEXT(""); ShiftZ = TEXT("");
-		Unsafe = FRotator::ZeroRotator;
 		Flag = 0;
 	}
 
 	FSafeRotator(const float Pitch, const float Yall, const float Roll) {
 		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::SanitizeFloat(Pitch));
-		TrueY = *FEncode(FString::SanitizeFloat(Yall));
-		TrueZ = *FEncode(FString::SanitizeFloat(Roll));
-		ShiftX = *FEncode(FString::SanitizeFloat(Pitch));
-		ShiftY = *FEncode(FString::SanitizeFloat(Yall));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Roll));
-		Unsafe = FRotator(Pitch,Yall,Roll);
+		TrueX = *FEncode(FString::Printf(TEXT("%f"),Pitch));
+		TrueY = *FEncode(FString::Printf(TEXT("%f"),Yall));
+		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Roll));
+		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Pitch));
+		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Yall));
+		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Roll));
 		Flag = 0;
 	}
 
 	FSafeRotator(const FRotator Input) {
 		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::SanitizeFloat(Input.Pitch));
-		TrueY = *FEncode(FString::SanitizeFloat(Input.Yaw));
-		TrueZ = *FEncode(FString::SanitizeFloat(Input.Roll));
-		ShiftX = *FEncode(FString::SanitizeFloat(Input.Pitch));
-		ShiftY = *FEncode(FString::SanitizeFloat(Input.Yaw));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Input.Roll));
-		Unsafe = Input;
+		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
+		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
 		Flag = 0;
 	}
 
 	FSafeRotator(FString* Key, const FRotator Input) {
 		Internal = FString(*Key);
-		TrueX = *FEncode(*Key,FString::SanitizeFloat(Input.Pitch));
-		TrueY = *FEncode(*Key,FString::SanitizeFloat(Input.Yaw));
-		TrueZ = *FEncode(*Key,FString::SanitizeFloat(Input.Roll));
-		ShiftX = *FEncode(*Key,FString::SanitizeFloat(Input.Pitch));
-		ShiftY = *FEncode(*Key,FString::SanitizeFloat(Input.Yaw));
-		ShiftZ = *FEncode(*Key,FString::SanitizeFloat(Input.Roll));
-		Unsafe = Input;
+		TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
+		TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
+		TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
+		ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
+		ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
+		ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
 		Flag = 0;
 	}
 
@@ -2174,51 +1838,35 @@ public:
 
 };
 
-/** {SC}: Safe Transform Property;
+/** {S}: Safe Transform Property;
  Use this data format to store sensible Transform values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
-struct FSafeTransform {
+struct SCUE4_API FSafeTransform {
 	GENERATED_USTRUCT_BODY()
 private:
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FSafeVector3D Scale;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FSafeVector3D Position;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
 	FSafeRotator Rotation;
 
 public:
 
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FTransform Unsafe;
-
 	////////////////////////////////////////////////////////////
 
 	FTransform GetValue() {
-		#if WITH_EDITOR
-		this->Unsafe = FTransform::FTransform(this->Rotation.GetValue(),this->Position.GetValue(),this->Scale.GetValue()); return this->Unsafe;
-		#else
 		return FTransform::FTransform(this->Rotation.GetValue(),this->Position.GetValue(),this->Scale.GetValue());
-		#endif
 	}
 
 	FTransform GetValue(FString* Key) {
-		#if WITH_EDITOR
-		this->Unsafe = FTransform::FTransform(this->Rotation.GetValue(*&Key),this->Position.GetValue(*&Key),this->Scale.GetValue(*&Key));
-		return this->Unsafe;
-		#else
 		return FTransform::FTransform(this->Rotation.GetValue(*&Key),this->Position.GetValue(*&Key),this->Scale.GetValue(*&Key));
-		#endif
 	}
 
 	void SetValue(FTransform* Input) {
-		#if WITH_EDITOR
-		this->Unsafe = *Input;
-		#endif
 		this->Scale.SetValue(Input->GetScale3D());
 		this->Position.SetValue(Input->GetLocation());
 		this->Rotation.SetValue(Input->GetRotation().Rotator());
@@ -2271,8 +1919,10 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if PLATFORM_WINDOWS
 #pragma endregion CUSTOM TYPES
 #pragma region OPERATORS
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Operators:: Adding support for custom 'Safe Type' operations
 
@@ -2280,7 +1930,7 @@ public:
 
 /* FSafe -> FSafe */
 
-FORCEINLINE bool operator == (FSafeBool &FSB, FSafeBool &B) {
+FORCEINLINE bool operator == (FSafeBool &FSB, FSafeBool &B) { // CONST!  CHANGE ALL GET() and SET() to CONST TOO!!
 	return  (FSB.GetValue()==B.GetValue());
 }
 
@@ -4128,34 +3778,36 @@ FORCEINLINE bool operator != (const FTransform &T, FSafeTransform &FST) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if PLATFORM_WINDOWS
 #pragma endregion OPERATORS
 #pragma region GAME INSTANCE
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Archivers:: Game Instance:: Runs anti-cheat, anti-debugging methods
 
-/** {SC}: Safe Game Instance; Secure-Client is a C++ Plugin designed to provide anti-cheat capability to your games.
-	Other custom Game Instance classes, when used, should have this class as a parent for effective use. */
-UCLASS(ClassGroup = Security, Category = "Security", hideCategories = (Activation, Socket, Tick, Thumbnail), meta = (BlueprintType, DisplayName = "{SC} Safe Game Instance", ShortTooltip = "{SC} Safe Game Instance Class. Check documentation for more information."))
+/// {S}: Safe Game Instance; Secure-Client is a C++ Plugin designed to provide anti-cheat capability to your games.
+/// Other custom Game Instance classes, when used, should have this class as a parent for effective use.
+UCLASS(ClassGroup = Security, Category = "Security", hideCategories = (Activation, Socket, Tick, Thumbnail), meta = (BlueprintType, DisplayName = "{S} Safe Game Instance", ShortTooltip = "{S} Safe Game Instance Class. Check documentation for more information."))
 class SCUE4_API USafeGameInstance : public UGameInstance {
 	GENERATED_BODY()
 public:
 	/* Sets visibility of Game-Guard console window.
 	Console is only visible in Editor Mode, on packaged games it's always hidden. */
-	UPROPERTY(EditAnywhere, Category = "Security", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool HideGameGuard = true;
 	//
 	/* To increase defenses against memory readers, uncheck this option when you're ready to
 	ship final standalone game build. If disabled, option won't allow Debuggers attach to the game process. */
-	UPROPERTY(EditAnywhere, Category = "Security", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool AllowDebugging = true;
 	//
 	/** Interval, in seconds, for Internal Process Scanner to be automatically invoked. */
-	UPROPERTY(EditAnywhere, Category = "Security", meta = (AllowPrivateAccess = "true", ClampMin = "10", ClampMax = "1000", UIMin = "10", UIMax = "1000"))
+	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true", ClampMin = "10", ClampMax = "1000", UIMin = "10", UIMax = "1000"))
 	uint32 ScannerInterval = 30.f;
 	//
 	/* Sets visibility of Game-Guard console window.
 	Console is only visible in Editor Mode, on packaged games it's always hidden. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "{SC}:: Hide Game-Guard Console", Keywords = "Security Guard"))
+	UFUNCTION(Category = "Security", BlueprintCallable, meta = (DisplayName = "{S}:: Hide Game-Guard Console", Keywords = "Security Guard"))
 	void HideGameGuardConsole(bool Set);
 	//
 	//
@@ -4248,12 +3900,11 @@ public:
 	FORCEINLINE bool HasThreat() {
 	#if PLATFORM_WINDOWS
 		#if !WITH_EDITOR
-		auto HND = FindWindow(TEXT("CHEATENGINEi386"),NULL); if (HND) {return true;}
-		HND = FindWindow(TEXT("CHEATENGINEx86_64"),NULL); if (HND) {return true;}
-		HND = FindWindow(TEXT("CHEATENGINE"),NULL); if (HND) {return true;}
-		HND = FindWindow(TEXT("OLLYDBG"),NULL); if (HND) {return true;}
-		HND = FindWindow(TEXT("WinDbgFrameClass"),NULL); if (HND) {return true;}
-		HND = FindWindow(TEXT("Window"),NULL); if (HND) {return true;}
+		if (OpenFileMapping(FILE_MAP_READ|FILE_MAP_WRITE,false,L"CEHYPERSCANSETTINGS")!=0) {return true;}
+		auto HND = FindWindowA((LPCSTR)"WinDbgFrameClass",NULL); if (HND) {return true;}
+		HND = FindWindowA((LPCSTR)"WinDbgFrameClass",NULL); if (HND) {return true;}
+		HND = FindWindowA((LPCSTR)"OLLYDBG",NULL); if (HND) {return true;}
+		HND = FindWindowA((LPCSTR)"Window",NULL); if (HND) {return true;}
 		return false;
 		#endif
 		return false;
@@ -4273,5 +3924,7 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if PLATFORM_WINDOWS
 #pragma endregion GAME INSTANCE
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

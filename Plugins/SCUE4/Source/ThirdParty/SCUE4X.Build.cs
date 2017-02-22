@@ -1,5 +1,5 @@
-using System.IO;
 using UnrealBuildTool;
+using System.IO;
 
 public class SCUE4X : ModuleRules {
     public SCUE4X(TargetInfo Target) {

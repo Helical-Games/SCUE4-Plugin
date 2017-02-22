@@ -4,15 +4,18 @@ public class SCUE4Editor : ModuleRules {
 	public SCUE4Editor(TargetInfo Target) {
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
-				"SCUE4",
 				"Core",
+				"SCUE4",
+				"Slate",
 				"Engine",
 				"Projects",
 				"UnrealEd",
+				"SlateCore",
+				"InputCore",
 				"CoreUObject",
 				"LevelEditor",
-				"SlateCore",
-				"Slate"
+				"EditorStyle",
+				"PropertyEditor"
 			}
 		);
 		//
