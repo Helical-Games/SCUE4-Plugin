@@ -25,46 +25,12 @@ void USafeGameInstance::HideGameGuardConsole(bool Set) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 USCUE4Settings::USCUE4Settings(const FObjectInitializer& OBJ) : Super(OBJ) {
 	KeyGeneratorPath = FPaths::Combine(*IPluginManager::Get().FindPlugin(TEXT("SCUE4"))->GetBaseDir(),TEXT("Source/ThirdParty/"),TEXT("SCUE4_Key-Generator.exe"));
 	//
 	IllegalKeywords.AddUnique(FString(TEXT("spy")));
 	IllegalKeywords.AddUnique(FString(TEXT("autohotkey")));
-	IllegalKeywords.AddUnique(FString(TEXT("artmoney")));
-	IllegalKeywords.AddUnique(FString(TEXT("injector")));
-	IllegalKeywords.AddUnique(FString(TEXT("cheat")));
-	IllegalKeywords.AddUnique(FString(TEXT("hack")));
-	IllegalKeywords.AddUnique(FString(TEXT("crack")));
-	IllegalKeywords.AddUnique(FString(TEXT("ccdebug")));
-	IllegalKeywords.AddUnique(FString(TEXT("debugger")));
-	IllegalKeywords.AddUnique(FString(TEXT("decompile")));
-	IllegalKeywords.AddUnique(FString(TEXT("dotpeek")));
-	IllegalKeywords.AddUnique(FString(TEXT("eclipse")));
-	IllegalKeywords.AddUnique(FString(TEXT("eztest")));
-	IllegalKeywords.AddUnique(FString(TEXT("fusion")));
-	IllegalKeywords.AddUnique(FString(TEXT("codeview")));
-	IllegalKeywords.AddUnique(FString(TEXT("haxplorer")));
-	IllegalKeywords.AddUnique(FString(TEXT("hookshark")));
-	IllegalKeywords.AddUnique(FString(TEXT("memory editor")));
-	IllegalKeywords.AddUnique(FString(TEXT("monodevelop")));
-	IllegalKeywords.AddUnique(FString(TEXT("ollydbg")));
-	IllegalKeywords.AddUnique(FString(TEXT("reflector")));
-	IllegalKeywords.AddUnique(FString(TEXT("slickedit")));
-	IllegalKeywords.AddUnique(FString(TEXT("totalview")));
-	IllegalKeywords.AddUnique(FString(TEXT("trainer")));
-	IllegalKeywords.AddUnique(FString(TEXT("windbg")));
-	IllegalKeywords.AddUnique(FString(TEXT("xdebug")));
-	IllegalKeywords.AddUnique(FString(TEXT("x64dbg")));
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-USCUE4Settings::USCUE4Settings(const FObjectInitializer& OBJ) : Super(OBJ) {
-	KeyGeneratorPath = FPaths::Combine(*IPluginManager::Get().FindPlugin(TEXT("SCUE4"))->GetBaseDir(),TEXT("Source/ThirdParty/"),TEXT("SCUE4_Key-Generator.exe"));
-	//
-	IllegalKeywords.AddUnique(FString(TEXT("spy")));
 	IllegalKeywords.AddUnique(FString(TEXT("artmoney")));
 	IllegalKeywords.AddUnique(FString(TEXT("injector")));
 	IllegalKeywords.AddUnique(FString(TEXT("cheat")));

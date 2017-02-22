@@ -13,36 +13,24 @@
 	- YOU AGREE DEVELOPER PROVIDED SUPPORT CHANNELS, ARE UNDER HIS SOLE DISCRETION.
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
+
 
 #if PLATFORM_WINDOWS
  #include "AllowWindowsPlatformTypes.h"
  #include <Windows.h>
  #include <Winuser.h>
  #include "HideWindowsPlatformTypes.h"
-=======
-
-
-#if PLATFORM_WINDOWS
-	#include "AllowWindowsPlatformTypes.h"
-	#include <Windows.h>
-	#include <Winuser.h>
-	#include "HideWindowsPlatformTypes.h"
->>>>>>> origin/master
 #endif
 
 #pragma once
 #include "SCUE4.generated.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 #if PLATFORM_WINDOWS
 #pragma region SETTINGS
 #endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Default SCUE4 Settings
-=======
->>>>>>> origin/master
 
 UCLASS(ClassGroup = Synaptech, Category = "Synaptech", config = Game)
 class SCUE4_API USCUE4Settings : public UObject {
@@ -58,37 +46,12 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 #if PLATFORM_WINDOWS
 #pragma endregion SETTINGS
 #pragma region ENCRYPTION SYSTEM
 #endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Encryption:: Caesar Cipher ^ Byte Mangling
-=======
-#pragma region SETTINGS
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Default SCUE4 Settings
-
-UCLASS(ClassGroup = Synaptech, Category = "Synaptech", config = Game)
-class SCUE4_API USCUE4Settings : public UObject {
-	GENERATED_UCLASS_BODY()
-public:
-	/** Path to the Editor's Key Generator standalone executable. */
-	UPROPERTY(Category = "General Settings", config, EditAnywhere, BlueprintReadOnly)
-	FString KeyGeneratorPath;
-	//
-	/** List of illegal process words that internal scanner shall look for. */
-	UPROPERTY(Category = "General Settings", config, EditAnywhere, BlueprintReadOnly)
-	TArray<FString> IllegalKeywords;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma endregion SETTINGS
-#pragma region ENCRYPTION SYSTEM
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/** Encryption:: Caesar Cipher ^ Byte Mangling. */
->>>>>>> origin/master
 
 static const FString ASCII_DIC = TEXT("0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ@~!#$%^&*()_-=+/|[]{}`;:,<>?.\\");
 static const FString ASCII_KEY = TEXT(":.,@#}{[=^otTxmY+_!)*rACbfklpKVFWz]%Ju8ZgIi/HXGqj$>2MhPwDd1BS7-(3sEn06c5yRe?9U`L&|OvaNQ;4~<\\");
@@ -130,15 +93,10 @@ static FORCEINLINE FString FDecode(FString Key, FString Input) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 #if PLATFORM_WINDOWS
 #pragma endregion ENCRYPTION SYSTEM
 #pragma region INTERNAL SCANNER
 #endif
-=======
-#pragma endregion ENCRYPTION SYSTEM
-#pragma region INTERNAL SCANNER
->>>>>>> origin/master
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Enumerator:: Internal Process Scanner
 
@@ -147,15 +105,10 @@ void FSCUE4_Enumerate();
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 #if PLATFORM_WINDOWS
 #pragma endregion INTERNAL SCANNER
 #pragma region CUSTOM TYPES
 #endif
-=======
-#pragma endregion INTERNAL SCANNER
-#pragma region CUSTOM TYPES
->>>>>>> origin/master
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Structs:: Custom 'Safe Types' for run-time data encryption
 
@@ -185,13 +138,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	bool Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -315,13 +261,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	uint8 Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -442,13 +381,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	int32 Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -569,13 +501,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	float Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -638,14 +563,8 @@ public:
 
 	FSafeFloat(const float Input) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueValue = FEncode(FString::Printf(TEXT("%f"),Input));
 		Shift = FEncode(FString::Printf(TEXT("%f"),Input));
-=======
-		TrueValue = FEncode(FString::SanitizeFloat(Input));
-		Shift = FEncode(FString::SanitizeFloat(Input));
-		Unsafe = Input;
->>>>>>> origin/master
 		Flag = 0;
 	}
 
@@ -702,13 +621,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FName Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -829,13 +741,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FString Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -956,13 +861,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FText Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -1089,13 +987,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FVector2D Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -1174,35 +1065,19 @@ public:
 
 	FSafeVector2D(const float X, const float Y) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
 		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
 		ShiftX = *FEncode(FString::Printf(TEXT("%f"),X));
 		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
-=======
-		TrueX = *FEncode(FString::SanitizeFloat(X));
-		TrueY = *FEncode(FString::SanitizeFloat(Y));
-		ShiftX = *FEncode(FString::SanitizeFloat(X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Y));
-		Unsafe = FVector2D(X,Y);
->>>>>>> origin/master
 		Flag = 0;
 	}
 
 	FSafeVector2D(const FVector2D Input) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
 		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
 		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
 		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-=======
-		TrueX = *FEncode(FString::SanitizeFloat(Input.X));
-		TrueY = *FEncode(FString::SanitizeFloat(Input.Y));
-		ShiftX = *FEncode(FString::SanitizeFloat(Input.X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Input.Y));
-		Unsafe = Input;
->>>>>>> origin/master
 		Flag = 0;
 	}
 
@@ -1275,13 +1150,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FVector Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 
 	FVector GetValue() {
@@ -1363,43 +1231,23 @@ public:
 
 	FSafeVector3D(const float X, const float Y, const float Z) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
 		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
 		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Z));
 		ShiftX = *FEncode(FString::Printf(TEXT("%f"),X));
 		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
 		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Z));
-=======
-		TrueX = *FEncode(FString::SanitizeFloat(X));
-		TrueY = *FEncode(FString::SanitizeFloat(Y));
-		TrueZ = *FEncode(FString::SanitizeFloat(Z));
-		ShiftX = *FEncode(FString::SanitizeFloat(X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Y));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Z));
-		Unsafe = FVector(X,Y,Z);
->>>>>>> origin/master
 		Flag = 0;
 	}
 
 	FSafeVector3D(const FVector Input) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
 		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
 		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
 		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
 		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
 		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
-=======
-		TrueX = *FEncode(FString::SanitizeFloat(Input.X));
-		TrueY = *FEncode(FString::SanitizeFloat(Input.Y));
-		TrueZ = *FEncode(FString::SanitizeFloat(Input.Z));
-		ShiftX = *FEncode(FString::SanitizeFloat(Input.X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Input.Y));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Input.Z));
-		Unsafe = Input;
->>>>>>> origin/master
 		Flag = 0;
 	}
 
@@ -1482,13 +1330,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FVector4 Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -1575,7 +1416,6 @@ public:
 
 	FSafeVector4D(const float X, const float Y, const float Z, const float W) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
 		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
 		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Z));
@@ -1584,23 +1424,11 @@ public:
 		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
 		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Z));
 		ShiftW = *FEncode(FString::Printf(TEXT("%f"),W));
-=======
-		TrueX = *FEncode(FString::SanitizeFloat(X));
-		TrueY = *FEncode(FString::SanitizeFloat(Y));
-		TrueZ = *FEncode(FString::SanitizeFloat(Z));
-		TrueW = *FEncode(FString::SanitizeFloat(W));
-		ShiftX = *FEncode(FString::SanitizeFloat(X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Y));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Z));
-		ShiftW = *FEncode(FString::SanitizeFloat(W));
-		Unsafe = FVector4::FVector4(X,Y,Z,W);
->>>>>>> origin/master
 		Flag = 0;
 	}
 
 	FSafeVector4D(FVector4* Input) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
 		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
 		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
@@ -1609,17 +1437,6 @@ public:
 		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
 		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
 		ShiftW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
-=======
-		TrueX = *FEncode(FString::SanitizeFloat(Input->X));
-		TrueY = *FEncode(FString::SanitizeFloat(Input->Y));
-		TrueZ = *FEncode(FString::SanitizeFloat(Input->Z));
-		TrueW = *FEncode(FString::SanitizeFloat(Input->W));
-		ShiftX = *FEncode(FString::SanitizeFloat(Input->X));
-		ShiftY = *FEncode(FString::SanitizeFloat(Input->Y));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Input->Z));
-		ShiftW = *FEncode(FString::SanitizeFloat(Input->W));
-		Unsafe = FVector4::FVector4(Input->X,Input->Y,Input->Z,Input->W);
->>>>>>> origin/master
 		Flag = 0;
 	}
 
@@ -1706,13 +1523,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FLinearColor Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -1799,7 +1609,6 @@ public:
 
 	FSafeColor(const FLinearColor Input) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueR = *FEncode(FString::Printf(TEXT("%f"),Input.R));
 		TrueG = *FEncode(FString::Printf(TEXT("%f"),Input.G));
 		TrueB = *FEncode(FString::Printf(TEXT("%f"),Input.B));
@@ -1808,17 +1617,6 @@ public:
 		ShiftG = *FEncode(FString::Printf(TEXT("%f"),Input.G));
 		ShiftB = *FEncode(FString::Printf(TEXT("%f"),Input.B));
 		ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input.A));
-=======
-		TrueR = *FEncode(FString::SanitizeFloat(Input.R));
-		TrueG = *FEncode(FString::SanitizeFloat(Input.G));
-		TrueB = *FEncode(FString::SanitizeFloat(Input.B));
-		TrueA = *FEncode(FString::SanitizeFloat(Input.A));
-		ShiftR = *FEncode(FString::SanitizeFloat(Input.R));
-		ShiftG = *FEncode(FString::SanitizeFloat(Input.G));
-		ShiftB = *FEncode(FString::SanitizeFloat(Input.B));
-		ShiftA = *FEncode(FString::SanitizeFloat(Input.A));
-		Unsafe = Input;
->>>>>>> origin/master
 		Flag = 0;
 	}
 
@@ -1899,13 +1697,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FRotator Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
@@ -1988,43 +1779,23 @@ public:
 
 	FSafeRotator(const float Pitch, const float Yall, const float Roll) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueX = *FEncode(FString::Printf(TEXT("%f"),Pitch));
 		TrueY = *FEncode(FString::Printf(TEXT("%f"),Yall));
 		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Roll));
 		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Pitch));
 		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Yall));
 		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Roll));
-=======
-		TrueX = *FEncode(FString::SanitizeFloat(Pitch));
-		TrueY = *FEncode(FString::SanitizeFloat(Yall));
-		TrueZ = *FEncode(FString::SanitizeFloat(Roll));
-		ShiftX = *FEncode(FString::SanitizeFloat(Pitch));
-		ShiftY = *FEncode(FString::SanitizeFloat(Yall));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Roll));
-		Unsafe = FRotator(Pitch,Yall,Roll);
->>>>>>> origin/master
 		Flag = 0;
 	}
 
 	FSafeRotator(const FRotator Input) {
 		Internal = FString(*ASCII_KEY);
-<<<<<<< HEAD
 		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
 		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
 		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
 		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
 		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
 		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
-=======
-		TrueX = *FEncode(FString::SanitizeFloat(Input.Pitch));
-		TrueY = *FEncode(FString::SanitizeFloat(Input.Yaw));
-		TrueZ = *FEncode(FString::SanitizeFloat(Input.Roll));
-		ShiftX = *FEncode(FString::SanitizeFloat(Input.Pitch));
-		ShiftY = *FEncode(FString::SanitizeFloat(Input.Yaw));
-		ShiftZ = *FEncode(FString::SanitizeFloat(Input.Roll));
-		Unsafe = Input;
->>>>>>> origin/master
 		Flag = 0;
 	}
 
@@ -2086,13 +1857,6 @@ private:
 
 public:
 
-<<<<<<< HEAD
-=======
-	/** In-Editor value reference for debugging. DO NOT use in your packaged game code-logic. */
-	UPROPERTY(Category = "Security", VisibleAnywhere)
-	FTransform Unsafe;
-
->>>>>>> origin/master
 	////////////////////////////////////////////////////////////
 
 	FTransform GetValue() {
@@ -2156,15 +1920,10 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 #if PLATFORM_WINDOWS
 #pragma endregion CUSTOM TYPES
 #pragma region OPERATORS
 #endif
-=======
-#pragma endregion CUSTOM TYPES
-#pragma region OPERATORS
->>>>>>> origin/master
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Operators:: Adding support for custom 'Safe Type' operations
 
@@ -2172,11 +1931,7 @@ public:
 
 /* FSafe -> FSafe */
 
-<<<<<<< HEAD
 FORCEINLINE bool operator == (FSafeBool &FSB, FSafeBool &B) { // CONST!  CHANGE ALL GET() and SET() to CONST TOO!!
-=======
-FORCEINLINE bool operator == (FSafeBool &FSB, FSafeBool &B) {
->>>>>>> origin/master
 	return  (FSB.GetValue()==B.GetValue());
 }
 
@@ -4024,15 +3779,10 @@ FORCEINLINE bool operator != (const FTransform &T, FSafeTransform &FST) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 #if PLATFORM_WINDOWS
 #pragma endregion OPERATORS
 #pragma region GAME INSTANCE
 #endif
-=======
-#pragma endregion OPERATORS
-#pragma region GAME INSTANCE
->>>>>>> origin/master
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Archivers:: Game Instance:: Runs anti-cheat, anti-debugging methods
 
@@ -4044,28 +3794,16 @@ class SCUE4_API USafeGameInstance : public UGameInstance {
 public:
 	/* Sets visibility of Game-Guard console window.
 	Console is only visible in Editor Mode, on packaged games it's always hidden. */
-<<<<<<< HEAD
 	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true"))
-=======
-	UPROPERTY(EditAnywhere, Category = "Security", meta = (AllowPrivateAccess = "true"))
->>>>>>> origin/master
 	bool HideGameGuard = true;
 	//
 	/* To increase defenses against memory readers, uncheck this option when you're ready to
 	ship final standalone game build. If disabled, option won't allow Debuggers attach to the game process. */
-<<<<<<< HEAD
 	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool AllowDebugging = true;
 	//
 	/** Interval, in seconds, for Internal Process Scanner to be automatically invoked. */
 	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true", ClampMin = "10", ClampMax = "1000", UIMin = "10", UIMax = "1000"))
-=======
-	UPROPERTY(EditAnywhere, Category = "Security", meta = (AllowPrivateAccess = "true"))
-	bool AllowDebugging = true;
-	//
-	/** Interval, in seconds, for Internal Process Scanner to be automatically invoked. */
-	UPROPERTY(EditAnywhere, Category = "Security", meta = (AllowPrivateAccess = "true", ClampMin = "10", ClampMax = "1000", UIMin = "10", UIMax = "1000"))
->>>>>>> origin/master
 	uint32 ScannerInterval = 30.f;
 	//
 	/* Sets visibility of Game-Guard console window.
@@ -4187,11 +3925,7 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 #if PLATFORM_WINDOWS
 #pragma endregion GAME INSTANCE
 #endif
-=======
-#pragma endregion GAME INSTANCE
->>>>>>> origin/master
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
