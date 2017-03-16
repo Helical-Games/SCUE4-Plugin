@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-//		Copyright 2016 (C) Bruno Xavier B. Leite			//
+//		Copyright 2016 (C) Bruno Xavier B. Leite      //
 //////////////////////////////////////////////////////////////
 /*
 	BY EXECUTING, READING, EDITING, COPYING OR KEEPING FILES FROM THIS SOFTWARE SOURCE CODE,
@@ -14,9 +14,9 @@
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SCUE4PrivatePCH.h"
 #include "ISCUE4.h"
 #include "SCUE4.h"
+#include "SCUE4PrivatePCH.h"
 	
 #if WITH_EDITORONLY_DATA
  #include "ISettingsModule.h"
@@ -65,7 +65,7 @@ private:
 	}
 	//
 public:
-	virtual void StartupModule() override {RegisterSettings(); UE_LOG(LogTemp,Warning,TEXT("{SC}:: Initializing Secure-Client Plugin [Anti-Cheat]."));}
+	virtual void StartupModule() override {RegisterSettings(); UE_LOG(LogTemp,Warning,TEXT("{S}:: Initializing Secure-Client Plugin [Anti-Cheat]."));}
 	virtual void ShutdownModule() override {if (UObjectInitialized()) {UnregisterSettings();}}
 	virtual bool SupportsDynamicReloading() override {return true;}
 };

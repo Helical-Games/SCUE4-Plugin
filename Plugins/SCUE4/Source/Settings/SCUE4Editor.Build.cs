@@ -1,21 +1,23 @@
-<<<<<<< HEAD
 using UnrealBuildTool;
 
 public class SCUE4Editor : ModuleRules {
 	public SCUE4Editor(TargetInfo Target) {
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		bEnforceIWYU = true;
+		//
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
 				"Core",
-				"SCUE4",
 				"Slate",
+				"SCUE4",
 				"Engine",
 				"Projects",
 				"UnrealEd",
 				"SlateCore",
 				"InputCore",
-				"CoreUObject",
-				"LevelEditor",
 				"EditorStyle",
+				"LevelEditor",
+				"CoreUObject",
 				"PropertyEditor"
 			}
 		);
@@ -23,27 +25,4 @@ public class SCUE4Editor : ModuleRules {
 		PrivateIncludePaths.AddRange(new string[] {"Settings/Private"});
 		PublicIncludePaths.AddRange(new string[] {"Settings/Public"});
 	}
-=======
-using UnrealBuildTool;
-
-public class SCUE4Editor : ModuleRules {
-	public SCUE4Editor(TargetInfo Target) {
-		PrivateDependencyModuleNames.AddRange(
-			new string[] {
-				"SCUE4",
-				"Core",
-				"Engine",
-				"Projects",
-				"UnrealEd",
-				"CoreUObject",
-				"LevelEditor",
-				"SlateCore",
-				"Slate"
-			}
-		);
-		//
-		PrivateIncludePaths.AddRange(new string[] {"Settings/Private"});
-		PublicIncludePaths.AddRange(new string[] {"Settings/Public"});
-	}
->>>>>>> origin/master
 }

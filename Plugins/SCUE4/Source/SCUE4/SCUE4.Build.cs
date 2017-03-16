@@ -3,11 +3,14 @@ using System.IO;
 
 public class SCUE4 : ModuleRules {
 	public SCUE4(TargetInfo Target) {
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		bEnforceIWYU = true;
+		//
 		PublicDependencyModuleNames.AddRange(
 			new string[] {
-				"SCUE4X",
 				"Core",
 				"Engine",
+				"SCUE4X",
 				"Projects",
 				"CoreUObject"
 			}
