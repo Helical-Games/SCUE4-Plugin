@@ -3792,7 +3792,15 @@ FORCEINLINE bool operator != (const FTransform &T, FSafeTransform &FST) {
 #pragma region GAME INSTANCE
 #endif
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Archivers:: Game Instance:: Runs anti-cheat, anti-debugging methods
+/// Utility
+
+static FORCEINLINE int32 GetFullScreenMode() {
+	static const auto ScreenMode = IConsoleManager::Get().FindTConsoleVariableDataInt(TEXT("r.FullScreenMode"));
+	return ScreenMode->GetValueOnGameThread();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// Game Instance:: Runs anti-cheat, anti-debugging methods
 
 /// {S}: Safe Game Instance; Secure-Client is a C++ Plugin designed to provide anti-cheat capability to your games.
 /// Other custom Game Instance classes, when used, should have this class as a parent for effective use.
@@ -3821,8 +3829,8 @@ public:
 	//
 	//
 	FProcHandle GuardProcess;
-	const TCHAR* Guardx64 = TEXT("SCUE4x64.exe");
 	const TCHAR* Guardx86 = TEXT("SCUE4x86.exe");
+	const TCHAR* Guardx64 = TEXT("SCUE4x64.exe");
 	const TCHAR* Editor = TEXT("EDITOR");
 	const TCHAR* Game = FApp::GetGameName();
 	//
@@ -3833,12 +3841,13 @@ public:
 	//
 	virtual void Init() override {
 		#if PLATFORM_WINDOWS
-		InvokeGuard();
-		const FTimerDelegate TimerInvokeGuard = FTimerDelegate::CreateUObject(this,&USafeGameInstance::GameGuard);
 		const FTimerDelegate TimerScanProcesses = FTimerDelegate::CreateUObject(this,&USafeGameInstance::ScanProcesses);
-		GetTimerManager().SetTimer(THInvokeGuard,TimerInvokeGuard,5,true);
+		const FTimerDelegate TimerInvokeGuard = FTimerDelegate::CreateUObject(this,&USafeGameInstance::GameGuard);
 		GetTimerManager().SetTimer(THScanner,TimerScanProcesses,ScannerInterval,true);
+		GetTimerManager().SetTimer(THInvokeGuard,TimerInvokeGuard,5,true);
+		InvokeGuard();
 		#endif
+		//
 		Super::Init();
 	}
 	//
@@ -3854,6 +3863,15 @@ public:
 	This external process scanner is just distraction. */
 	void InvokeGuard() {
 	#if PLATFORM_WINDOWS
+		/*#if WITH_EDITOR
+		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,this->HideGameGuard,this->HideGameGuard,&GuardPID,0,nullptr,nullptr);
+		#elif PLATFORM_32BITS
+		if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
+		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+		#else
+		if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
+		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+		#endif*/
 		#if WITH_EDITOR
 		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::GameDir(),TEXT("Plugins/SCUE4/Source/ThirdParty/x64/"),Guardx64),Editor,false,this->HideGameGuard,this->HideGameGuard,&GuardPID,0,nullptr,nullptr);
 		#elif PLATFORM_32BITS
@@ -3925,8 +3943,8 @@ public:
 	/* ~Le Vsauce is real cool. */
 	void ScanProcesses() {
 	#if PLATFORM_WINDOWS
-		#if !WITH_EDITOR
-		FSCUE4_Enumerate();
+		#if !WITH_EDITOR && !WITH_SERVER_CODE
+		if (GetFullScreenMode()>0) {FSCUE4_Enumerate();}
 		#endif
 	#endif
 	}
