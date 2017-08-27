@@ -2,7 +2,7 @@ using UnrealBuildTool;
 using System.IO;
 
 public class SCUE4X : ModuleRules {
-    public SCUE4X(TargetInfo Target) {
+    public SCUE4X(ReadOnlyTargetRules Target) : base(Target) {
         Type = ModuleType.External;
         //
         string DIRx86 = Path.Combine(ModuleDirectory,"x86");

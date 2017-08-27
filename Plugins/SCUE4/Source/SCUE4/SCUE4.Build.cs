@@ -2,7 +2,7 @@ using UnrealBuildTool;
 using System.IO;
 
 public class SCUE4 : ModuleRules {
-	public SCUE4(TargetInfo Target) {
+	public SCUE4(ReadOnlyTargetRules Target) : base(Target) {
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		bEnforceIWYU = true;
 		//

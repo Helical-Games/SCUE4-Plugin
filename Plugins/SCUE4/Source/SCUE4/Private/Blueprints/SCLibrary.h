@@ -28,7 +28,7 @@ class SCUE4_API USCLibrary : public UBlueprintFunctionLibrary {
 public:
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	#pragma region TYPES
+	// TYPES
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** Pure:: Gets hidden value from 'Safe Bool Struct'. */
@@ -41,12 +41,12 @@ public:
 	static bool SCL_Pure_GetSafeBoolWithKey(UPARAM(ref)FSafeBool &SB, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Bool Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Bool", Keywords = "Security Get Safe Bool"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Bool", Keywords = "Security Set Safe Bool"))
 	static bool SCL_Pure_SetSafeBool(UPARAM(ref)FSafeBool &SB, const bool Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Bool Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Bool", Keywords = "Security Get Safe Bool"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Bool", Keywords = "Security Set Safe Bool"))
 	static bool SCL_Pure_SetSafeBoolWithKey(UPARAM(ref)FSafeBool &SB, FString Key, const bool Value);
 
 	//
@@ -61,16 +61,16 @@ public:
 	static int32 SCL_Pure_GetSafeIntWithKey(UPARAM(ref)FSafeInt &SI, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Int Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Int", Keywords = "Security Get Safe Int"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Int", Keywords = "Security Set Safe Int"))
 	static int32 SCL_Pure_SetSafeInt(UPARAM(ref)FSafeInt &SI, const int32 Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Int Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Int", Keywords = "Security Get Safe Int"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Int", Keywords = "Security Set Safe Int"))
 	static int32 SCL_Pure_SetSafeIntWithKey(UPARAM(ref)FSafeInt &SI, FString Key, const int32 Value);
 
 	//
-	
+
 	/** Pure:: Gets hidden value from 'Safe Byte Struct'. */
 	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Get Safe Byte", Keywords = "Security Get Safe Byte"))
 	static uint8 SCL_Pure_GetSafeByte(UPARAM(ref)FSafeByte &SB);
@@ -81,12 +81,12 @@ public:
 	static uint8 SCL_Pure_GetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Byte Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Byte", Keywords = "Security Get Safe Byte"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Byte", Keywords = "Security Set Safe Byte"))
 	static uint8 SCL_Pure_SetSafeByte(UPARAM(ref)FSafeByte &SB, const uint8 Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Byte Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Byte", Keywords = "Security Get Safe Byte"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Byte", Keywords = "Security Set Safe Byte"))
 	static uint8 SCL_Pure_SetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key, const uint8 Value);
 
 	//
@@ -101,12 +101,12 @@ public:
 	static float SCL_Pure_GetSafeFloatWithKey(UPARAM(ref)FSafeFloat &SF, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Float Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Float", Keywords = "Security Get Safe Float"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Float", Keywords = "Security Set Safe Float"))
 	static float SCL_Pure_SetSafeFloat(UPARAM(ref)FSafeFloat &SF, const float Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Float Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Float", Keywords = "Security Get Safe Float"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Float", Keywords = "Security Set Safe Float"))
 	static float SCL_Pure_SetSafeFloatWithKey(UPARAM(ref)FSafeFloat &SF, FString Key, const float Value);
 
 	//
@@ -121,12 +121,12 @@ public:
 	static FName SCL_Pure_GetSafeNameWithKey(UPARAM(ref)FSafeName &SN, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Name Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Name", Keywords = "Security Get Safe Name"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Name", Keywords = "Security Set Safe Name"))
 	static FName SCL_Pure_SetSafeName(UPARAM(ref)FSafeName &SN, const FName Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Name Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Name", Keywords = "Security Get Safe Name"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Name", Keywords = "Security Set Safe Name"))
 	static FName SCL_Pure_SetSafeNameWithKey(UPARAM(ref)FSafeName &SN, FString Key, const FName Value);
 
 	//
@@ -141,12 +141,12 @@ public:
 	static FString SCL_Pure_GetSafeStringWithKey(UPARAM(ref)FSafeString &SS, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe String Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe String", Keywords = "Security Get Safe String"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe String", Keywords = "Security Set Safe String"))
 	static FString SCL_Pure_SetSafeString(UPARAM(ref)FSafeString &SS, const FString Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe String Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe String", Keywords = "Security Get Safe String"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe String", Keywords = "Security Set Safe String"))
 	static FString SCL_Pure_SetSafeStringWithKey(UPARAM(ref)FSafeString &SS, FString Key, const FString Value);
 
 	//
@@ -161,12 +161,12 @@ public:
 	static FText SCL_Pure_GetSafeTextWithKey(UPARAM(ref)FSafeText &ST, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Text Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Text", Keywords = "Security Get Safe Text"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Text", Keywords = "Security Set Safe Text"))
 	static FText SCL_Pure_SetSafeText(UPARAM(ref)FSafeText &ST, const FText Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Text Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Text", Keywords = "Security Get Safe Text"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Text", Keywords = "Security Set Safe Text"))
 	static FText SCL_Pure_SetSafeTextWithKey(UPARAM(ref)FSafeText &ST, FString Key, const FText Value);
 
 	//
@@ -181,12 +181,12 @@ public:
 	static FVector2D SCL_Pure_GetSafeVector2DWithKey(UPARAM(ref)FSafeVector2D &SV, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Vector2D Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector2D", Keywords = "Security Get Safe Vector2D"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector2D", Keywords = "Security Set Safe Vector2D"))
 	static FVector2D SCL_Pure_SetSafeVector2D(UPARAM(ref)FSafeVector2D &SV, const FVector2D Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Vector2D Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector2D", Keywords = "Security Get Safe Vector2D"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector2D", Keywords = "Security Set Safe Vector2D"))
 	static FVector2D SCL_Pure_SetSafeVector2DWithKey(UPARAM(ref)FSafeVector2D &SV, FString Key, const FVector2D Value);
 
 	//
@@ -201,12 +201,12 @@ public:
 	static FVector SCL_Pure_GetSafeVector3DWithKey(UPARAM(ref)FSafeVector3D &SV, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Vector3D Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector3D", Keywords = "Security Get Safe Vector3D"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector3D", Keywords = "Security Set Safe Vector3D"))
 	static FVector SCL_Pure_SetSafeVector3D(UPARAM(ref)FSafeVector3D &SV, const FVector Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Vector3D Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector3D", Keywords = "Security Get Safe Vector3D"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector3D", Keywords = "Security Set Safe Vector3D"))
 	static FVector SCL_Pure_SetSafeVector3DWithKey(UPARAM(ref)FSafeVector3D &SV, FString Key, const FVector Value);
 
 	//
@@ -221,12 +221,12 @@ public:
 	static FVector4 SCL_Pure_GetSafeVector4DWithKey(UPARAM(ref)FSafeVector4D &SV, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Vector4D Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector4D", Keywords = "Security Get Safe Vector4D"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector4D", Keywords = "Security Set Safe Vector4D"))
 	static FVector4 SCL_Pure_SetSafeVector4D(UPARAM(ref)FSafeVector4D &SV, UPARAM(ref)FVector4 &Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Vector4D Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector4D", Keywords = "Security Get Safe Vector4D"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Vector4D", Keywords = "Security Set Safe Vector4D"))
 	static FVector4 SCL_Pure_SetSafeVector4DWithKey(UPARAM(ref)FSafeVector4D &SV, FString Key, UPARAM(ref)FVector4 &Value);
 
 	//
@@ -241,12 +241,12 @@ public:
 	static FLinearColor SCL_Pure_GetSafeColorWithKey(UPARAM(ref)FSafeColor &SC, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Color Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Color", Keywords = "Security Get Safe Color"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Color", Keywords = "Security Set Safe Color"))
 	static FLinearColor SCL_Pure_SetSafeColor(UPARAM(ref)FSafeColor &SC, UPARAM(ref)FLinearColor& Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Color Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Color", Keywords = "Security Get Safe Color"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Color", Keywords = "Security Set Safe Color"))
 	static FLinearColor SCL_Pure_SetSafeColorWithKey(UPARAM(ref)FSafeColor &SC, FString Key, UPARAM(ref)FLinearColor& Value);
 
 	//
@@ -261,12 +261,12 @@ public:
 	static FRotator SCL_Pure_GetSafeRotatorWithKey(UPARAM(ref)FSafeRotator &SR, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Rotator Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Rotator", Keywords = "Security Get Safe Rotator"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Rotator", Keywords = "Security Set Safe Rotator"))
 	static FRotator SCL_Pure_SetSafeRotator(UPARAM(ref)FSafeRotator &SR, const FRotator Value);
 	//
 	/**	Pure:: Sets, and hides in memory, value for 'Safe Rotator Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Rotator", Keywords = "Security Get Safe Rotator"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Rotator", Keywords = "Security Set Safe Rotator"))
 	static FRotator SCL_Pure_SetSafeRotatorWithKey(UPARAM(ref)FSafeRotator &SR, FString Key, const FRotator Value);
 
 	//
@@ -281,17 +281,27 @@ public:
 	static FTransform SCL_Pure_GetSafeTransformWithKey(UPARAM(ref)FSafeTransform &ST, FString Key);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Transform Struct'. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Transform", Keywords = "Security Get Safe Transform"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Transform", Keywords = "Security Set Safe Transform"))
 	static FTransform SCL_Pure_SetSafeTransform(UPARAM(ref)FSafeTransform &ST, UPARAM(ref)FTransform& Value);
 	//
 	/** Pure:: Sets, and hides in memory, value for 'Safe Transform Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Transform", Keywords = "Security Get Safe Transform"))
+	UFUNCTION(BlueprintPure, Category = "Security", meta = (DisplayName = "Set Safe Transform", Keywords = "Security Set Safe Transform"))
 	static FTransform SCL_Pure_SetSafeTransformWithKey(UPARAM(ref)FSafeTransform &ST, FString Key, UPARAM(ref)FTransform& Value);
 
 	//
 	//
-	
+
+	/** Callable:: Gets encrypted value from 'Safe Bool Struct'. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Raw Safe Bool", Keywords = "Security Get Raw Safe Bool"))
+	static FString SCL_Callable_GetSafeBoolRaw(UPARAM(ref)FSafeBool &SB);
+	//
+	/**	Callable:: Sets encrypted value for 'Safe Bool Struct'.
+	Custom Key Required: If have custom encryption Key, attach to Key input value. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Raw Safe Bool", Keywords = "Security Set Safe Bool"))
+	static void SCL_Callable_SetSafeBoolRaw(UPARAM(ref)FSafeBool &SB, FString Key, FString Value);
+	//
+	//
 	/** Callable:: Gets hidden value from 'Safe Bool Struct'. */
 	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Safe Bool", Keywords = "Security Get Safe Bool"))
 	static bool SCL_Callable_GetSafeBool(UPARAM(ref)FSafeBool &SB);
@@ -302,16 +312,26 @@ public:
 	static bool SCL_Callable_GetSafeBoolWithKey(UPARAM(ref)FSafeBool &SB, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Bool Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Bool", Keywords = "Security Get Safe Bool"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Bool", Keywords = "Security Set Safe Bool"))
 	static bool SCL_Callable_SetSafeBool(UPARAM(ref)FSafeBool &SB, const bool Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Bool Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Bool", Keywords = "Security Get Safe Bool"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Bool", Keywords = "Security Set Safe Bool"))
 	static bool SCL_Callable_SetSafeBoolWithKey(UPARAM(ref)FSafeBool &SB, FString Key, const bool Value);
 
 	//
 
+	/** Callable:: Gets encrypted value from 'Safe Int Struct'. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Raw Safe Int", Keywords = "Security Get Raw Safe Int"))
+	static FString SCL_Callable_GetSafeIntRaw(UPARAM(ref)FSafeInt &SI);
+	//
+	/**	Callable:: Sets encrypted value for 'Safe Int Struct'.
+	Custom Key Required: If have custom encryption Key, attach to Key input value. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Raw Safe Int", Keywords = "Security Set Raw Safe Int"))
+	static void SCL_Callable_SetSafeIntRaw(UPARAM(ref)FSafeInt &SI, FString Key, FString Value);
+	//
+	//
 	/** Callable:: Gets hidden value from 'Safe Int Struct'. */
 	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Safe Int", Keywords = "Security Get Safe Int"))
 	static int32 SCL_Callable_GetSafeInt(UPARAM(ref)FSafeInt &SI);
@@ -322,16 +342,26 @@ public:
 	static int32 SCL_Callable_GetSafeIntWithKey(UPARAM(ref)FSafeInt &SI, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Int Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Int", Keywords = "Security Get Safe Int"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Int", Keywords = "Security Set Safe Int"))
 	static int32 SCL_Callable_SetSafeInt(UPARAM(ref)FSafeInt &SI, const int32 Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Int Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Int", Keywords = "Security Get Safe Int"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Int", Keywords = "Security Set Safe Int"))
 	static int32 SCL_Callable_SetSafeIntWithKey(UPARAM(ref)FSafeInt &SI, FString Key, const int32 Value);
 
 	//
 	
+	/** Callable:: Gets encrypted value from 'Safe Byte Struct'. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Raw Safe Byte", Keywords = "Security Get Raw Safe Byte"))
+	static FString SCL_Callable_GetSafeByteRaw(UPARAM(ref)FSafeByte &SB);
+	//
+	/**	Callable:: Sets encrypted value for 'Safe Byte Struct'.
+	Custom Key Required: If have custom encryption Key, attach to Key input value. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Raw Safe Byte", Keywords = "Security Set Raw Safe Byte"))
+	static void SCL_Callable_SetSafeByteRaw(UPARAM(ref)FSafeByte &SB, FString Key, FString Value);
+	//
+	//
 	/** Callable:: Gets hidden value from 'Safe Byte Struct'. */
 	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Safe Byte", Keywords = "Security Get Safe Byte"))
 	static uint8 SCL_Callable_GetSafeByte(UPARAM(ref)FSafeByte &SB);
@@ -342,16 +372,26 @@ public:
 	static uint8 SCL_Callable_GetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Byte Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Byte", Keywords = "Security Get Safe Byte"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Byte", Keywords = "Security Set Safe Byte"))
 	static uint8 SCL_Callable_SetSafeByte(UPARAM(ref)FSafeByte &SB, const uint8 Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Byte Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Byte", Keywords = "Security Get Safe Byte"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Byte", Keywords = "Security Set Safe Byte"))
 	static uint8 SCL_Callable_SetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key, const uint8 Value);
 
 	//
 	
+	/** Callable:: Gets encrypted value from 'Safe Float Struct'. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Raw Safe Float", Keywords = "Security Get Raw Safe Float"))
+	static FString SCL_Callable_GetSafeFloatRaw(UPARAM(ref)FSafeFloat &SF);
+	//
+	/**	Callable:: Sets encrypted value for 'Safe Float Struct'.
+	Custom Key Required: If have custom encryption Key, attach to Key input value. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Raw Safe Float", Keywords = "Security Set Raw Safe Float"))
+	static void SCL_Callable_SetSafeFloatRaw(UPARAM(ref)FSafeFloat &SF, FString Key, FString Value);
+	//
+	//
 	/** Callable:: Gets hidden value from 'Safe Float Struct'. */
 	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Safe Float", Keywords = "Security Get Safe Float"))
 	static float SCL_Callable_GetSafeFloat(UPARAM(ref)FSafeFloat &SF);
@@ -362,16 +402,26 @@ public:
 	static float SCL_Callable_GetSafeFloatWithKey(UPARAM(ref)FSafeFloat &SF, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Float Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Float", Keywords = "Security Get Safe Float"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Float", Keywords = "Security Set Safe Float"))
 	static float SCL_Callable_SetSafeFloat(UPARAM(ref)FSafeFloat &SF, const float Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Float Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Float", Keywords = "Security Get Safe Float"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Float", Keywords = "Security Set Safe Float"))
 	static float SCL_Callable_SetSafeFloatWithKey(UPARAM(ref)FSafeFloat &SF, FString Key, const float Value);
 
 	//
 	
+	/** Callable:: Gets encrypted value from 'Safe Name Struct'. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Raw Safe Name", Keywords = "Security Get Raw Safe Name"))
+	static FString SCL_Callable_GetSafeNameRaw(UPARAM(ref)FSafeName &SN);
+	//
+	/**	Callable:: Sets encrypted value for 'Safe Name Struct'.
+	Custom Key Required: If have custom encryption Key, attach to Key input value. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Raw Safe Name", Keywords = "Security Set Raw Safe Name"))
+	static void SCL_Callable_SetSafeNameRaw(UPARAM(ref)FSafeName &SN, FString Key, FString Value);
+	//
+	//
 	/** Callable:: Gets hidden value from 'Safe Name Struct'. */
 	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Safe Name", Keywords = "Security Get Safe Name"))
 	static FName SCL_Callable_GetSafeName(UPARAM(ref)FSafeName &SN);
@@ -382,16 +432,26 @@ public:
 	static FName SCL_Callable_GetSafeNameWithKey(UPARAM(ref)FSafeName &SN, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Name Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Name", Keywords = "Security Get Safe Name"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Name", Keywords = "Security Set Safe Name"))
 	static FName SCL_Callable_SetSafeName(UPARAM(ref)FSafeName &SN, const FName Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Name Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Name", Keywords = "Security Get Safe Name"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Name", Keywords = "Security Set Safe Name"))
 	static FName SCL_Callable_SetSafeNameWithKey(UPARAM(ref)FSafeName &SN, FString Key, const FName Value);
 
 	//
 	
+	/** Callable:: Gets encrypted value from 'Safe String Struct'. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Raw Safe String", Keywords = "Security Get Raw Safe String"))
+	static FString SCL_Callable_GetSafeStringRaw(UPARAM(ref)FSafeString &SS);
+	//
+	/**	Callable:: Sets encrypted value for 'Safe String Struct'.
+	Custom Key Required: If have custom encryption Key, attach to Key input value. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Raw Safe String", Keywords = "Security Set Raw Safe String"))
+	static void SCL_Callable_SetSafeStringRaw(UPARAM(ref)FSafeString &SS, FString Key, FString Value);
+	//
+	//
 	/** Callable:: Gets hidden value from 'Safe String Struct'. */
 	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Safe String", Keywords = "Security Get Safe String"))
 	static FString SCL_Callable_GetSafeString(UPARAM(ref)FSafeString &SS);
@@ -402,16 +462,26 @@ public:
 	static FString SCL_Callable_GetSafeStringWithKey(UPARAM(ref)FSafeString &SS, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe String Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe String", Keywords = "Security Get Safe String"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe String", Keywords = "Security Set Safe String"))
 	static FString SCL_Callable_SetSafeString(UPARAM(ref)FSafeString &SS, const FString Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe String Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe String", Keywords = "Security Get Safe String"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe String", Keywords = "Security Set Safe String"))
 	static FString SCL_Callable_SetSafeStringWithKey(UPARAM(ref)FSafeString &SS, FString Key, const FString Value);
 
 	//
 	
+	/** Callable:: Gets encrypted value from 'Safe Text Struct'. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Raw Safe Text", Keywords = "Security Get Raw Safe Text"))
+	static FString SCL_Callable_GetSafeTextRaw(UPARAM(ref)FSafeText &ST);
+	//
+	/**	Callable:: Sets encrypted value for 'Safe Text Struct'.
+	Custom Key Required: If have custom encryption Key, attach to Key input value. */
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Raw Safe Text", Keywords = "Security Set Raw Safe Text"))
+	static void SCL_Callable_SetSafeTextRaw(UPARAM(ref)FSafeText &ST, FString Key, FString Value);
+	//
+	//
 	/** Callable:: Gets hidden value from 'Safe Text Struct'. */
 	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Get Safe Text", Keywords = "Security Get Safe Text"))
 	static FText SCL_Callable_GetSafeText(UPARAM(ref)FSafeText &ST);
@@ -422,12 +492,12 @@ public:
 	static FText SCL_Callable_GetSafeTextWithKey(UPARAM(ref)FSafeText &ST, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Text Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Text", Keywords = "Security Get Safe Text"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Text", Keywords = "Security Set Safe Text"))
 	static FText SCL_Callable_SetSafeText(UPARAM(ref)FSafeText &ST, const FText Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Text Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Text", Keywords = "Security Get Safe Text"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Text", Keywords = "Security Set Safe Text"))
 	static FText SCL_Callable_SetSafeTextWithKey(UPARAM(ref)FSafeText &ST, FString Key, const FText Value);
 
 	//
@@ -442,12 +512,12 @@ public:
 	static FVector2D SCL_Callable_GetSafeVector2DWithKey(UPARAM(ref)FSafeVector2D &SV, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Vector2D Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector2D", Keywords = "Security Get Safe Vector2D"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector2D", Keywords = "Security Set Safe Vector2D"))
 	static FVector2D SCL_Callable_SetSafeVector2D(UPARAM(ref)FSafeVector2D &SV, const FVector2D Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Vector2D Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector2D", Keywords = "Security Get Safe Vector2D"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector2D", Keywords = "Security Set Safe Vector2D"))
 	static FVector2D SCL_Callable_SetSafeVector2DWithKey(UPARAM(ref)FSafeVector2D &SV, FString Key, const FVector2D Value);
 
 	//
@@ -462,12 +532,12 @@ public:
 	static FVector SCL_Callable_GetSafeVector3DWithKey(UPARAM(ref)FSafeVector3D &SV, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Vector3D Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector3D", Keywords = "Security Get Safe Vector3D"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector3D", Keywords = "Security Set Safe Vector3D"))
 	static FVector SCL_Callable_SetSafeVector3D(UPARAM(ref)FSafeVector3D &SV, const FVector Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Vector3D Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector3D", Keywords = "Security Get Safe Vector3D"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector3D", Keywords = "Security Set Safe Vector3D"))
 	static FVector SCL_Callable_SetSafeVector3DWithKey(UPARAM(ref)FSafeVector3D &SV, FString Key, const FVector Value);
 
 	//
@@ -482,12 +552,12 @@ public:
 	static FVector4 SCL_Callable_GetSafeVector4DWithKey(UPARAM(ref)FSafeVector4D &SV, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Vector4D Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector4D", Keywords = "Security Get Safe Vector4D"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector4D", Keywords = "Security Set Safe Vector4D"))
 	static FVector4 SCL_Callable_SetSafeVector4D(UPARAM(ref)FSafeVector4D &SV, UPARAM(ref)FVector4& Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Vector4D Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector4D", Keywords = "Security Get Safe Vector4D"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Vector4D", Keywords = "Security Set Safe Vector4D"))
 	static FVector4 SCL_Callable_SetSafeVector4DWithKey(UPARAM(ref)FSafeVector4D &SV, FString Key, UPARAM(ref)FVector4& Value);
 
 	//
@@ -502,12 +572,12 @@ public:
 	static FRotator SCL_Callable_GetSafeRotatorWithKey(UPARAM(ref)FSafeRotator &SR, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Rotator Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Rotator", Keywords = "Security Get Safe Rotator"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Rotator", Keywords = "Security Set Safe Rotator"))
 	static FRotator SCL_Callable_SetSafeRotator(UPARAM(ref)FSafeRotator &SR, const FRotator Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Rotator Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Rotator", Keywords = "Security Get Safe Rotator"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Rotator", Keywords = "Security Set Safe Rotator"))
 	static FRotator SCL_Callable_SetSafeRotatorWithKey(UPARAM(ref)FSafeRotator &SR, FString Key, const FRotator Value);
 
 	//
@@ -522,12 +592,12 @@ public:
 	static FLinearColor SCL_Callable_GetSafeColorWithKey(UPARAM(ref)FSafeColor &SC, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Color Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Color", Keywords = "Security Get Safe Color"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Color", Keywords = "Security Set Safe Color"))
 	static FLinearColor SCL_Callable_SetSafeColor(UPARAM(ref)FSafeColor &SC, UPARAM(ref)FLinearColor& Value);
 	//
 	/**	Callable:: Sets, and hides in memory, value for 'Safe Color Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Color", Keywords = "Security Get Safe Color"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Color", Keywords = "Security Set Safe Color"))
 	static FLinearColor SCL_Callable_SetSafeColorWithKey(UPARAM(ref)FSafeColor &SC, FString Key, UPARAM(ref)FLinearColor& Value);
 
 	//
@@ -542,18 +612,17 @@ public:
 	static FTransform SCL_Callable_GetSafeTransformWithKey(UPARAM(ref)FSafeTransform &ST, FString Key);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Transform Struct'. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Transform", Keywords = "Security Get Safe Transform"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Transform", Keywords = "Security Set Safe Transform"))
 	static FTransform SCL_Callable_SetSafeTransform(UPARAM(ref)FSafeTransform &ST, UPARAM(ref)FTransform& Value);
 	//
 	/** Callable:: Sets, and hides in memory, value for 'Safe Transform Struct'.
 	Custom Key Required: If have custom encryption Key, attach to Key input value. */
-	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Transform", Keywords = "Security Get Safe Transform"))
+	UFUNCTION(BlueprintCallable, Category = "Security", meta = (DisplayName = "Set Safe Transform", Keywords = "Security Set Safe Transform"))
 	static FTransform SCL_Callable_SetSafeTransformWithKey(UPARAM(ref)FSafeTransform &ST, FString Key, UPARAM(ref)FTransform& Value);
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	#pragma endregion TYPES
-	#pragma region OPERATORS
+	// OPERATORS
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// FSBool
@@ -2411,10 +2480,6 @@ public:
 	/** Set:: Transform = Safe Transform */
 	UFUNCTION(BlueprintPure, Category = "Variables|Security", meta = (DisplayName = "= (Safe Transform)", CompactNodeTitle = "=", Keywords = "Security Set Safe Transform EQUAL ="))
 	static FTransform SCO_Pure_SetTransformEqualFST(UPARAM(ref)FTransform &NT, UPARAM(ref)FSafeTransform &FST);
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	#pragma endregion OPERATORS
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 };
 

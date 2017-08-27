@@ -1,7 +1,7 @@
 using UnrealBuildTool;
 
 public class SCUE4Editor : ModuleRules {
-	public SCUE4Editor(TargetInfo Target) {
+	public SCUE4Editor(ReadOnlyTargetRules Target) : base(Target) {
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		bEnforceIWYU = true;
 		//
