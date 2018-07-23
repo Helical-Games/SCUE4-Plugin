@@ -9,8 +9,8 @@ public class SCUE4X : ModuleRules {
         string DIRx64 = Path.Combine(ModuleDirectory,"x64");
         //
         if ((Target.Platform == UnrealTargetPlatform.Win32) || (Target.Platform == UnrealTargetPlatform.Win64)) {
-            if (Target.Platform == UnrealTargetPlatform.Win32) { RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(DIRx86,"SCUE4x86.exe"))); } else
-            if (Target.Platform == UnrealTargetPlatform.Win64) { RuntimeDependencies.Add(new RuntimeDependency(Path.Combine(DIRx64,"SCUE4x64.exe"))); }
+            if (Target.Platform == UnrealTargetPlatform.Win32) { RuntimeDependencies.Add(Path.Combine(DIRx86,"SCUE4x86.exe")); } else
+            if (Target.Platform == UnrealTargetPlatform.Win64) { RuntimeDependencies.Add(Path.Combine(DIRx64,"SCUE4x64.exe")); }
         }
     }
 }

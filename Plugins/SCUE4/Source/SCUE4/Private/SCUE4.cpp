@@ -1,22 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-//		Copyright 2016 (C) Bruno Xavier B. Leite      //
+//		Copyright 2016 (C) Bruno Xavier B. Leite
 //////////////////////////////////////////////////////////////
-/*
-	BY EXECUTING, READING, EDITING, COPYING OR KEEPING FILES FROM THIS SOFTWARE SOURCE CODE,
-	YOU AGREE TO THE FOLLOWING TERMS IN ADDITION TO EPIC GAMES MARKETPLACE EULA:
-	- YOU HAVE READ AND AGREE TO EPIC GAMES TERMS: https://publish.unrealengine.com/faq
-	- YOU AGREE DEVELOPER RESERVES ALL RIGHTS TO THE SOFTWARE PROVIDED, GRANTED BY LAW.
-	- YOU AGREE YOU'LL NOT CREATE OR PUBLISH DERIVATIVE SOFTWARE TO THE MARKETPLACE.
-	- YOU AGREE DEVELOPER WILL NOT PROVIDE SOFTWARE OUTSIDE MARKETPLACE ENVIRONMENT.
-	- YOU AGREE DEVELOPER WILL NOT PROVIDE PAID OR EXCLUSIVE SUPPORT SERVICES.
-	- YOU AGREE DEVELOPER PROVIDED SUPPORT CHANNELS, ARE UNDER HIS SOLE DISCRETION.
-*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SCUE4.h"
-#include "IPluginManager.h"
 #include "SCUE4PrivatePCH.h"
+#include "Interfaces/IPluginManager.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -62,16 +52,16 @@ USCUE4Settings::USCUE4Settings(const FObjectInitializer& OBJ) : Super(OBJ) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if PLATFORM_WINDOWS
-#include "AllowWindowsPlatformTypes.h"
+#include "Windows/AllowWindowsPlatformTypes.h"
 //
 BOOL CALLBACK ScanProcesses(HWND Hwnd, LPARAM Param) {
 	const auto &Settings = GetMutableDefault<USCUE4Settings>();
 	//
-	char TBuffer[256];
+	char TBuffer[512];
 	int TXT = GetWindowTextA(Hwnd,TBuffer,sizeof(TBuffer));
 	FString FST = FString(ANSI_TO_TCHAR(TBuffer)).ToLower();
 	//
-	TCHAR LPS[256]; GetClassName(Hwnd,LPS,256);
+	TCHAR LPS[512]; GetClassName(Hwnd,LPS,512);
 	FString FSN = FString(LPS).ToLower();
 	//
 	for (auto SC : Settings->IllegalKeywords) {
@@ -87,7 +77,7 @@ void FSCUE4_Enumerate() {
 	HWND Hwnd = NULL;
 	if (!EnumWindows(ScanProcesses,reinterpret_cast<LPARAM>(&Hwnd))) {
 	  #if UE_BUILD_SHIPPING
-		char TBuffer[256];
+		char TBuffer[512];
 		int TXT = GetWindowTextA(Hwnd,TBuffer,sizeof(TBuffer));
 		int msgboxID = MessageBox( NULL,
 			(LPCWSTR)L"Running application conflict detected; Game will close;\nPlease close conflicting software before playing.",
@@ -98,7 +88,7 @@ void FSCUE4_Enumerate() {
 	} else {CloseHandle(Hwnd);}
 }
 //
-#include "HideWindowsPlatformTypes.h"
+#include "Windows/HideWindowsPlatformTypes.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

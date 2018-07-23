@@ -1,86 +1,21 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-//		Copyright 2016 (C) Bruno Xavier B. Leite      //
+//		Copyright 2016 (C) Bruno Xavier B. Leite
 //////////////////////////////////////////////////////////////
-/*
-	BY EXECUTING, READING, EDITING, COPYING OR KEEPING FILES FROM THIS SOFTWARE SOURCE CODE,
-	YOU AGREE TO THE FOLLOWING TERMS IN ADDITION TO EPIC GAMES MARKETPLACE EULA:
-	- YOU HAVE READ AND AGREE TO EPIC GAMES TERMS: https://publish.unrealengine.com/faq
-	- YOU AGREE DEVELOPER RESERVES ALL RIGHTS TO THE SOFTWARE PROVIDED, GRANTED BY LAW.
-	- YOU AGREE YOU'LL NOT CREATE OR PUBLISH DERIVATIVE SOFTWARE TO THE MARKETPLACE.
-	- YOU AGREE DEVELOPER WILL NOT PROVIDE SOFTWARE OUTSIDE MARKETPLACE ENVIRONMENT.
-	- YOU AGREE DEVELOPER WILL NOT PROVIDE PAID OR EXCLUSIVE SUPPORT SERVICES.
-	- YOU AGREE DEVELOPER PROVIDED SUPPORT CHANNELS, ARE UNDER HIS SOLE DISCRETION.
-*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "SCLibrary.h"
-#include "../SCUE4PrivatePCH.h"
+#include "SCUE4PrivatePCH.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if PLATFORM_WINDOWS
 #pragma region GET SET
 #endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FString USCLibrary::SCL_Callable_GetSafeBoolRaw(UPARAM(ref)FSafeBool &SB) {
-	return SB.GetRawValue();
+FString USCLibrary::SCL_Callable_GetRawSafeBool(UPARAM(ref)FSafeBool &SB) {
+	return SB.GetRaw();
 }
-
-void USCLibrary::SCL_Callable_SetSafeBoolRaw(UPARAM(ref)FSafeBool &SB, FString Key, FString Value) {
-	SB.SetRawValue(&Key,&Value);
-}
-
-FString USCLibrary::SCL_Callable_GetSafeByteRaw(UPARAM(ref)FSafeByte &SB) {
-	return SB.GetRawValue();
-}
-
-void USCLibrary::SCL_Callable_SetSafeByteRaw(UPARAM(ref)FSafeByte &SB, FString Key, FString Value) {
-	SB.SetRawValue(&Key,&Value);
-}
-
-FString USCLibrary::SCL_Callable_GetSafeFloatRaw(UPARAM(ref)FSafeFloat &SF) {
-	return SF.GetRawValue();
-}
-
-void USCLibrary::SCL_Callable_SetSafeFloatRaw(UPARAM(ref)FSafeFloat &SF, FString Key, FString Value) {
-	SF.SetRawValue(&Key,&Value);
-}
-
-FString USCLibrary::SCL_Callable_GetSafeIntRaw(UPARAM(ref)FSafeInt &SI) {
-	return SI.GetRawValue();
-}
-
-void USCLibrary::SCL_Callable_SetSafeIntRaw(UPARAM(ref)FSafeInt &SI, FString Key, FString Value) {
-	SI.SetRawValue(&Key,&Value);
-}
-
-FString USCLibrary::SCL_Callable_GetSafeNameRaw(UPARAM(ref)FSafeName &SN) {
-	return SN.GetRawValue();
-}
-
-void USCLibrary::SCL_Callable_SetSafeNameRaw(UPARAM(ref)FSafeName &SN, FString Key, FString Value) {
-	SN.SetRawValue(&Key,&Value);
-}
-
-FString USCLibrary::SCL_Callable_GetSafeStringRaw(UPARAM(ref)FSafeString &SS) {
-	return SS.GetRawValue();
-}
-
-void USCLibrary::SCL_Callable_SetSafeStringRaw(UPARAM(ref)FSafeString &SS, FString Key, FString Value) {
-	SS.SetRawValue(&Key,&Value);
-}
-
-FString USCLibrary::SCL_Callable_GetSafeTextRaw(UPARAM(ref)FSafeText &ST) {
-	return ST.GetRawValue();
-}
-
-void USCLibrary::SCL_Callable_SetSafeTextRaw(UPARAM(ref)FSafeText &ST, FString Key, FString Value) {
-	ST.SetRawValue(&Key,&Value);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool USCLibrary::SCL_Pure_GetSafeBool(UPARAM(ref)FSafeBool &SB) {
 	return SB.GetValue();
@@ -100,6 +35,10 @@ bool USCLibrary::SCL_Callable_GetSafeBoolWithKey(UPARAM(ref)FSafeBool &SB, FStri
 
 //
 
+bool USCLibrary::SCL_Callable_SetRawSafeBool(UPARAM(ref)FSafeBool &SB, FString Value) {
+	SB.SetRaw(&Value); return SB.GetValue();
+}
+
 bool USCLibrary::SCL_Pure_SetSafeBool(UPARAM(ref)FSafeBool &SB, const bool Value) {
 	SB.SetValue(Value); return SB.GetValue();
 }
@@ -118,41 +57,9 @@ bool USCLibrary::SCL_Callable_SetSafeBoolWithKey(UPARAM(ref)FSafeBool &SB, FStri
 
 //
 
-uint8 USCLibrary::SCL_Pure_GetSafeByte(UPARAM(ref)FSafeByte &SB) {
-	return SB.GetValue();
+FString USCLibrary::SCL_Callable_GetRawSafeInt(UPARAM(ref)FSafeInt &SI) {
+	return SI.GetRaw();
 }
-
-uint8 USCLibrary::SCL_Pure_GetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key) {
-	return SB.GetValue(&Key);
-}
-
-uint8 USCLibrary::SCL_Callable_GetSafeByte(UPARAM(ref)FSafeByte &SB) {
-	return SB.GetValue();
-}
-
-uint8 USCLibrary::SCL_Callable_GetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key) {
-	return SB.GetValue(&Key);
-}
-
-//
-
-uint8 USCLibrary::SCL_Pure_SetSafeByte(UPARAM(ref)FSafeByte &SB, const uint8 Value) {
-	SB.SetValue(Value); return SB.GetValue();
-}
-
-uint8 USCLibrary::SCL_Pure_SetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key, const uint8 Value) {
-	SB.SetValue(&Key,Value); return SB.GetValue(&Key);
-}
-
-uint8 USCLibrary::SCL_Callable_SetSafeByte(UPARAM(ref)FSafeByte &SB, const uint8 Value) {
-	SB.SetValue(Value); return SB.GetValue();
-}
-
-uint8 USCLibrary::SCL_Callable_SetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key, const uint8 Value) {
-	SB.SetValue(&Key,Value); return SB.GetValue(&Key);
-}
-
-//
 
 int32 USCLibrary::SCL_Pure_GetSafeInt(UPARAM(ref)FSafeInt &SI) {
 	return SI.GetValue();
@@ -172,6 +79,10 @@ int32 USCLibrary::SCL_Callable_GetSafeIntWithKey(UPARAM(ref)FSafeInt &SI, FStrin
 
 //
 
+int32 USCLibrary::SCL_Callable_SetRawSafeInt(UPARAM(ref)FSafeInt &SI, FString Value) {
+	SI.SetRaw(&Value); return SI.GetValue();
+}
+
 int32 USCLibrary::SCL_Pure_SetSafeInt(UPARAM(ref)FSafeInt &SI, const int32 Value) {
 	SI.SetValue(Value); return SI.GetValue();
 }
@@ -189,6 +100,54 @@ int32 USCLibrary::SCL_Callable_SetSafeIntWithKey(UPARAM(ref)FSafeInt &SI, FStrin
 }
 
 //
+
+FString USCLibrary::SCL_Callable_GetRawSafeByte(UPARAM(ref)FSafeByte &SB) {
+	return SB.GetRaw();
+}
+
+uint8 USCLibrary::SCL_Pure_GetSafeByte(UPARAM(ref)FSafeByte &SB) {
+	return SB.GetValue();
+}
+
+uint8 USCLibrary::SCL_Pure_GetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key) {
+	return SB.GetValue(&Key);
+}
+
+uint8 USCLibrary::SCL_Callable_GetSafeByte(UPARAM(ref)FSafeByte &SB) {
+	return SB.GetValue();
+}
+
+uint8 USCLibrary::SCL_Callable_GetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key) {
+	return SB.GetValue(&Key);
+}
+
+//
+
+uint8 USCLibrary::SCL_Callable_SetRawSafeByte(UPARAM(ref)FSafeByte &SB, FString Value) {
+	SB.SetRaw(&Value); return SB.GetValue();
+}
+
+uint8 USCLibrary::SCL_Pure_SetSafeByte(UPARAM(ref)FSafeByte &SB, const uint8 Value) {
+	SB.SetValue(Value); return SB.GetValue();
+}
+
+uint8 USCLibrary::SCL_Pure_SetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key, const uint8 Value) {
+	SB.SetValue(&Key,Value); return SB.GetValue(&Key);
+}
+
+uint8 USCLibrary::SCL_Callable_SetSafeByte(UPARAM(ref)FSafeByte &SB, const uint8 Value) {
+	SB.SetValue(Value); return SB.GetValue();
+}
+
+uint8 USCLibrary::SCL_Callable_SetSafeByteWithKey(UPARAM(ref)FSafeByte &SB, FString Key, const uint8 Value) {
+	SB.SetValue(&Key,Value); return SB.GetValue(&Key);
+}
+
+//
+
+FString USCLibrary::SCL_Callable_GetRawSafeFloat(UPARAM(ref)FSafeFloat &SF) {
+	return SF.GetRaw();
+}
 
 float USCLibrary::SCL_Pure_GetSafeFloat(UPARAM(ref)FSafeFloat &SF) {
 	return SF.GetValue();
@@ -208,6 +167,10 @@ float USCLibrary::SCL_Callable_GetSafeFloatWithKey(UPARAM(ref)FSafeFloat &SF, FS
 
 //
 
+float USCLibrary::SCL_Callable_SetRawSafeFloat(UPARAM(ref)FSafeFloat &SF, FString Value) {
+	SF.SetRaw(&Value); return SF.GetValue();
+}
+
 float USCLibrary::SCL_Pure_SetSafeFloat(UPARAM(ref)FSafeFloat &SF, const float Value) {
 	SF.SetValue(Value); return SF.GetValue();
 }
@@ -222,6 +185,10 @@ float USCLibrary::SCL_Callable_SetSafeFloat(UPARAM(ref)FSafeFloat &SF, const flo
 
 float USCLibrary::SCL_Callable_SetSafeFloatWithKey(UPARAM(ref)FSafeFloat &SF, FString Key, const float Value) {
 	SF.SetValue(&Key,Value); return SF.GetValue(&Key);
+}
+
+FString USCLibrary::SCL_Callable_GetRawSafeName(UPARAM(ref)FSafeName &SN) {
+	return SN.GetRaw();
 }
 
 //
@@ -244,6 +211,10 @@ FName USCLibrary::SCL_Callable_GetSafeNameWithKey(UPARAM(ref)FSafeName &SN, FStr
 
 //
 
+FName USCLibrary::SCL_Callable_SetRawSafeName(UPARAM(ref)FSafeName &SN, FString Value) {
+	SN.SetRaw(&Value); return SN.GetValue();
+}
+
 FName USCLibrary::SCL_Pure_SetSafeName(UPARAM(ref)FSafeName &SN, const FName Value) {
 	SN.SetValue(Value); return SN.GetValue();
 }
@@ -261,6 +232,10 @@ FName USCLibrary::SCL_Callable_SetSafeNameWithKey(UPARAM(ref)FSafeName &SN, FStr
 }
 
 //
+
+FString USCLibrary::SCL_Callable_GetRawSafeString(UPARAM(ref)FSafeString &SS) {
+	return SS.GetRaw();
+}
 
 FString USCLibrary::SCL_Pure_GetSafeString(UPARAM(ref)FSafeString &SS) {
 	return SS.GetValue();
@@ -280,11 +255,15 @@ FString USCLibrary::SCL_Callable_GetSafeStringWithKey(UPARAM(ref)FSafeString &SS
 
 //
 
+FString USCLibrary::SCL_Callable_SetRawSafeString(UPARAM(ref)FSafeString &SS, FString Value) {
+	SS.SetRaw(&Value); return SS.GetValue();
+}
+
 FString USCLibrary::SCL_Pure_SetSafeString(UPARAM(ref)FSafeString &SS, const FString Value) {
 	SS.SetValue(Value); return SS.GetValue();
 }
 
-FString USCLibrary::SCL_Pure_SetSafeStringWithKey(UPARAM(ref)FSafeString &SS, FString Key, FString Value) {
+FString USCLibrary::SCL_Pure_SetSafeStringWithKey(UPARAM(ref)FSafeString &SS, FString Key, const FString Value) {
 	SS.SetValue(&Key,Value); return SS.GetValue(&Key);
 }
 
@@ -297,6 +276,10 @@ FString USCLibrary::SCL_Callable_SetSafeStringWithKey(UPARAM(ref)FSafeString &SS
 }
 
 //
+
+FString USCLibrary::SCL_Callable_GetRawSafeText(UPARAM(ref)FSafeText &ST) {
+	return ST.GetRaw();
+}
 
 FText USCLibrary::SCL_Pure_GetSafeText(UPARAM(ref)FSafeText &ST) {
 	return ST.GetValue();
@@ -315,6 +298,10 @@ FText USCLibrary::SCL_Callable_GetSafeTextWithKey(UPARAM(ref)FSafeText &ST, FStr
 }
 
 //
+
+FText USCLibrary::SCL_Callable_SetRawSafeText(UPARAM(ref)FSafeText &ST, FString Value) {
+	ST.SetRaw(&Value); return ST.GetValue();
+}
 
 FText USCLibrary::SCL_Pure_SetSafeText(UPARAM(ref)FSafeText &ST, const FText Value) {
 	ST.SetValue(Value); return ST.GetValue();

@@ -1,30 +1,20 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-//		Copyright 2016 (C) Bruno Xavier B. Leite      //
+//		Copyright 2016 (C) Bruno Xavier B. Leite
 //////////////////////////////////////////////////////////////
-/*
-	BY EXECUTING, READING, EDITING, COPYING OR KEEPING FILES FROM THIS SOFTWARE SOURCE CODE,
-	YOU AGREE TO THE FOLLOWING TERMS IN ADDITION TO EPIC GAMES MARKETPLACE EULA:
-	- YOU HAVE READ AND AGREE TO EPIC GAMES TERMS: https://publish.unrealengine.com/faq
-	- YOU AGREE DEVELOPER RESERVES ALL RIGHTS TO THE SOFTWARE PROVIDED, GRANTED BY LAW.
-	- YOU AGREE YOU'LL NOT CREATE OR PUBLISH DERIVATIVE SOFTWARE TO THE MARKETPLACE.
-	- YOU AGREE DEVELOPER WILL NOT PROVIDE SOFTWARE OUTSIDE MARKETPLACE ENVIRONMENT.
-	- YOU AGREE DEVELOPER WILL NOT PROVIDE PAID OR EXCLUSIVE SUPPORT SERVICES.
-	- YOU AGREE DEVELOPER PROVIDED SUPPORT CHANNELS, ARE UNDER HIS SOLE DISCRETION.
-*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #if PLATFORM_WINDOWS
- #include "AllowWindowsPlatformTypes.h"
+ #include "Windows/AllowWindowsPlatformTypes.h"
  #include <Windows.h>
  #include <Winuser.h>
- #include "HideWindowsPlatformTypes.h"
+ #include "Windows/HideWindowsPlatformTypes.h"
 #endif
 
 #pragma once
 
-#include "Private/SCUE4PrivatePCH.h"
+#include "SCUE4PrivatePCH.h"
 #include "Runtime/Core/Public/Misc/App.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Runtime/Core/Public/Windows/WindowsPlatformProcess.h"
@@ -148,18 +138,27 @@ public:
 
 	////////////////////////////////////////////////////////////
 	/// Accessors
+	
+	FString GetRaw() {
+		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
+	}
+
+	void SetRaw(FString* Value) {
+		Shift = *Value;
+		TrueValue = *Value;
+	}
 
 	/** Gets value using Global Key. */
 	bool GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
-					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-					return FCString::ToBool(*FDecode(this->Shift));
+					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FCString::ToBool(*FDecode(Shift));
 				case 1:
-					Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-					return FCString::ToBool(*FDecode(this->TrueValue));
+					Flag = 0; TrueValue = Shift; Shift = NULL;
+					return FCString::ToBool(*FDecode(TrueValue));
 			default:
 				return false;
 	}}}
@@ -168,58 +167,37 @@ public:
 	bool GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
-				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-				return FCString::ToBool(*FDecode(*Key,this->Shift));
+				Flag = 1; Shift = TrueValue; TrueValue = NULL;
+				return FCString::ToBool(*FDecode(*Key,Shift));
 			case 1:
-				Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-				return FCString::ToBool(*FDecode(*Key,this->TrueValue));
+				Flag = 0; TrueValue = Shift; Shift = NULL;
+				return FCString::ToBool(*FDecode(*Key,TrueValue));
 		default:
 			return false;
 	}}
 
-	FString GetRawValue() {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				this->Shift = this->TrueValue;
-				this->TrueValue = nullptr;
-				return this->Shift;
-			case 1:
-				Flag = 0;
-				this->TrueValue = this->Shift;
-				this->Shift = nullptr;
-				return this->TrueValue;
-		default:
-			return FString();
-	}}
-
 	/** Sets value using Internal or Global Key. */
 	void SetValue(const bool Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					this->Shift = FEncode((Input?TEXT("true"):TEXT("false")));
-					Flag = 1; this->TrueValue = nullptr;
+					Shift = FEncode((Input?TEXT("true"):TEXT("false")));
+					Flag = 1; TrueValue = NULL;
 				case 1:
-					this->TrueValue = FEncode((Input?TEXT("true"):TEXT("false")));
-					Flag = 0; this->Shift = nullptr;
+					TrueValue = FEncode((Input?TEXT("true"):TEXT("false")));
+					Flag = 0; Shift = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	/** Sets value from Custom Key. */
 	void SetValue(FString* Key, const bool Input) {
 		switch (Flag) {
 			case 0:
-				this->Shift = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
-				Flag = 1; this->TrueValue = nullptr;
+				Shift = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
+				Flag = 1; TrueValue = NULL;
 			case 1:
-				this->TrueValue = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
-				Flag = 0; this->Shift = nullptr;
+				TrueValue = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
+				Flag = 0; Shift = NULL;
 	}Internal=FString(*Key);}
-
-	void SetRawValue(FString* Key, FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	if (Key) {Internal=FString(*Key);}}
 
 	////////////////////////////////////////////////////////////
 	/// Constructors
@@ -249,23 +227,27 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeBool &operator = (const FSafeBool &B) {
-		this->Internal = B.Internal;
-		this->TrueValue = B.TrueValue;
-		this->Shift = B.Shift;
-		this->Flag = B.Flag;
+		Internal = B.Internal;
+		TrueValue = B.TrueValue;
+		Shift = B.Shift;
+		Flag = B.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeBool &operator = (const bool &B) {
-		this->SetValue(B); return *this;
+		SetValue(B); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueValue;
-		Ar << this->Shift;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueValue;
+		Ar << Shift;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeBool &B) {
+		return FCrc::MemCrc32(&B,sizeof(FSafeBool));
 	}
 };
 
@@ -293,16 +275,25 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
+	FString GetRaw() {
+		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
+	}
+
+	void SetRaw(FString* Value) {
+		Shift = *Value;
+		TrueValue = *Value;
+	}
+
 	uint8 GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
-					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-					return FCString::Atoi(*FDecode(this->Shift));
+					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FCString::Atoi(*FDecode(Shift));
 				case 1:
-					Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-					return FCString::Atoi(*FDecode(this->TrueValue));
+					Flag = 0; TrueValue = Shift; Shift = NULL;
+					return FCString::Atoi(*FDecode(TrueValue));
 			default:
 				return 0;
 	}}}
@@ -310,56 +301,35 @@ public:
 	uint8 GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
-				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-				return FCString::Atoi(*FDecode(*Key,this->Shift));
+				Flag = 1; Shift = TrueValue; TrueValue = NULL;
+				return FCString::Atoi(*FDecode(*Key,Shift));
 			case 1:
-				Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-				return FCString::Atoi(*FDecode(*Key,this->TrueValue));
+				Flag = 0; TrueValue = Shift; Shift = NULL;
+				return FCString::Atoi(*FDecode(*Key,TrueValue));
 		default:
 			return 0;
 	}}
 
-	FString GetRawValue() {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				this->Shift = this->TrueValue;
-				this->TrueValue = nullptr;
-				return this->Shift;
-			case 1:
-				Flag = 0;
-				this->TrueValue = this->Shift;
-				this->Shift = nullptr;
-				return this->TrueValue;
-		default:
-			return FString();
-	}}
-
 	void SetValue(uint8 Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					this->Shift = FEncode(FString::FromInt(Input));
-					Flag = 1; this->TrueValue = nullptr;
+					Shift = FEncode(FString::FromInt(Input));
+					Flag = 1; TrueValue = NULL;
 				case 1:
-					this->TrueValue = FEncode(FString::FromInt(Input));
-					Flag = 0; this->Shift = nullptr;
+					TrueValue = FEncode(FString::FromInt(Input));
+					Flag = 0; Shift = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, uint8 Input) {
 		switch (Flag) {
 			case 0:
-				this->Shift = FEncode(*Key,FString::FromInt(Input));
-				Flag = 1; this->TrueValue = nullptr;
+				Shift = FEncode(*Key,FString::FromInt(Input));
+				Flag = 1; TrueValue = NULL;
 			case 1:
-				this->TrueValue = FEncode(*Key,FString::FromInt(Input));
-				Flag = 0; this->Shift = nullptr;
+				TrueValue = FEncode(*Key,FString::FromInt(Input));
+				Flag = 0; Shift = NULL;
 	}Internal=FString(*Key);}
-
-	void SetRawValue(FString* Key, FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	if (Key) {Internal=FString(*Key);}}
 
 	////////////////////////////////////////////////////////////
 	/// Constructors
@@ -389,23 +359,27 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeByte &operator = (const FSafeByte &B) {
-		this->Internal = B.Internal;
-		this->TrueValue = B.TrueValue;
-		this->Shift = B.Shift;
-		this->Flag = B.Flag;
+		Internal = B.Internal;
+		TrueValue = B.TrueValue;
+		Shift = B.Shift;
+		Flag = B.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeByte &operator = (const uint8 &B) {
-		this->SetValue(B); return *this;
+		SetValue(B); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueValue;
-		Ar << this->Shift;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueValue;
+		Ar << Shift;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeByte &B) {
+		return FCrc::MemCrc32(&B,sizeof(FSafeByte));
 	}
 
 };
@@ -434,16 +408,25 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
+	FString GetRaw() {
+		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
+	}
+
+	void SetRaw(FString* Value) {
+		Shift = *Value;
+		TrueValue = *Value;
+	}
+
 	int32 GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
-					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-					return FCString::Atoi(*FDecode(this->Shift));
+					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FCString::Atoi(*FDecode(Shift));
 				case 1:
-					Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-					return FCString::Atoi(*FDecode(this->TrueValue));
+					Flag = 0; TrueValue = Shift; Shift = NULL;
+					return FCString::Atoi(*FDecode(TrueValue));
 			default:
 				return 0;
 	}}}
@@ -451,56 +434,35 @@ public:
 	int32 GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
-				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-				return FCString::Atoi(*FDecode(*Key,this->Shift));
+				Flag = 1; Shift = TrueValue; TrueValue = NULL;
+				return FCString::Atoi(*FDecode(*Key,Shift));
 			case 1:
-				Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-				return FCString::Atoi(*FDecode(*Key,this->TrueValue));
+				Flag = 0; TrueValue = Shift; Shift = NULL;
+				return FCString::Atoi(*FDecode(*Key,TrueValue));
 		default:
 			return 0;
 	}}
 
-	FString GetRawValue() {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				this->Shift = this->TrueValue;
-				this->TrueValue = nullptr;
-				return this->Shift;
-			case 1:
-				Flag = 0;
-				this->TrueValue = this->Shift;
-				this->Shift = nullptr;
-				return this->TrueValue;
-		default:
-			return FString();
-	}}
-
 	void SetValue(int32 Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					this->Shift = FEncode(FString::FromInt(Input));
-					Flag = 1; this->TrueValue = nullptr;
+					Shift = FEncode(FString::FromInt(Input));
+					Flag = 1; TrueValue = NULL;
 				case 1:
-					this->TrueValue = FEncode(FString::FromInt(Input));
-					Flag = 0; this->Shift = nullptr;
+					TrueValue = FEncode(FString::FromInt(Input));
+					Flag = 0; Shift = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, int32 Input) {
 		switch (Flag) {
 			case 0:
-				this->Shift = FEncode(*Key,FString::FromInt(Input));
-				Flag = 1; this->TrueValue = nullptr;
+				Shift = FEncode(*Key,FString::FromInt(Input));
+				Flag = 1; TrueValue = NULL;
 			case 1:
-				this->TrueValue = FEncode(*Key,FString::FromInt(Input));
-				Flag = 0; this->Shift = nullptr;
+				TrueValue = FEncode(*Key,FString::FromInt(Input));
+				Flag = 0; Shift = NULL;
 	}Internal=FString(*Key);}
-
-	void SetRawValue(FString* Key, FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	if (Key) {Internal=FString(*Key);}}
 
 	////////////////////////////////////////////////////////////
 	/// Constructors
@@ -530,23 +492,27 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeInt &operator = (const FSafeInt &I) {
-		this->Internal = I.Internal;
-		this->TrueValue = I.TrueValue;
-		this->Shift = I.Shift;
-		this->Flag = I.Flag;
+		Internal = I.Internal;
+		TrueValue = I.TrueValue;
+		Shift = I.Shift;
+		Flag = I.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeInt &operator = (const int32 &I) {
-		this->SetValue(I); return *this;
+		SetValue(I); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueValue;
-		Ar << this->Shift;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueValue;
+		Ar << Shift;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeInt &I) {
+		return FCrc::MemCrc32(&I,sizeof(FSafeInt));
 	}
 
 };
@@ -575,16 +541,25 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
+	FString GetRaw() {
+		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
+	}
+
+	void SetRaw(FString* Value) {
+		Shift = *Value;
+		TrueValue = *Value;
+	}
+
 	float GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
-					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-					return FCString::Atof(*FDecode(this->Shift));
+					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FCString::Atof(*FDecode(Shift));
 				case 1:
-					Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-					return FCString::Atof(*FDecode(this->TrueValue));
+					Flag = 0; TrueValue = Shift; Shift = NULL;
+					return FCString::Atof(*FDecode(TrueValue));
 			default:
 				return 0.f;
 	}}}
@@ -592,56 +567,35 @@ public:
 	float GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
-				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-				return FCString::Atof(*FDecode(*Key,this->Shift));
+				Flag = 1; Shift = TrueValue; TrueValue = NULL;
+				return FCString::Atof(*FDecode(*Key,Shift));
 			case 1:
-				Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-				return FCString::Atof(*FDecode(*Key,this->TrueValue));
+				Flag = 0; TrueValue = Shift; Shift = NULL;
+				return FCString::Atof(*FDecode(*Key,TrueValue));
 		default:
 			return 0.f;
 	}}
 
-	FString GetRawValue() {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				this->Shift = this->TrueValue;
-				this->TrueValue = nullptr;
-				return this->Shift;
-			case 1:
-				Flag = 0;
-				this->TrueValue = this->Shift;
-				this->Shift = nullptr;
-				return this->TrueValue;
-		default:
-			return FString();
-	}}
-
 	void SetValue(float Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					this->Shift = FEncode(FString::Printf(TEXT("%f"),Input));
-					Flag = 1; this->TrueValue = nullptr;
+					Shift = FEncode(FString::Printf(TEXT("%f"),Input));
+					Flag = 1; TrueValue = NULL;
 				case 1:
-					this->TrueValue = FEncode(FString::Printf(TEXT("%f"),Input));
-					Flag = 0; this->Shift = nullptr;
+					TrueValue = FEncode(FString::Printf(TEXT("%f"),Input));
+					Flag = 0; Shift = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, float Input) {
 		switch (Flag) {
 			case 0:
-				this->Shift = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
-				Flag = 1; this->TrueValue = nullptr;
+				Shift = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
+				Flag = 1; TrueValue = NULL;
 			case 1:
-				this->TrueValue = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
-				Flag = 0; this->Shift = nullptr;
+				TrueValue = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
+				Flag = 0; Shift = NULL;
 	}Internal=FString(*Key);}
-
-	void SetRawValue(FString* Key, FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	if (Key) {Internal=FString(*Key);}}
 
 	////////////////////////////////////////////////////////////
 	/// Constructors
@@ -671,23 +625,27 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeFloat &operator = (const FSafeFloat &F) {
-		this->Internal = F.Internal;
-		this->TrueValue = F.TrueValue;
-		this->Shift = F.Shift;
-		this->Flag = F.Flag;
+		Internal = F.Internal;
+		TrueValue = F.TrueValue;
+		Shift = F.Shift;
+		Flag = F.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeFloat &operator = (const float &F) {
-		this->SetValue(F); return *this;
+		SetValue(F); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueValue;
-		Ar << this->Shift;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueValue;
+		Ar << Shift;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeFloat &F) {
+		return FCrc::MemCrc32(&F,sizeof(FSafeFloat));
 	}
 
 };
@@ -716,16 +674,25 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
+	FString GetRaw() {
+		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
+	}
+
+	void SetRaw(FString* Value) {
+		Shift = *Value;
+		TrueValue = *Value;
+	}
+
 	FName GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 			case 0:
-				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-				return FName::FName(*FDecode(this->Shift));
+				Flag = 1; Shift = TrueValue; TrueValue = NULL;
+				return FName::FName(*FDecode(Shift));
 			case 1:
-				Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-				return FName::FName(*FDecode(this->TrueValue));
+				Flag = 0; TrueValue = Shift; Shift = NULL;
+				return FName::FName(*FDecode(TrueValue));
 			default:
 				return TEXT("");
 	}}}
@@ -733,56 +700,35 @@ public:
 	FName GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
-				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-				return FName::FName(*FDecode(*Key,this->Shift));
+				Flag = 1; Shift = TrueValue; TrueValue = NULL;
+				return FName::FName(*FDecode(*Key,Shift));
 			case 1:
-				Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-				return FName::FName(*FDecode(*Key,this->TrueValue));
+				Flag = 0; TrueValue = Shift; Shift = NULL;
+				return FName::FName(*FDecode(*Key,TrueValue));
 		default:
 			return TEXT("");
 	}}
 
-	FString GetRawValue() {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				this->Shift = this->TrueValue;
-				this->TrueValue = nullptr;
-				return this->Shift;
-			case 1:
-				Flag = 0;
-				this->TrueValue = this->Shift;
-				this->Shift = nullptr;
-				return this->TrueValue;
-		default:
-			return FString();
-	}}
-
 	void SetValue(FName Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					this->Shift = *FEncode(Input.ToString());
-					Flag = 1; this->TrueValue = nullptr;
+					Shift = *FEncode(Input.ToString());
+					Flag = 1; TrueValue = NULL;
 				case 1:
-					this->TrueValue = *FEncode(Input.ToString());
-					Flag = 0; this->Shift = nullptr;
+					TrueValue = *FEncode(Input.ToString());
+					Flag = 0; Shift = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FName Input) {
 		switch (Flag) {
 			case 0:
-				this->Shift = *FEncode(*Key,Input.ToString());
-				Flag = 1; this->TrueValue = nullptr;
+				Shift = *FEncode(*Key,Input.ToString());
+				Flag = 1; TrueValue = NULL;
 			case 1:
-				this->TrueValue = *FEncode(*Key,Input.ToString());
-				Flag = 0; this->Shift = nullptr;
+				TrueValue = *FEncode(*Key,Input.ToString());
+				Flag = 0; Shift = NULL;
 	}Internal=FString(*Key);}
-
-	void SetRawValue(FString* Key, FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	if (Key) {Internal=FString(*Key);}}
 
 	////////////////////////////////////////////////////////////
 	/// Constructors
@@ -812,23 +758,27 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeName &operator = (const FSafeName &N) {
-		this->Internal = N.Internal;
-		this->TrueValue = N.TrueValue;
-		this->Shift = N.Shift;
-		this->Flag = N.Flag;
+		Internal = N.Internal;
+		TrueValue = N.TrueValue;
+		Shift = N.Shift;
+		Flag = N.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeName &operator = (const FName &N) {
-		this->SetValue(N); return *this;
+		SetValue(N); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueValue;
-		Ar << this->Shift;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueValue;
+		Ar << Shift;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeName &N) {
+		return FCrc::MemCrc32(&N,sizeof(FSafeName));
 	}
 
 };
@@ -857,16 +807,25 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
+	FString GetRaw() {
+		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
+	}
+
+	void SetRaw(FString* Value) {
+		Shift = *Value;
+		TrueValue = *Value;
+	}
+
 	FString GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
-					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-					return FString::FString(*FDecode(this->Shift));
+					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FString::FString(*FDecode(Shift));
 				case 1:
-					Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-					return FString::FString(*FDecode(this->TrueValue));
+					Flag = 0; TrueValue = Shift; Shift = NULL;
+					return FString::FString(*FDecode(TrueValue));
 			default:
 				return TEXT("");
 	}}}
@@ -874,56 +833,35 @@ public:
 	FString GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
-				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-				return FString::FString(*FDecode(*Key,this->Shift));
+				Flag = 1; Shift = TrueValue; TrueValue = NULL;
+				return FString::FString(*FDecode(*Key,Shift));
 			case 1:
-				Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-				return FString::FString(*FDecode(*Key,this->TrueValue));
+				Flag = 0; TrueValue = Shift; Shift = NULL;
+				return FString::FString(*FDecode(*Key,TrueValue));
 		default:
 			return TEXT("");
 	}}
 
-	FString GetRawValue() {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				this->Shift = this->TrueValue;
-				this->TrueValue = nullptr;
-				return this->Shift;
-			case 1:
-				Flag = 0;
-				this->TrueValue = this->Shift;
-				this->Shift = nullptr;
-				return this->TrueValue;
-		default:
-			return FString();
-	}}
-
 	void SetValue(FString Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					this->Shift = *FEncode(Input);
-					Flag = 1; this->TrueValue = nullptr;
+					Shift = *FEncode(Input);
+					Flag = 1; TrueValue = NULL;
 				case 1:
-					this->TrueValue = *FEncode(Input);
-					Flag = 0; this->Shift = nullptr;
+					TrueValue = *FEncode(Input);
+					Flag = 0; Shift = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FString Input) {
 		switch (Flag) {
 			case 0:
-				this->Shift = *FEncode(*Key,Input);
-				Flag = 1; this->TrueValue = nullptr;
+				Shift = *FEncode(*Key,Input);
+				Flag = 1; TrueValue = NULL;
 			case 1:
-				this->TrueValue = *FEncode(*Key,Input);
-				Flag = 0; this->Shift = nullptr;
+				TrueValue = *FEncode(*Key,Input);
+				Flag = 0; Shift = NULL;
 	}Internal=FString(*Key);}
-
-	void SetRawValue(FString* Key, FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	if (Key) {Internal=FString(*Key);}}
 
 	////////////////////////////////////////////////////////////
 	/// Constructors
@@ -953,23 +891,27 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeString &operator = (const FSafeString &S) {
-		this->Internal = S.Internal;
-		this->TrueValue = S.TrueValue;
-		this->Shift = S.Shift;
-		this->Flag = S.Flag;
+		Internal = S.Internal;
+		TrueValue = S.TrueValue;
+		Shift = S.Shift;
+		Flag = S.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeString &operator = (const FString &S) {
-		this->SetValue(S); return *this;
+		SetValue(S); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueValue;
-		Ar << this->Shift;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueValue;
+		Ar << Shift;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeString &S) {
+		return FCrc::MemCrc32(&S,sizeof(FSafeString));
 	}
 
 };
@@ -998,16 +940,25 @@ public:
 	////////////////////////////////////////////////////////////
 	/// Accessors
 
+	FString GetRaw() {
+		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
+	}
+
+	void SetRaw(FString* Value) {
+		Shift = *Value;
+		TrueValue = *Value;
+	}
+
 	FText GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
-					Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-					return FText::FromString(FDecode(this->Shift));
+					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FText::FromString(FDecode(Shift));
 				case 1:
-					Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-					return FText::FromString(FDecode(this->TrueValue));
+					Flag = 0; TrueValue = Shift; Shift = NULL;
+					return FText::FromString(FDecode(TrueValue));
 			default:
 				return FText::GetEmpty();
 	}}}
@@ -1015,56 +966,35 @@ public:
 	FText GetValue(FString* Key) {
 		switch (Flag) {
 			case 0:
-				Flag = 1; this->Shift = this->TrueValue; this->TrueValue = nullptr;
-				return FText::FromString(FDecode(*Key,this->Shift));
+				Flag = 1; Shift = TrueValue; TrueValue = NULL;
+				return FText::FromString(FDecode(*Key,Shift));
 			case 1:
-				Flag = 0; this->TrueValue = this->Shift; this->Shift = nullptr;
-				return FText::FromString(FDecode(*Key,this->TrueValue));
+				Flag = 0; TrueValue = Shift; Shift = NULL;
+				return FText::FromString(FDecode(*Key,TrueValue));
 		default:
 			return FText::GetEmpty();
 	}}
 
-	FString GetRawValue() {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				this->Shift = this->TrueValue;
-				this->TrueValue = nullptr;
-				return this->Shift;
-			case 1:
-				Flag = 0;
-				this->TrueValue = this->Shift;
-				this->Shift = nullptr;
-				return this->TrueValue;
-		default:
-			return FString();
-	}}
-
 	void SetValue(FText Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					this->Shift = *FEncode(Input.ToString());
-					Flag = 1; this->TrueValue = nullptr;
+					Shift = *FEncode(Input.ToString());
+					Flag = 1; TrueValue = NULL;
 				case 1:
-					this->TrueValue = *FEncode(Input.ToString());
-					Flag = 0; this->Shift = nullptr;
+					TrueValue = *FEncode(Input.ToString());
+					Flag = 0; Shift = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FText Input) {
 		switch (Flag) {
 			case 0:
-				this->Shift = *FEncode(*Key,Input.ToString());
-				Flag = 1; this->TrueValue = nullptr;
+				Shift = *FEncode(*Key,Input.ToString());
+				Flag = 1; TrueValue = NULL;
 			case 1:
-				this->TrueValue = *FEncode(*Key,Input.ToString());
-				Flag = 0; this->Shift = nullptr;
+				TrueValue = *FEncode(*Key,Input.ToString());
+				Flag = 0; Shift = NULL;
 	}Internal=FString(*Key);}
-
-	void SetRawValue(FString* Key, FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	if (Key) {Internal=FString(*Key);}}
 
 	////////////////////////////////////////////////////////////
 	/// Constructors
@@ -1094,22 +1024,22 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeText &operator = (const FSafeText &T) {
-		this->Internal = T.Internal;
-		this->TrueValue = T.TrueValue;
-		this->Shift = T.Shift;
-		this->Flag = T.Flag;
+		Internal = T.Internal;
+		TrueValue = T.TrueValue;
+		Shift = T.Shift;
+		Flag = T.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeText &operator = (const FText &T) {
-		this->SetValue(T); return *this;
+		SetValue(T); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueValue;
-		Ar << this->Shift;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueValue;
+		Ar << Shift;
+		Ar << Internal;
 		return Ar;
 	}
 
@@ -1146,19 +1076,19 @@ public:
 	/// Accessors
 
 	FVector2D GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = this->TrueX; this->ShiftY = this->TrueY;
-					this->TrueX = nullptr; this->TrueY = nullptr;
-					return FVector2D::FVector2D(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)));
+					ShiftX = TrueX; ShiftY = TrueY;
+					TrueX = NULL; TrueY = NULL;
+					return FVector2D::FVector2D(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)));
 				case 1:
 					Flag = 0;
-					this->TrueX = this->ShiftX; this->TrueY = this->ShiftY;
-					this->ShiftX = nullptr; this->ShiftY = nullptr;
-					return FVector2D::FVector2D(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)));
+					TrueX = ShiftX; TrueY = ShiftY;
+					ShiftX = NULL; ShiftY = NULL;
+					return FVector2D::FVector2D(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)));
 			default:
 				return FVector2D::ZeroVector;
 	}}}
@@ -1167,45 +1097,45 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = this->TrueX; this->ShiftY = this->TrueY;
-				this->TrueX = nullptr; this->TrueY = nullptr;
-				return FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)));
+				ShiftX = TrueX; ShiftY = TrueY;
+				TrueX = NULL; TrueY = NULL;
+				return FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,ShiftX)),FCString::Atof(*FDecode(*Key,ShiftY)));
 			case 1:
 				Flag = 0;
-				this->TrueX = this->ShiftX; this->TrueY = this->ShiftY;
-				this->ShiftX = nullptr; this->ShiftY = nullptr;
-				return FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)));
+				TrueX = ShiftX; TrueY = ShiftY;
+				ShiftX = NULL; ShiftY = NULL;
+				return FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,TrueX)),FCString::Atof(*FDecode(*Key,TrueY)));
 		default:
 			return FVector2D::ZeroVector;
 	}}
 
 	void SetValue(FVector2D Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-					this->ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-					this->TrueX = nullptr; this->TrueY = nullptr;
+					ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+					ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					TrueX = NULL; TrueY = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-					this->TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-					this->ShiftX = nullptr; this->ShiftY = nullptr;
+					TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+					TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					ShiftX = NULL; ShiftY = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FVector2D Input) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-				this->ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-				this->TrueX = nullptr; this->TrueY = nullptr;
+				ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+				ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+				TrueX = NULL; TrueY = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-				this->TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-				this->ShiftX = nullptr; this->ShiftY = nullptr;
+				TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+				TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+				ShiftX = NULL; ShiftY = NULL;
 	}Internal=FString(*Key);}
 
 	////////////////////////////////////////////////////////////
@@ -1249,25 +1179,29 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeVector2D &operator = (const FSafeVector2D &V) {
-		this->Internal = V.Internal;
-		this->TrueX = V.TrueX; this->TrueY = V.TrueY;
-		this->ShiftX = V.ShiftX; this->ShiftY = V.ShiftY;
-		this->Flag = V.Flag;
+		Internal = V.Internal;
+		TrueX = V.TrueX; TrueY = V.TrueY;
+		ShiftX = V.ShiftX; ShiftY = V.ShiftY;
+		Flag = V.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeVector2D &operator = (const FVector2D &V) {
-		this->SetValue(V); return *this;
+		SetValue(V); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueX;
-		Ar << this->TrueY;
-		Ar << this->ShiftX;
-		Ar << this->ShiftY;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueX;
+		Ar << TrueY;
+		Ar << ShiftX;
+		Ar << ShiftY;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeVector2D &V) {
+		return FCrc::MemCrc32(&V,sizeof(FSafeVector2D));
 	}
 
 };
@@ -1308,19 +1242,19 @@ public:
 	////////////////////////////////////////////////////////////
 
 	FVector GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ;
-					this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr;
-					return FVector::FVector(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)));
+					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
+					TrueX = NULL; TrueY = NULL; TrueZ = NULL;
+					return FVector::FVector(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
 				case 1:
 					Flag = 0;
-					this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ;
-					this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr;
-					return FVector::FVector(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)));
+					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
+					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
+					return FVector::FVector(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
 			default:
 				return FVector::ZeroVector;
 	}}}
@@ -1329,49 +1263,49 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ;
-				this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr;
-				return FVector::FVector(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)));
+				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
+				TrueX = NULL; TrueY = NULL; TrueZ = NULL;
+				return FVector::FVector(FCString::Atof(*FDecode(*Key,ShiftX)),FCString::Atof(*FDecode(*Key,ShiftY)),FCString::Atof(*FDecode(*Key,ShiftZ)));
 			case 1:
 				Flag = 0;
-				this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ;
-				this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr;
-				return FVector::FVector(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)));
+				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
+				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
+				return FVector::FVector(FCString::Atof(*FDecode(*Key,TrueX)),FCString::Atof(*FDecode(*Key,TrueY)),FCString::Atof(*FDecode(*Key,TrueZ)));
 		default:
 			return FVector::ZeroVector;
 	}}
 
 	void SetValue(FVector Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-					this->ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-					this->ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
-					this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr;
+					ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+					ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
+					TrueX = NULL; TrueY = NULL; TrueZ = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-					this->TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-					this->TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
-					this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr;
+					TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
+					TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
+					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FVector Input) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-				this->ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-				this->ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
-				this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr;
+				ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+				ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+				ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
+				TrueX = NULL; TrueY = NULL; TrueZ = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-				this->TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-				this->TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
-				this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr;
+				TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
+				TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+				TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
+				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
 	}Internal=FString(*Key);}
 
 	////////////////////////////////////////////////////////////
@@ -1421,27 +1355,31 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeVector3D &operator = (const FSafeVector3D &V) {
-		this->Internal = V.Internal;
-		this->TrueX = V.TrueX; this->TrueY = V.TrueY; this->TrueZ = V.TrueZ;
-		this->ShiftX = V.ShiftX; this->ShiftY = V.ShiftY; this->ShiftZ = V.ShiftZ;
-		this->Flag = V.Flag;
+		Internal = V.Internal;
+		TrueX = V.TrueX; TrueY = V.TrueY; TrueZ = V.TrueZ;
+		ShiftX = V.ShiftX; ShiftY = V.ShiftY; ShiftZ = V.ShiftZ;
+		Flag = V.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeVector3D &operator = (const FVector &V) {
-		this->SetValue(V); return *this;
+		SetValue(V); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueX;
-		Ar << this->TrueY;
-		Ar << this->TrueZ;
-		Ar << this->ShiftX;
-		Ar << this->ShiftY;
-		Ar << this->ShiftZ;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueX;
+		Ar << TrueY;
+		Ar << TrueZ;
+		Ar << ShiftX;
+		Ar << ShiftY;
+		Ar << ShiftZ;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeVector3D &V) {
+		return FCrc::MemCrc32(&V,sizeof(FSafeVector3D));
 	}
 
 };
@@ -1489,19 +1427,19 @@ public:
 	/// Accessors
 
 	FVector4 GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ; this->ShiftW = this->TrueW;
-					this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr; this->TrueW = nullptr;
-					return FVector4::FVector4(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)),FCString::Atof(*FDecode(this->ShiftW)));
+					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ; ShiftW = TrueW;
+					TrueX = NULL; TrueY = NULL; TrueZ = NULL; TrueW = NULL;
+					return FVector4::FVector4(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)),FCString::Atof(*FDecode(ShiftW)));
 				case 1:
 					Flag = 0;
-					this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ; this->TrueW = this->ShiftW;
-					this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr; this->ShiftW = nullptr;
-					return FVector4::FVector4(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)),FCString::Atof(*FDecode(this->TrueW)));
+					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ; TrueW = ShiftW;
+					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL; ShiftW = NULL;
+					return FVector4::FVector4(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)),FCString::Atof(*FDecode(TrueW)));
 			default:
 				return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
 	}}}
@@ -1510,53 +1448,53 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ; this->ShiftW = this->TrueW;
-				this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr; this->TrueW = nullptr;
-				return FVector4::FVector4(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)),FCString::Atof(*FDecode(*Key,this->ShiftW)));
+				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ; ShiftW = TrueW;
+				TrueX = NULL; TrueY = NULL; TrueZ = NULL; TrueW = NULL;
+				return FVector4::FVector4(FCString::Atof(*FDecode(*Key,ShiftX)),FCString::Atof(*FDecode(*Key,ShiftY)),FCString::Atof(*FDecode(*Key,ShiftZ)),FCString::Atof(*FDecode(*Key,ShiftW)));
 			case 1:
 				Flag = 0;
-				this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ; this->TrueW = this->ShiftW;
-				this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr; this->ShiftW = nullptr;
-				return FVector4::FVector4(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)),FCString::Atof(*FDecode(*Key,this->TrueW)));
+				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ; TrueW = ShiftW;
+				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL; ShiftW = NULL;
+				return FVector4::FVector4(FCString::Atof(*FDecode(*Key,TrueX)),FCString::Atof(*FDecode(*Key,TrueY)),FCString::Atof(*FDecode(*Key,TrueZ)),FCString::Atof(*FDecode(*Key,TrueW)));
 		default:
 			return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
 	}}
 
 	void SetValue(FVector4* Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
-					this->ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
-					this->ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
-					this->ShiftW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
-					this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr; this->TrueW = nullptr;
+					ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
+					ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
+					ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
+					ShiftW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
+					TrueX = NULL; TrueY = NULL; TrueZ = NULL; TrueW = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
-					this->TrueY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
-					this->TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
-					this->TrueW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
-					this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr; this->ShiftW = nullptr;
+					TrueX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
+					TrueY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
+					TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
+					TrueW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
+					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL; ShiftW = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FVector4* Input) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
-				this->ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
-				this->ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
-				this->ShiftW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
-				this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr; this->TrueW = nullptr;
+				ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
+				ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
+				ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
+				ShiftW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
+				TrueX = NULL; TrueY = NULL; TrueZ = NULL; TrueW = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
-				this->TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
-				this->TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
-				this->TrueW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
-				this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr; this->ShiftW = nullptr;
+				TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
+				TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
+				TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
+				TrueW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
+				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL; ShiftW = NULL;
 	}Internal=FString(*Key);}
 
 	////////////////////////////////////////////////////////////
@@ -1612,29 +1550,33 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeVector4D &operator = (const FSafeVector4D &V) {
-		this->Internal = V.Internal;
-		this->TrueX = V.TrueX; this->TrueY = V.TrueY; this->TrueZ = V.TrueZ; this->TrueW = V.TrueW;
-		this->ShiftX = V.ShiftX; this->ShiftY = V.ShiftY; this->ShiftZ = V.ShiftZ; this->ShiftW = V.ShiftW;
-		this->Flag = V.Flag;
+		Internal = V.Internal;
+		TrueX = V.TrueX; TrueY = V.TrueY; TrueZ = V.TrueZ; TrueW = V.TrueW;
+		ShiftX = V.ShiftX; ShiftY = V.ShiftY; ShiftZ = V.ShiftZ; ShiftW = V.ShiftW;
+		Flag = V.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeVector4D &operator = (FVector4 &V) {
-		this->SetValue(&V); return *this;
+		SetValue(&V); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueX;
-		Ar << this->TrueY;
-		Ar << this->TrueZ;
-		Ar << this->TrueW;
-		Ar << this->ShiftX;
-		Ar << this->ShiftY;
-		Ar << this->ShiftZ;
-		Ar << this->ShiftW;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueX;
+		Ar << TrueY;
+		Ar << TrueZ;
+		Ar << TrueW;
+		Ar << ShiftX;
+		Ar << ShiftY;
+		Ar << ShiftZ;
+		Ar << ShiftW;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeVector4D &V) {
+		return FCrc::MemCrc32(&V,sizeof(FSafeVector4D));
 	}
 
 };
@@ -1682,19 +1624,19 @@ public:
 	/// Accessors
 
 	FLinearColor GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftR = this->TrueR; this->ShiftG = this->TrueG; this->ShiftB = this->TrueB; this->ShiftA = this->TrueA;
-					this->TrueR = nullptr; this->TrueG = nullptr; this->TrueB = nullptr; this->TrueA = nullptr;
-					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(this->ShiftR)),FCString::Atof(*FDecode(this->ShiftG)),FCString::Atof(*FDecode(this->ShiftB)),FCString::Atof(*FDecode(this->ShiftA)));
+					ShiftR = TrueR; ShiftG = TrueG; ShiftB = TrueB; ShiftA = TrueA;
+					TrueR = NULL; TrueG = NULL; TrueB = NULL; TrueA = NULL;
+					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(ShiftR)),FCString::Atof(*FDecode(ShiftG)),FCString::Atof(*FDecode(ShiftB)),FCString::Atof(*FDecode(ShiftA)));
 				case 1:
 					Flag = 0;
-					this->TrueR = this->ShiftR; this->TrueG = this->ShiftG; this->TrueB = this->ShiftB; this->TrueA = this->ShiftA;
-					this->ShiftR = nullptr; this->ShiftG = nullptr; this->ShiftB = nullptr; this->ShiftA = nullptr;
-					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(this->TrueR)),FCString::Atof(*FDecode(this->TrueG)),FCString::Atof(*FDecode(this->TrueB)),FCString::Atof(*FDecode(this->TrueA)));
+					TrueR = ShiftR; TrueG = ShiftG; TrueB = ShiftB; TrueA = ShiftA;
+					ShiftR = NULL; ShiftG = NULL; ShiftB = NULL; ShiftA = NULL;
+					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(TrueR)),FCString::Atof(*FDecode(TrueG)),FCString::Atof(*FDecode(TrueB)),FCString::Atof(*FDecode(TrueA)));
 			default:
 				return FLinearColor::FLinearColor();
 	}}}
@@ -1703,53 +1645,53 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftR = this->TrueR; this->ShiftG = this->TrueG; this->ShiftB = this->TrueB; this->ShiftA = this->TrueA;
-				this->TrueR = nullptr; this->TrueG = nullptr; this->TrueB = nullptr; this->TrueA = nullptr;
-				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,this->ShiftR)),FCString::Atof(*FDecode(*Key,this->ShiftG)),FCString::Atof(*FDecode(*Key,this->ShiftB)),FCString::Atof(*FDecode(*Key,this->ShiftA)));
+				ShiftR = TrueR; ShiftG = TrueG; ShiftB = TrueB; ShiftA = TrueA;
+				TrueR = NULL; TrueG = NULL; TrueB = NULL; TrueA = NULL;
+				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,ShiftR)),FCString::Atof(*FDecode(*Key,ShiftG)),FCString::Atof(*FDecode(*Key,ShiftB)),FCString::Atof(*FDecode(*Key,ShiftA)));
 			case 1:
 				Flag = 0;
-				this->TrueR = this->ShiftR; this->TrueG = this->ShiftG; this->TrueB = this->ShiftB; this->TrueA = this->ShiftA;
-				this->ShiftR = nullptr; this->ShiftG = nullptr; this->ShiftB = nullptr; this->ShiftA = nullptr;
-				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,this->TrueR)),FCString::Atof(*FDecode(*Key,this->TrueG)),FCString::Atof(*FDecode(*Key,this->TrueB)),FCString::Atof(*FDecode(*Key,this->TrueA)));
+				TrueR = ShiftR; TrueG = ShiftG; TrueB = ShiftB; TrueA = ShiftA;
+				ShiftR = NULL; ShiftG = NULL; ShiftB = NULL; ShiftA = NULL;
+				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,TrueR)),FCString::Atof(*FDecode(*Key,TrueG)),FCString::Atof(*FDecode(*Key,TrueB)),FCString::Atof(*FDecode(*Key,TrueA)));
 		default:
 			return FLinearColor::FLinearColor();
 	}}
 
 	void SetValue(FLinearColor* Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftR = *FEncode(FString::Printf(TEXT("%f"),Input->R));
-					this->ShiftG = *FEncode(FString::Printf(TEXT("%f"),Input->G));
-					this->ShiftB = *FEncode(FString::Printf(TEXT("%f"),Input->B));
-					this->ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
-					this->TrueR = nullptr; this->TrueG = nullptr; this->TrueB = nullptr; this->TrueA = nullptr;
+					ShiftR = *FEncode(FString::Printf(TEXT("%f"),Input->R));
+					ShiftG = *FEncode(FString::Printf(TEXT("%f"),Input->G));
+					ShiftB = *FEncode(FString::Printf(TEXT("%f"),Input->B));
+					ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
+					TrueR = NULL; TrueG = NULL; TrueB = NULL; TrueA = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueR = *FEncode(FString::Printf(TEXT("%f"),Input->R));
-					this->TrueG = *FEncode(FString::Printf(TEXT("%f"),Input->G));
-					this->TrueB = *FEncode(FString::Printf(TEXT("%f"),Input->B));
-					this->TrueA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
-					this->ShiftR = nullptr; this->ShiftG = nullptr; this->ShiftB = nullptr; this->ShiftA = nullptr;
+					TrueR = *FEncode(FString::Printf(TEXT("%f"),Input->R));
+					TrueG = *FEncode(FString::Printf(TEXT("%f"),Input->G));
+					TrueB = *FEncode(FString::Printf(TEXT("%f"),Input->B));
+					TrueA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
+					ShiftR = NULL; ShiftG = NULL; ShiftB = NULL; ShiftA = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FLinearColor* Input) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->R));
-				this->ShiftG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->G));
-				this->ShiftB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->B));
-				this->ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
-				this->TrueR = nullptr; this->TrueG = nullptr; this->TrueB = nullptr; this->TrueA = nullptr;
+				ShiftR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->R));
+				ShiftG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->G));
+				ShiftB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->B));
+				ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
+				TrueR = NULL; TrueG = NULL; TrueB = NULL; TrueA = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->R));
-				this->TrueG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->G));
-				this->TrueB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->B));
-				this->TrueA = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->A));
-				this->ShiftR = nullptr; this->ShiftG = nullptr; this->ShiftB = nullptr; this->ShiftA = nullptr;
+				TrueR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->R));
+				TrueG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->G));
+				TrueB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->B));
+				TrueA = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->A));
+				ShiftR = NULL; ShiftG = NULL; ShiftB = NULL; ShiftA = NULL;
 	}Internal=FString(*Key);}
 
 	////////////////////////////////////////////////////////////
@@ -1792,29 +1734,33 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeColor &operator = (const FSafeColor &C) {
-		this->Internal = C.Internal;
-		this->TrueR = C.TrueR; this->TrueG = C.TrueG; this->TrueB = C.TrueB; this->TrueA = C.TrueA;
-		this->ShiftR = C.ShiftR; this->ShiftG = C.ShiftG; this->ShiftB = C.ShiftB; this->ShiftA = C.ShiftA;
-		this->Flag = C.Flag;
+		Internal = C.Internal;
+		TrueR = C.TrueR; TrueG = C.TrueG; TrueB = C.TrueB; TrueA = C.TrueA;
+		ShiftR = C.ShiftR; ShiftG = C.ShiftG; ShiftB = C.ShiftB; ShiftA = C.ShiftA;
+		Flag = C.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeColor &operator = (FLinearColor &C) {
-		this->SetValue(&C); return *this;
+		SetValue(&C); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueR;
-		Ar << this->TrueG;
-		Ar << this->TrueB;
-		Ar << this->TrueA;
-		Ar << this->ShiftR;
-		Ar << this->ShiftG;
-		Ar << this->ShiftB;
-		Ar << this->ShiftA;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueR;
+		Ar << TrueG;
+		Ar << TrueB;
+		Ar << TrueA;
+		Ar << ShiftR;
+		Ar << ShiftG;
+		Ar << ShiftB;
+		Ar << ShiftA;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeColor &C) {
+		return FCrc::MemCrc32(&C,sizeof(FSafeColor));
 	}
 
 };
@@ -1856,19 +1802,19 @@ public:
 	/// Accessors
 
 	FRotator GetValue() {
-		if (Internal.Len()>0) {return this->GetValue(&this->Internal);} else {
+		if (Internal.Len()>0) {return GetValue(&Internal);} else {
 			Internal = FString(*ASCII_KEY);
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ;
-					this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr;
-					return FRotator::FRotator(FCString::Atof(*FDecode(this->ShiftX)),FCString::Atof(*FDecode(this->ShiftY)),FCString::Atof(*FDecode(this->ShiftZ)));
+					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
+					TrueX = NULL; TrueY = NULL; TrueZ = NULL;
+					return FRotator::FRotator(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
 				case 1:
 					Flag = 0;
-					this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ;
-					this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr;
-					return FRotator::FRotator(FCString::Atof(*FDecode(this->TrueX)),FCString::Atof(*FDecode(this->TrueY)),FCString::Atof(*FDecode(this->TrueZ)));
+					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
+					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
+					return FRotator::FRotator(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
 			default:
 				return FRotator::ZeroRotator;
 	}}}
@@ -1877,49 +1823,49 @@ public:
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = this->TrueX; this->ShiftY = this->TrueY; this->ShiftZ = this->TrueZ;
-				this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr;
-				return FRotator::FRotator(FCString::Atof(*FDecode(*Key,this->ShiftX)),FCString::Atof(*FDecode(*Key,this->ShiftY)),FCString::Atof(*FDecode(*Key,this->ShiftZ)));
+				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
+				TrueX = NULL; TrueY = NULL; TrueZ = NULL;
+				return FRotator::FRotator(FCString::Atof(*FDecode(*Key,ShiftX)),FCString::Atof(*FDecode(*Key,ShiftY)),FCString::Atof(*FDecode(*Key,ShiftZ)));
 			case 1:
 				Flag = 0;
-				this->TrueX = this->ShiftX; this->TrueY = this->ShiftY; this->TrueZ = this->ShiftZ;
-				this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr;
-				return FRotator::FRotator(FCString::Atof(*FDecode(*Key,this->TrueX)),FCString::Atof(*FDecode(*Key,this->TrueY)),FCString::Atof(*FDecode(*Key,this->TrueZ)));
+				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
+				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
+				return FRotator::FRotator(FCString::Atof(*FDecode(*Key,TrueX)),FCString::Atof(*FDecode(*Key,TrueY)),FCString::Atof(*FDecode(*Key,TrueZ)));
 		default:
 			return FRotator::ZeroRotator;
 	}}
 
 	void SetValue(FRotator Input) {
-		if (Internal.Len()>0) {this->SetValue(&this->Internal,Input);} else {
+		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					this->ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
-					this->ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
-					this->ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
-					this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr;
+					ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+					ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+					ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
+					TrueX = NULL; TrueY = NULL; TrueZ = NULL;
 				case 1:
 					Flag = 0;
-					this->TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
-					this->TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
-					this->TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
-					this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr;
+					TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+					TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+					TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
+					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
 	}Internal=FString(*ASCII_KEY);}}
 
 	void SetValue(FString* Key, FRotator Input) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				this->ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
-				this->ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
-				this->ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
-				this->TrueX = nullptr; this->TrueY = nullptr; this->TrueZ = nullptr;
+				ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
+				ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
+				ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
+				TrueX = NULL; TrueY = NULL; TrueZ = NULL;
 			case 1:
 				Flag = 0;
-				this->TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
-				this->TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
-				this->TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
-				this->ShiftX = nullptr; this->ShiftY = nullptr; this->ShiftZ = nullptr;
+				TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
+				TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
+				TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
+				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
 	}Internal=FString(*Key);}
 
 	////////////////////////////////////////////////////////////
@@ -1969,27 +1915,31 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeRotator &operator = (const FSafeRotator &R) {
-		this->Internal = R.Internal;
-		this->TrueX = R.TrueX; this->TrueY = R.TrueY; this->TrueZ = R.TrueZ;
-		this->ShiftX = R.ShiftX; this->ShiftY = R.ShiftY; this->ShiftZ = R.ShiftZ;
-		this->Flag = R.Flag;
+		Internal = R.Internal;
+		TrueX = R.TrueX; TrueY = R.TrueY; TrueZ = R.TrueZ;
+		ShiftX = R.ShiftX; ShiftY = R.ShiftY; ShiftZ = R.ShiftZ;
+		Flag = R.Flag;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeRotator &operator = (const FRotator &R) {
-		this->SetValue(R); return *this;
+		SetValue(R); return *this;
 	}
 
 	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << this->Flag;
-		Ar << this->TrueX;
-		Ar << this->TrueY;
-		Ar << this->TrueZ;
-		Ar << this->ShiftX;
-		Ar << this->ShiftY;
-		Ar << this->ShiftZ;
-		Ar << this->Internal;
+		Ar << Flag;
+		Ar << TrueX;
+		Ar << TrueY;
+		Ar << TrueZ;
+		Ar << ShiftX;
+		Ar << ShiftY;
+		Ar << ShiftZ;
+		Ar << Internal;
 		return Ar;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeRotator &R) {
+		return FCrc::MemCrc32(&R,sizeof(FSafeRotator));
 	}
 
 };
@@ -2015,23 +1965,23 @@ public:
 	////////////////////////////////////////////////////////////
 
 	FTransform GetValue() {
-		return FTransform::FTransform(this->Rotation.GetValue(),this->Position.GetValue(),this->Scale.GetValue());
+		return FTransform::FTransform(Rotation.GetValue(),Position.GetValue(),Scale.GetValue());
 	}
 
 	FTransform GetValue(FString* Key) {
-		return FTransform::FTransform(this->Rotation.GetValue(*&Key),this->Position.GetValue(*&Key),this->Scale.GetValue(*&Key));
+		return FTransform::FTransform(Rotation.GetValue(*&Key),Position.GetValue(*&Key),Scale.GetValue(*&Key));
 	}
 
 	void SetValue(FTransform* Input) {
-		this->Scale.SetValue(Input->GetScale3D());
-		this->Position.SetValue(Input->GetLocation());
-		this->Rotation.SetValue(Input->GetRotation().Rotator());
+		Scale.SetValue(Input->GetScale3D());
+		Position.SetValue(Input->GetLocation());
+		Rotation.SetValue(Input->GetRotation().Rotator());
 	}
 
 	void SetValue(FString* Key, FTransform* Input) {
-		this->Scale.SetValue(*&Key,Input->GetScale3D());
-		this->Position.SetValue(*&Key,Input->GetLocation());
-		this->Rotation.SetValue(*&Key,Input->GetRotation().Rotator());
+		Scale.SetValue(*&Key,Input->GetScale3D());
+		Position.SetValue(*&Key,Input->GetLocation());
+		Rotation.SetValue(*&Key,Input->GetRotation().Rotator());
 	}
 
 	////////////////////////////////////////////////////////////
@@ -2059,17 +2009,21 @@ public:
 	/// Operators
 
 	FORCEINLINE FSafeTransform &operator = (const FSafeTransform &T) {
-		this->Scale = T.Scale;
-		this->Position = T.Position;
-		this->Rotation = T.Rotation;
+		Scale = T.Scale;
+		Position = T.Position;
+		Rotation = T.Rotation;
 		return *this;
 	}
 	
 	FORCEINLINE FSafeTransform &operator = (const FTransform &T) {
-		this->Scale = T.GetScale3D();
-		this->Position = T.GetLocation();
-		this->Rotation = T.Rotator();
+		Scale = T.GetScale3D();
+		Position = T.GetLocation();
+		Rotation = T.Rotator();
 		return *this;
+	}
+
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeTransform &T) {
+		return FCrc::MemCrc32(&T,sizeof(FSafeTransform));
 	}
 
 };
@@ -3979,7 +3933,7 @@ public:
 	const TCHAR* Guardx86 = TEXT("SCUE4x86.exe");
 	const TCHAR* Guardx64 = TEXT("SCUE4x64.exe");
 	const TCHAR* Editor = TEXT("EDITOR");
-	const TCHAR* Game = FApp::GetGameName();
+	const TCHAR* Game = FApp::GetProjectName();
 	//
 	FTimerHandle THInvokeGuard;
 	FTimerHandle THScanner;
@@ -4010,23 +3964,16 @@ public:
 	This external process scanner is just distraction. */
 	void InvokeGuard() {
 	#if PLATFORM_WINDOWS
-		/*#if WITH_EDITOR
-		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,this->HideGameGuard,this->HideGameGuard,&GuardPID,0,nullptr,nullptr);
-		#elif PLATFORM_32BITS
-		if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
-		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
-		#else
-		if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
-		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
-		#endif*/
 		#if WITH_EDITOR
-		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::GameDir(),TEXT("Plugins/SCUE4/Source/ThirdParty/x64/"),Guardx64),Editor,false,this->HideGameGuard,this->HideGameGuard,&GuardPID,0,nullptr,nullptr);
-		#elif PLATFORM_32BITS
-		if (!FPaths::FileExists(FPaths::Combine(*FPaths::GameDir(),TEXT("Plugins/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
-		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::GameDir(),TEXT("Plugins/SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
 		#else
-		if (!FPaths::FileExists(FPaths::Combine(*FPaths::GameDir(),TEXT("Plugins/SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
-		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::GameDir(),TEXT("Plugins/SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+			#if !PLATFORM_64BITS
+			if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
+			GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+			#else
+			if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
+			GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+			#endif
 		#endif
 	#endif
 	}
@@ -4035,7 +3982,7 @@ public:
 	void GameGuard() {
 	#if PLATFORM_WINDOWS && !WITH_EDITOR
 		if (!GuardProcess.IsValid() || !FPlatformProcess::IsProcRunning(GuardProcess)) {InvokeGuard();}
-		if (!this->AllowDebugging) {if (IsDebuggerPresent() || HasDebugger() || HasThreat()) {FGenericPlatformMisc::RequestExit(false);}}
+		if (!AllowDebugging) {if (IsDebuggerPresent() || HasDebugger() || HasThreat()) {FGenericPlatformMisc::RequestExit(false);}}
 	#endif
 	}
 	//
