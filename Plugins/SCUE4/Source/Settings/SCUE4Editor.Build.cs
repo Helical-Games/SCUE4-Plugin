@@ -3,6 +3,7 @@ using UnrealBuildTool;
 public class SCUE4Editor : ModuleRules {
 	public SCUE4Editor(ReadOnlyTargetRules Target) : base(Target) {
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		PrivatePCHHeaderFile = "Private/SCUE4EditorPrivatePCH.h";
 		bEnforceIWYU = true;
 		//
 		PrivateDependencyModuleNames.AddRange(

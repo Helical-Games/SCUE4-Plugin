@@ -61,7 +61,7 @@ BOOL CALLBACK ScanProcesses(HWND Hwnd, LPARAM Param) {
 	int TXT = GetWindowTextA(Hwnd,TBuffer,sizeof(TBuffer));
 	FString FST = FString(ANSI_TO_TCHAR(TBuffer)).ToLower();
 	//
-	TCHAR LPS[512]; GetClassName(Hwnd,LPS,512);
+	TCHAR LPS[512]; //GetClassName(Hwnd,LPS,512);
 	FString FSN = FString(LPS).ToLower();
 	//
 	for (auto SC : Settings->IllegalKeywords) {
