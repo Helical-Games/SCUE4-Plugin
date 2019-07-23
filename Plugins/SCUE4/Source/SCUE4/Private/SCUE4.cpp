@@ -49,7 +49,6 @@ USCUE4Settings::USCUE4Settings(const FObjectInitializer& OBJ) : Super(OBJ) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if PLATFORM_WINDOWS
 #include "Windows/AllowWindowsPlatformTypes.h"
@@ -61,7 +60,8 @@ BOOL CALLBACK ScanProcesses(HWND Hwnd, LPARAM Param) {
 	int TXT = GetWindowTextA(Hwnd,TBuffer,sizeof(TBuffer));
 	FString FST = FString(ANSI_TO_TCHAR(TBuffer)).ToLower();
 	//
-	TCHAR LPS[512]; //GetClassName(Hwnd,LPS,512);
+	TCHAR LPS[512];
+	GetClassNameW(Hwnd,LPS,512);
 	FString FSN = FString(LPS).ToLower();
 	//
 	for (auto SC : Settings->IllegalKeywords) {
@@ -71,7 +71,7 @@ BOOL CALLBACK ScanProcesses(HWND Hwnd, LPARAM Param) {
 	{*(HWND*)Param = Hwnd; return FALSE;}}
 	//
 	return TRUE;
-}
+}///
 //
 void FSCUE4_Enumerate() {
 	HWND Hwnd = NULL;
@@ -81,12 +81,12 @@ void FSCUE4_Enumerate() {
 		int TXT = GetWindowTextA(Hwnd,TBuffer,sizeof(TBuffer));
 		int msgboxID = MessageBox( NULL,
 			(LPCWSTR)L"Running application conflict detected; Game will close;\nPlease close conflicting software before playing.",
-			(LPCWSTR)ANSI_TO_TCHAR(TBuffer),
+			(LPCWSTR)TBuffer,
 			MB_ICONWARNING | MB_OK | MB_DEFBUTTON1
 		); FGenericPlatformMisc::RequestExit(false);
 	  #endif
-	} else {CloseHandle(Hwnd);}
-}
+	}/// else {CloseHandle(Hwnd);}
+}///
 //
 #include "Windows/HideWindowsPlatformTypes.h"
 #endif

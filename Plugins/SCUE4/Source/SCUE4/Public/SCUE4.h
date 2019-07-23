@@ -4,6 +4,7 @@
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
 
 #if PLATFORM_WINDOWS
  #include "Windows/AllowWindowsPlatformTypes.h"
@@ -11,8 +12,6 @@
  #include <Winuser.h>
  #include "Windows/HideWindowsPlatformTypes.h"
 #endif
-
-#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
@@ -28,10 +27,6 @@
 #include "SCUE4.generated.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if PLATFORM_WINDOWS
-#pragma region SETTINGS
-#endif
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Default SCUE4 Settings
 
 UCLASS(ClassGroup = Synaptech, Category = "Synaptech", config = Game)
@@ -44,3892 +39,3249 @@ public:
 	//
 	/** List of illegal process words that internal scanner shall look for. */
 	UPROPERTY(Category = "General Settings", config, EditAnywhere, BlueprintReadOnly)
-	TArray<FString> IllegalKeywords;
+	TArray<FString>IllegalKeywords;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if PLATFORM_WINDOWS
-#pragma endregion SETTINGS
-#pragma region ENCRYPTION SYSTEM
-#endif
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Encryption:: Caesar Cipher ^ Byte Mangling
+/// Encryption:: Simple Caesar Cipher
 
 static const FString ASCII_DIC = TEXT("0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ@~!#$%^&*()_-=+/|[]{}`;:,<>?.\\");
 static const FString ASCII_KEY = TEXT(":.,@#}{[=^otTxmY+_!)*rACbfklpKVFWz]%Ju8ZgIi/HXGqj$>2MhPwDd1BS7-(3sEn06c5yRe?9U`L&|OvaNQ;4~<\\");
 
-static FORCEINLINE FString FEncode(FString Input) {
-	for (int I = 0; I<Input.Len(); I++) {
-		int ID = -1; for (auto CH : ASCII_DIC) {
-			ID++; if (Input[I]==CH) {Input[I]=ASCII_KEY[ID]; ID=-1; break;}
-	}}
+static FORCEINLINE const FString FEncode(const FString &Input) {
+	FString Encode = Input;
 	//
-	return *Input;
+	for (int I = 0; I<Encode.Len(); I++) {
+		int ID = -1; for (auto CH : ASCII_DIC) {
+			ID++; if (Encode[I]==CH) {Encode[I]=ASCII_KEY[ID]; ID=-1; break;}
+		}///
+	}///
+	//
+	return Encode;
 }
 
-static FORCEINLINE FString FDecode(FString Input) {
-	for (int I = 0; I<Input.Len(); I++) {
+static FORCEINLINE const FString FDecode(const FString &Input) {
+	FString Decode = Input;
+	//
+	for (int I = 0; I<Decode.Len(); I++) {
 		int ID = -1; for (auto CH : ASCII_KEY) {
-			ID++; if (Input[I]==CH) {Input[I]=ASCII_DIC[ID]; ID=-1; break;}
-	}}
+			ID++; if (Decode[I]==CH) {Decode[I]=ASCII_DIC[ID]; ID=-1; break;}
+		}///
+	}///
 	//
-	return *Input;
+	return Decode;
 }
 
-static FORCEINLINE FString FEncode(FString Key, FString Input) {
-	for (int I = 0; I<Input.Len(); I++) {
+static FORCEINLINE const FString FEncode(const FString &Key, const FString &Input) {
+	FString Encode = Input;
+	//
+	for (int I = 0; I<Encode.Len(); I++) {
 		int ID = -1; for (auto CH : ASCII_DIC) {
-			ID++; if (Input[I]==CH) {Input[I]=Key[ID]; ID=-1; break;}
-	}}
+			ID++; if (Encode[I]==CH) {Encode[I]=Key[ID]; ID=-1; break;}
+		}///
+	}///
 	//
-	return *Input;
+	return Encode;
 }
 
-static FORCEINLINE FString FDecode(FString Key, FString Input) {
-	for (int I = 0; I<Input.Len(); I++) {
+static FORCEINLINE const FString FDecode(const FString &Key, const FString &Input) {
+	FString Decode = Input;
+	//
+	for (int I = 0; I<Decode.Len(); I++) {
 		int ID = -1; for (auto CH : Key) {
-			ID++; if (Input[I]==CH) {Input[I]=ASCII_DIC[ID]; ID=-1; break;}
-	}}
+			ID++; if (Decode[I]==CH) {Decode[I]=ASCII_DIC[ID]; ID=-1; break;}
+		}///
+	}///
 	//
-	return *Input;
+	return Decode;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if PLATFORM_WINDOWS
-#pragma endregion ENCRYPTION SYSTEM
-#pragma region INTERNAL SCANNER
-#endif
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Enumerator:: Internal Process Scanner
 
 #if PLATFORM_WINDOWS
-void FSCUE4_Enumerate();
+  void FSCUE4_Enumerate();
 #endif
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if PLATFORM_WINDOWS
-#pragma endregion INTERNAL SCANNER
-#pragma region CUSTOM TYPES
-#endif
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Structs:: Custom 'Safe Types' for run-time data encryption
 
-/** {S}: Safe Boolean Property;
+/** Safe Boolean Property;
  Use this data format to store sensible Bool values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeBool {
 	GENERATED_USTRUCT_BODY()
 private:
-
 	/** Internal Key. Can be replaced each operation if wanted. */
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
+	//
 	/** Default Memory Address. */
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueValue;
-
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Base;
+	//
 	/** Alternative Memory Address. */
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Shift;
-
+	//
 	/** Flag will take the value from Address, clear it and shift them,
 	then copy value to previous Address and set it as default container. */
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-	
-	FString GetRaw() {
-		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
-	}
-
-	void SetRaw(FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	}
-
-	/** Gets value using Global Key. */
-	bool GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	const FString GetRaw() const {
+		if (!Shift.IsEmpty()) {return Shift;} else {return Base;}
+	}///
+	//
+	void SetRaw(const FString &Value) {
+		Shift = Value;
+		Base = Value;
+	}///
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const bool GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FCString::ToBool(*FDecode(Base));
+				break;
+				case 1:
 					return FCString::ToBool(*FDecode(Shift));
-				case 1:
-					Flag = 0; TrueValue = Shift; Shift = NULL;
-					return FCString::ToBool(*FDecode(TrueValue));
-			default:
-				return false;
-	}}}
-
-	/** Gets value from Custom Key. */
-	bool GetValue(FString* Key) {
+				break;
+			default: return false;}
+		}///
+	}///
+	//
+	const bool GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1; Shift = TrueValue; TrueValue = NULL;
-				return FCString::ToBool(*FDecode(*Key,Shift));
+				return FCString::ToBool(*FDecode(Key,Base));
+			break;
 			case 1:
-				Flag = 0; TrueValue = Shift; Shift = NULL;
-				return FCString::ToBool(*FDecode(*Key,TrueValue));
-		default:
-			return false;
-	}}
-
-	/** Sets value using Internal or Global Key. */
-	void SetValue(const bool Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+				return FCString::ToBool(*FDecode(Key,Shift));
+			break;
+		default: return false;}
+	}///
+	//
+	void SetValue(const bool &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
 			switch (Flag) {
 				case 0:
+				{
 					Shift = FEncode((Input?TEXT("true"):TEXT("false")));
-					Flag = 1; TrueValue = NULL;
+					Flag = 1; Base.Empty();
+				} break;
+				//
 				case 1:
-					TrueValue = FEncode((Input?TEXT("true"):TEXT("false")));
-					Flag = 0; Shift = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	/** Sets value from Custom Key. */
-	void SetValue(FString* Key, const bool Input) {
+				{
+					Base = FEncode((Input?TEXT("true"):TEXT("false")));
+					Flag = 0; Shift.Empty();
+				} break;
+			} Internal=ASCII_KEY;
+		}///
+	}///
+	//
+	void SetValue(const FString &Key, const bool &Input) {
 		switch (Flag) {
 			case 0:
-				Shift = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
-				Flag = 1; TrueValue = NULL;
+			{
+				Shift = FEncode(Key,(Input?TEXT("true"):TEXT("false")));
+				Flag = 1; Base.Empty();
+			} break;
+			//
 			case 1:
-				TrueValue = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
-				Flag = 0; Shift = NULL;
-	}Internal=FString(*Key);}
-
+			{
+				Base = FEncode(Key,(Input?TEXT("true"):TEXT("false")));
+				Flag = 0; Shift.Empty();
+			} break;
+		} Internal=FString(Key);
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeBool() {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = TEXT("false");
+		Internal = FString();
+		Base = TEXT("false");
 		Shift = TEXT("false");
 		Flag = 0;
-	}
-
-	FSafeBool(const bool Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = FEncode((Input?TEXT("true"):TEXT("false")));
+	}///
+	//
+	FSafeBool(const bool &Input) {
+		Internal = FString();
+		Base = FEncode((Input?TEXT("true"):TEXT("false")));
 		Shift = FEncode((Input?TEXT("true"):TEXT("false")));
 		Flag = 0;
-	}
-
-	FSafeBool(FString* Key, const bool Input) {
-		Internal = FString(*Key);
-		TrueValue = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
-		Shift = FEncode(*Key,(Input?TEXT("true"):TEXT("false")));
+	}///
+	//
+	FSafeBool(const FString &Key, const bool &Input) {
+		Internal = Key;
+		Base = FEncode(Key,(Input?TEXT("true"):TEXT("false")));
+		Shift = FEncode(Key,(Input?TEXT("true"):TEXT("false")));
 		Flag = 0;
-	}
-
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeBool &operator = (const FSafeBool &B) {
 		Internal = B.Internal;
-		TrueValue = B.TrueValue;
 		Shift = B.Shift;
+		Base = B.Base;
 		Flag = B.Flag;
+		//
 		return *this;
-	}
-	
+	}///
+	//
 	FORCEINLINE FSafeBool &operator = (const bool &B) {
 		SetValue(B); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueValue;
-		Ar << Shift;
-		Ar << Internal;
-		return Ar;
-	}
-
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeBool &B) const {
+		return  (GetValue() == B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeBool &B) const {
+		return (GetValue() != B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator && (const FSafeBool &B) const {
+		return (GetValue() && B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator || (const FSafeBool &B) const {
+		return (GetValue() || B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator == (const bool &B) const {
+		return (GetValue() == B);
+	}///
+	//
+	FORCEINLINE bool operator != (const bool &B) const {
+		return (GetValue() != B);
+	}///
+	//
+	FORCEINLINE bool operator && (const bool &B) const {
+		return (GetValue() && B);
+	}///
+	//
+	FORCEINLINE bool operator || (const bool &B) const {
+		return (GetValue() || B);
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << Shift;
+		AR << Base;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
 	friend FORCEINLINE uint32 GetTypeHash(const FSafeBool &B) {
 		return FCrc::MemCrc32(&B,sizeof(FSafeBool));
-	}
+	}///
 };
 
-/** {S}: Safe Byte Property;
+/** Safe Byte Property;
  Use this data format to store sensible Byte values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeByte {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueValue;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Base;
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Shift;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FString GetRaw() {
-		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
-	}
-
-	void SetRaw(FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	}
-
-	uint8 GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	const FString GetRaw() const {
+		if (!Shift.IsEmpty()) {return Shift;} else {return Base;}
+	}///
+	//
+	void SetRaw(const FString &Value) {
+		Shift = Value;
+		Base = Value;
+	}///
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const uint8 GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FCString::Atoi(*FDecode(Base));
+				break;
+				case 1:
 					return FCString::Atoi(*FDecode(Shift));
-				case 1:
-					Flag = 0; TrueValue = Shift; Shift = NULL;
-					return FCString::Atoi(*FDecode(TrueValue));
-			default:
-				return 0;
-	}}}
-
-	uint8 GetValue(FString* Key) {
+				break;
+			default: return 0;}
+		}///
+	}///
+	//
+	const uint8 GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1; Shift = TrueValue; TrueValue = NULL;
-				return FCString::Atoi(*FDecode(*Key,Shift));
+				return FCString::Atoi(*FDecode(Key,Base));
+			break;
 			case 1:
-				Flag = 0; TrueValue = Shift; Shift = NULL;
-				return FCString::Atoi(*FDecode(*Key,TrueValue));
-		default:
-			return 0;
-	}}
-
-	void SetValue(uint8 Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+				return FCString::Atoi(*FDecode(Key,Shift));
+			break;
+		default: return 0;}
+	}///
+	//
+	void SetValue(const uint8 &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
 			switch (Flag) {
 				case 0:
+				{
 					Shift = FEncode(FString::FromInt(Input));
-					Flag = 1; TrueValue = NULL;
+					Flag = 1; Base.Empty();
+				} break;
 				case 1:
-					TrueValue = FEncode(FString::FromInt(Input));
-					Flag = 0; Shift = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, uint8 Input) {
+				{
+					Base = FEncode(FString::FromInt(Input));
+					Flag = 0; Shift.Empty();
+				} break;
+			default: break;
+		} Internal=ASCII_KEY;}
+	}///
+	//
+	void SetValue(const FString &Key, const uint8 &Input) {
 		switch (Flag) {
 			case 0:
-				Shift = FEncode(*Key,FString::FromInt(Input));
-				Flag = 1; TrueValue = NULL;
+			{
+				Shift = FEncode(Key,FString::FromInt(Input));
+				Flag = 1; Base.Empty();
+			} break;
 			case 1:
-				TrueValue = FEncode(*Key,FString::FromInt(Input));
-				Flag = 0; Shift = NULL;
-	}Internal=FString(*Key);}
-
+			{
+				Base = FEncode(Key,FString::FromInt(Input));
+				Flag = 0; Shift.Empty();
+			} break;
+			default: break;
+		} Internal=FString(Key);
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeByte() {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = TEXT("0");
+		Internal = FString();
+		Base = TEXT("0");
 		Shift = TEXT("0");
 		Flag = 0;
-	}
-
-	FSafeByte(const uint8 Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = FEncode(FString::FromInt(Input));
+	}///
+	//
+	FSafeByte(const uint8 &Input) {
+		Internal = FString();
+		Base = FEncode(FString::FromInt(Input));
 		Shift = FEncode(FString::FromInt(Input));
 		Flag = 0;
-	}
-
-	FSafeByte(FString* Key, const uint8 Input) {
-		Internal = FString(*Key);
-		TrueValue = FEncode(*Key,FString::FromInt(Input));
-		Shift = FEncode(*Key,FString::FromInt(Input));
+	}///
+	//
+	FSafeByte(const FString &Key, const uint8 &Input) {
+		Internal = Key;
+		Base = FEncode(Key,FString::FromInt(Input));
+		Shift = FEncode(Key,FString::FromInt(Input));
 		Flag = 0;
-	}
-
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeByte &operator = (const FSafeByte &B) {
 		Internal = B.Internal;
-		TrueValue = B.TrueValue;
 		Shift = B.Shift;
+		Base = B.Base;
 		Flag = B.Flag;
+		//
 		return *this;
-	}
-	
+	}///
+	//
 	FORCEINLINE FSafeByte &operator = (const uint8 &B) {
 		SetValue(B); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueValue;
-		Ar << Shift;
-		Ar << Internal;
-		return Ar;
-	}
-
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeByte &B) const {
+		return (GetValue() == B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeByte &B) const {
+		return (GetValue() != B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeByte &B) const {
+		return (GetValue() > B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeByte &B) const {
+		return (GetValue() < B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FSafeByte &B) const {
+		return (GetValue() >= B.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FSafeByte &B) const {
+		return (GetValue() <= B.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeByte operator + (const FSafeByte &B) const {
+		return (GetValue() + B.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeByte operator - (const FSafeByte &B) const {
+		return (GetValue() - B.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeByte operator * (const FSafeByte &B) const {
+		return (GetValue() * B.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeByte operator / (const FSafeByte &B) const {
+		return (GetValue() / B.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeByte operator ~ () const {
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(~I);
+	}///
+	//
+	FORCEINLINE FSafeByte operator % (const FSafeByte &B) const {
+		const uint8 M = B.GetValue();
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I % M);
+	}///
+	//
+	FORCEINLINE FSafeByte operator & (const FSafeByte &B) const {
+		const uint8 M = B.GetValue();
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I & M);
+	}///
+	//
+	FORCEINLINE FSafeByte operator | (const FSafeByte &B) const {
+		const uint8 M = B.GetValue();
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I | M);
+	}///
+	//
+	FORCEINLINE FSafeByte operator ^ (const FSafeByte &B) const {
+		const uint8 M = B.GetValue();
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I ^ M);
+	}///
+	//
+	FORCEINLINE FSafeByte operator >> (const FSafeByte &B) const {
+		const uint8 M = B.GetValue();
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I >> M);
+	}///
+	//
+	FORCEINLINE FSafeByte operator << (const FSafeByte &B) const {
+		const uint8 M = B.GetValue();
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I << M);
+	}///
+	//
+	FORCEINLINE bool operator == (const uint8 &B) const {
+		return (GetValue() == B);
+	}///
+	//
+	FORCEINLINE bool operator != (const uint8 &B) const {
+		return (GetValue() != B);
+	}///
+	//
+	FORCEINLINE bool operator > (const uint8 &B) const {
+		return (GetValue() > B);
+	}///
+	//
+	FORCEINLINE bool operator < (const uint8 &B) const {
+		return (GetValue() < B);
+	}///
+	//
+	FORCEINLINE bool operator >= (const uint8 &B) const {
+		return (GetValue() >= B);
+	}///
+	//
+	FORCEINLINE bool operator <= (const uint8 &B) const {
+		return (GetValue() <= B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator + (const uint8 &B) const {
+		return FSafeByte(GetValue() + B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator - (const uint8 &B) const {
+		return FSafeByte(GetValue() - B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator * (const uint8 &B) const {
+		return FSafeByte(GetValue() * B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator / (const uint8 &B) const {
+		return FSafeByte(GetValue() / B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator % (const uint8 &B) const {
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I % B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator & (const uint8 &B) const {
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I & B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator | (const uint8 &B) const {
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I | B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator ^ (const uint8 &B) const {
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I ^ B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator >> (const uint8 &B) const {
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I >> B);
+	}///
+	//
+	FORCEINLINE FSafeByte operator << (const uint8 &B) const {
+		const uint8 I = GetValue();
+		//
+		return FSafeByte(I << B);
+	}///
+	//
+	FORCEINLINE FSafeByte &operator += (const uint8 &B) {
+		const uint8 I = (GetValue() + B);
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeByte &operator -= (const uint8 &B) {
+		const uint8 I = (GetValue() - B);
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeByte &operator += (const FSafeByte &B) {
+		const uint8 I = (GetValue() + B.GetValue());
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeByte &operator -= (const FSafeByte &B) {
+		const uint8 I = (GetValue() - B.GetValue());
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeByte operator ++ (int) {
+		FSafeByte SB = *this; (++ *this);
+		//
+		return SB;
+	}///
+	//
+	FORCEINLINE FSafeByte operator -- (int) {
+		FSafeByte SB = *this; (-- *this);
+		//
+		return SB;
+	}///
+	//
+	FORCEINLINE FSafeByte &operator ++ () {
+		uint8 I = GetValue(); I++;
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeByte &operator -- () {
+		uint8 I = GetValue(); I--;
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << Shift;
+		AR << Base;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
 	friend FORCEINLINE uint32 GetTypeHash(const FSafeByte &B) {
 		return FCrc::MemCrc32(&B,sizeof(FSafeByte));
-	}
-
+	}///
 };
 
-/** {S}: Safe Int32 Property;
+/** Safe Int32 Property;
  Use this data format to store sensible Int values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeInt {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueValue;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Base;
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Shift;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FString GetRaw() {
-		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
-	}
-
-	void SetRaw(FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	}
-
-	int32 GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	const FString GetRaw() const {
+		if (!Shift.IsEmpty()) {return Shift;} else {return Base;}
+	}///
+	//
+	void SetRaw(const FString &Value) {
+		Shift = Value;
+		Base = Value;
+	}///
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const int32 GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FCString::Atoi(*FDecode(Base));
+				break;
+				case 1:
 					return FCString::Atoi(*FDecode(Shift));
-				case 1:
-					Flag = 0; TrueValue = Shift; Shift = NULL;
-					return FCString::Atoi(*FDecode(TrueValue));
-			default:
-				return 0;
-	}}}
-
-	int32 GetValue(FString* Key) {
+				break;
+			default: return 0;}
+		}///
+	}///
+	//
+	const int32 GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1; Shift = TrueValue; TrueValue = NULL;
-				return FCString::Atoi(*FDecode(*Key,Shift));
+				return FCString::Atoi(*FDecode(Key,Base));
+			break;
 			case 1:
-				Flag = 0; TrueValue = Shift; Shift = NULL;
-				return FCString::Atoi(*FDecode(*Key,TrueValue));
-		default:
-			return 0;
-	}}
-
-	void SetValue(int32 Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+				return FCString::Atoi(*FDecode(Key,Shift));
+			break;
+		default: return 0;}
+	}///
+	//
+	void SetValue(const int32 &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
 			switch (Flag) {
 				case 0:
+				{
 					Shift = FEncode(FString::FromInt(Input));
-					Flag = 1; TrueValue = NULL;
+					Flag = 1; Base.Empty();
+				} break;
 				case 1:
-					TrueValue = FEncode(FString::FromInt(Input));
-					Flag = 0; Shift = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, int32 Input) {
+				{
+					Base = FEncode(FString::FromInt(Input));
+					Flag = 0; Shift.Empty();
+				} break;
+			default: break;
+		} Internal=ASCII_KEY;}
+	}///
+	//
+	void SetValue(const FString &Key, const int32 &Input) {
 		switch (Flag) {
 			case 0:
-				Shift = FEncode(*Key,FString::FromInt(Input));
-				Flag = 1; TrueValue = NULL;
+			{
+				Shift = FEncode(Key,FString::FromInt(Input));
+				Flag = 1; Base.Empty();
+			} break;
 			case 1:
-				TrueValue = FEncode(*Key,FString::FromInt(Input));
-				Flag = 0; Shift = NULL;
-	}Internal=FString(*Key);}
-
+			{
+				Base = FEncode(Key,FString::FromInt(Input));
+				Flag = 0; Shift.Empty();
+			} break;
+			default: break;
+		} Internal=FString(Key);
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeInt() {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = TEXT("0");
+		Internal = FString();
+		Base = TEXT("0");
 		Shift = TEXT("0");
 		Flag = 0;
-	}
-
-	FSafeInt(const int32 Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = FEncode(FString::FromInt(Input));
+	}///
+	//
+	FSafeInt(const int32 &Input) {
+		Internal = FString();
+		Base = FEncode(FString::FromInt(Input));
 		Shift = FEncode(FString::FromInt(Input));
 		Flag = 0;
-	}
-
-	FSafeInt(FString* Key, const int32 Input) {
-		Internal = FString(*Key);
-		TrueValue = FEncode(*Key,FString::FromInt(Input));
-		Shift = FEncode(*Key,FString::FromInt(Input));
+	}///
+	//
+	FSafeInt(const FString &Key, const int32 &Input) {
+		Internal = Key;
+		Base = FEncode(Key,FString::FromInt(Input));
+		Shift = FEncode(Key,FString::FromInt(Input));
 		Flag = 0;
-	}
-
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeInt &operator = (const FSafeInt &I) {
 		Internal = I.Internal;
-		TrueValue = I.TrueValue;
 		Shift = I.Shift;
+		Base = I.Base;
 		Flag = I.Flag;
+		//
 		return *this;
-	}
-	
-	FORCEINLINE FSafeInt &operator = (const int32 &I) {
-		SetValue(I); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueValue;
-		Ar << Shift;
-		Ar << Internal;
-		return Ar;
-	}
-
+	}///
+	//
+	FORCEINLINE FSafeInt &operator = (const int32 &IT) {
+		SetValue(IT); return *this;
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeInt &IT) const {
+		return (GetValue() == IT.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeInt &IT) const {
+		return (GetValue() != IT.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeInt &IT) const {
+		return (GetValue() > IT.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeInt &IT) const {
+		return (GetValue() < IT.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FSafeInt &IT) const {
+		return (GetValue() >= IT.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FSafeInt &IT) const {
+		return (GetValue() <= IT.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeInt operator + (const FSafeInt &IT) const {
+		return (GetValue() + IT.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeInt operator - (const FSafeInt &IT) const {
+		return (GetValue() - IT.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeInt operator * (const FSafeInt &IT) const {
+		return (GetValue() * IT.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeInt operator / (const FSafeInt &IT) const {
+		return (GetValue() / IT.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeInt operator ~ () const {
+		const int32 I = GetValue();
+		//
+		return FSafeInt(~I);
+	}///
+	//
+	FORCEINLINE FSafeInt operator % (const FSafeInt &IT) const {
+		const int32 M = IT.GetValue();
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I % M);
+	}///
+	//
+	FORCEINLINE FSafeInt operator & (const FSafeInt &IT) const {
+		const int32 M = IT.GetValue();
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I & M);
+	}///
+	//
+	FORCEINLINE FSafeInt operator | (const FSafeInt &IT) const {
+		const int32 M = IT.GetValue();
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I | M);
+	}///
+	//
+	FORCEINLINE FSafeInt operator ^ (const FSafeInt &IT) const {
+		const int32 M = IT.GetValue();
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I ^ M);
+	}///
+	//
+	FORCEINLINE FSafeInt operator >> (const FSafeInt &IT) const {
+		const int32 M = IT.GetValue();
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I >> M);
+	}///
+	//
+	FORCEINLINE FSafeInt operator << (const FSafeInt &IT) const {
+		const int32 M = IT.GetValue();
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I << M);
+	}///
+	//
+	FORCEINLINE bool operator == (const int32 &IT) const {
+		return (GetValue() == IT);
+	}///
+	//
+	FORCEINLINE bool operator != (const int32 &IT) const {
+		return (GetValue() != IT);
+	}///
+	//
+	FORCEINLINE bool operator > (const int32 &IT) const {
+		return (GetValue() > IT);
+	}///
+	//
+	FORCEINLINE bool operator < (const int32 &IT) const {
+		return (GetValue() < IT);
+	}///
+	//
+	FORCEINLINE bool operator >= (const int32 &IT) const {
+		return (GetValue() >= IT);
+	}///
+	//
+	FORCEINLINE bool operator <= (const int32 &IT) const {
+		return (GetValue() <= IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator + (const int32 &IT) const {
+		return FSafeInt(GetValue() + IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator - (const int32 &IT) const {
+		return FSafeInt(GetValue() - IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator * (const int32 &IT) const {
+		return FSafeInt(GetValue() * IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator / (const int32 &IT) const {
+		return FSafeInt(GetValue() / IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator % (const int32 &IT) const {
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I % IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator & (const int32 &IT) const {
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I & IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator | (const int32 &IT) const {
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I | IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator ^ (const int32 &IT) const {
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I ^ IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator >> (const int32 &IT) const {
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I >> IT);
+	}///
+	//
+	FORCEINLINE FSafeInt operator << (const int32 &IT) const {
+		const int32 I = GetValue();
+		//
+		return FSafeInt(I << IT);
+	}///
+	//
+	FORCEINLINE FSafeInt &operator += (const FSafeInt &IT) {
+		const int32 I = (GetValue() + IT.GetValue());
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeInt &operator -= (const FSafeInt &IT) {
+		const int32 I = (GetValue() - IT.GetValue());
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeInt &operator += (const int32 &IT) {
+		const int32 I = (GetValue() + IT);
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeInt &operator -= (const int32 &IT) {
+		const int32 I = (GetValue() - IT);
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeInt operator ++ (int) {
+		FSafeInt SI = *this; (++ *this);
+		//
+		return SI;
+	}///
+	//
+	FORCEINLINE FSafeInt operator -- (int) {
+		FSafeInt SI = *this; (-- *this);
+		//
+		return SI;
+	}///
+	//
+	FORCEINLINE FSafeInt &operator ++ () {
+		int32 I = GetValue(); I++;
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeInt &operator -- () {
+		int32 I = GetValue(); I--;
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << Shift;
+		AR << Base;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
 	friend FORCEINLINE uint32 GetTypeHash(const FSafeInt &I) {
 		return FCrc::MemCrc32(&I,sizeof(FSafeInt));
-	}
-
+	}///
 };
 
-/** {S}: Safe Float Property;
+/** Safe Float Property;
  Use this data format to store sensible Float values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeFloat {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueValue;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Base;
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Shift;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FString GetRaw() {
-		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
-	}
-
-	void SetRaw(FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	}
-
-	float GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	const FString GetRaw() const {
+		if (!Shift.IsEmpty()) {return Shift;} else {return Base;}
+	}///
+	//
+	void SetRaw(const FString &Value) {
+		Shift = Value;
+		Base = Value;
+	}///
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const float GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1; Shift = TrueValue; TrueValue = NULL;
+					return FCString::Atof(*FDecode(Base));
+				break;
+				case 1:
 					return FCString::Atof(*FDecode(Shift));
-				case 1:
-					Flag = 0; TrueValue = Shift; Shift = NULL;
-					return FCString::Atof(*FDecode(TrueValue));
-			default:
-				return 0.f;
-	}}}
-
-	float GetValue(FString* Key) {
+				break;
+			default: return 0;}
+		}///
+	}///
+	//
+	const float GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1; Shift = TrueValue; TrueValue = NULL;
-				return FCString::Atof(*FDecode(*Key,Shift));
+				return FCString::Atof(*FDecode(Key,Base));
+			break;
 			case 1:
-				Flag = 0; TrueValue = Shift; Shift = NULL;
-				return FCString::Atof(*FDecode(*Key,TrueValue));
-		default:
-			return 0.f;
-	}}
-
-	void SetValue(float Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+				return FCString::Atof(*FDecode(Key,Shift));
+			break;
+		default: return 0;}
+	}///
+	//
+	void SetValue(const float &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
 			switch (Flag) {
 				case 0:
+				{
 					Shift = FEncode(FString::Printf(TEXT("%f"),Input));
-					Flag = 1; TrueValue = NULL;
+					Flag = 1; Base.Empty();
+				} break;
 				case 1:
-					TrueValue = FEncode(FString::Printf(TEXT("%f"),Input));
-					Flag = 0; Shift = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, float Input) {
+				{
+					Base = FEncode(FString::Printf(TEXT("%f"),Input));
+					Flag = 0; Shift.Empty();
+				} break;
+			default: break;
+		} Internal=ASCII_KEY;}
+	}///
+	//
+	void SetValue(const FString &Key, const float &Input) {
 		switch (Flag) {
 			case 0:
-				Shift = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
-				Flag = 1; TrueValue = NULL;
+			{
+				Shift = FEncode(Key,FString::Printf(TEXT("%f"),Input));
+				Flag = 1; Base.Empty();
+			} break;
 			case 1:
-				TrueValue = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
-				Flag = 0; Shift = NULL;
-	}Internal=FString(*Key);}
-
+			{
+				Base = FEncode(Key,FString::Printf(TEXT("%f"),Input));
+				Flag = 0; Shift.Empty();
+			} break;
+			default: break;
+		} Internal=FString(Key);
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeFloat() {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = TEXT("0.0");
-		Shift = TEXT("0.0");
+		Internal = FString();
+		Base = TEXT("0");
+		Shift = TEXT("0");
 		Flag = 0;
-	}
-
-	FSafeFloat(const float Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = FEncode(FString::Printf(TEXT("%f"),Input));
-		Shift = FEncode(FString::Printf(TEXT("%f"),Input));
+	}///
+	//
+	FSafeFloat(const float &Input) {
+		Internal = FString();
+		Base = FEncode(FString::FromInt(Input));
+		Shift = FEncode(FString::FromInt(Input));
 		Flag = 0;
-	}
-
-	FSafeFloat(FString* Key, const float Input) {
-		Internal = FString(*Key);
-		TrueValue = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
-		Shift = FEncode(*Key,FString::Printf(TEXT("%f"),Input));
+	}///
+	//
+	FSafeFloat(const FString &Key, const float &Input) {
+		Internal = Key;
+		Base = FEncode(Key,FString::FromInt(Input));
+		Shift = FEncode(Key,FString::FromInt(Input));
 		Flag = 0;
-	}
-
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeFloat &operator = (const FSafeFloat &F) {
 		Internal = F.Internal;
-		TrueValue = F.TrueValue;
 		Shift = F.Shift;
+		Base = F.Base;
 		Flag = F.Flag;
+		//
 		return *this;
-	}
-	
+	}///
+	//
 	FORCEINLINE FSafeFloat &operator = (const float &F) {
 		SetValue(F); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueValue;
-		Ar << Shift;
-		Ar << Internal;
-		return Ar;
-	}
-
-	friend FORCEINLINE uint32 GetTypeHash(const FSafeFloat &F) {
-		return FCrc::MemCrc32(&F,sizeof(FSafeFloat));
-	}
-
-};
-
-/** {S}: Safe Name Property;
- Use this data format to store sensible Name values you need protected against memory hackers. */
-USTRUCT(BlueprintType)
-struct SCUE4_API FSafeName {
-	GENERATED_USTRUCT_BODY()
-private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueValue;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString Shift;
-
-	UPROPERTY(SaveGame)
-	uint8 Flag;
-
-public:
-
-	////////////////////////////////////////////////////////////
-	/// Accessors
-
-	FString GetRaw() {
-		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
-	}
-
-	void SetRaw(FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	}
-
-	FName GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
-			switch (Flag) {
-			case 0:
-				Flag = 1; Shift = TrueValue; TrueValue = NULL;
-				return FName::FName(*FDecode(Shift));
-			case 1:
-				Flag = 0; TrueValue = Shift; Shift = NULL;
-				return FName::FName(*FDecode(TrueValue));
-			default:
-				return TEXT("");
-	}}}
-
-	FName GetValue(FString* Key) {
-		switch (Flag) {
-			case 0:
-				Flag = 1; Shift = TrueValue; TrueValue = NULL;
-				return FName::FName(*FDecode(*Key,Shift));
-			case 1:
-				Flag = 0; TrueValue = Shift; Shift = NULL;
-				return FName::FName(*FDecode(*Key,TrueValue));
-		default:
-			return TEXT("");
-	}}
-
-	void SetValue(FName Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
-			switch (Flag) {
-				case 0:
-					Shift = *FEncode(Input.ToString());
-					Flag = 1; TrueValue = NULL;
-				case 1:
-					TrueValue = *FEncode(Input.ToString());
-					Flag = 0; Shift = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, FName Input) {
-		switch (Flag) {
-			case 0:
-				Shift = *FEncode(*Key,Input.ToString());
-				Flag = 1; TrueValue = NULL;
-			case 1:
-				TrueValue = *FEncode(*Key,Input.ToString());
-				Flag = 0; Shift = NULL;
-	}Internal=FString(*Key);}
-
-	////////////////////////////////////////////////////////////
-	/// Constructors
-
-	FSafeName() {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = TEXT("");
-		Shift = TEXT("");
-		Flag = 0;
-	}
-
-	FSafeName(const FName Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = *FEncode(Input.ToString());
-		Shift = *FEncode(Input.ToString());
-		Flag = 0;
-	}
-
-	FSafeName(FString* Key, const FName Input) {
-		Internal = FString(*Key);
-		TrueValue = *FEncode(*Key,Input.ToString());
-		Shift = *FEncode(*Key,Input.ToString());
-		Flag = 0;
-	}
-
-	////////////////////////////////////////////////////////////
-	/// Operators
-
-	FORCEINLINE FSafeName &operator = (const FSafeName &N) {
-		Internal = N.Internal;
-		TrueValue = N.TrueValue;
-		Shift = N.Shift;
-		Flag = N.Flag;
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeFloat &F) const {
+		return (GetValue() == F.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeFloat &F) const {
+		return (GetValue() != F.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeFloat &F) const {
+		return (GetValue() > F.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeFloat &F) const {
+		return (GetValue() < F.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FSafeFloat &F) const {
+		return (GetValue() >= F.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FSafeFloat &F) const {
+		return (GetValue() <= F.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeFloat operator + (const FSafeFloat &F) const {
+		return (GetValue() + F.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeFloat operator - (const FSafeFloat &F) const {
+		return (GetValue() - F.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeFloat operator * (const FSafeFloat &F) const {
+		return (GetValue() * F.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeFloat operator / (const FSafeFloat &F) const {
+		return (GetValue() / F.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator == (const float &F) const {
+		return (GetValue() == F);
+	}///
+	//
+	FORCEINLINE bool operator != (const float &F) const {
+		return (GetValue() != F);
+	}///
+	//
+	FORCEINLINE bool operator > (const float &F) const {
+		return (GetValue() > F);
+	}///
+	//
+	FORCEINLINE bool operator < (const float &F) const {
+		return (GetValue() < F);
+	}///
+	//
+	FORCEINLINE bool operator >= (const float &F) const {
+		return (GetValue() >= F);
+	}///
+	//
+	FORCEINLINE bool operator <= (const float &F) const {
+		return (GetValue() <= F);
+	}///
+	//
+	FORCEINLINE FSafeFloat operator + (const float &F) const {
+		return FSafeFloat(GetValue() + F);
+	}///
+	//
+	FORCEINLINE FSafeFloat operator - (const float &F) const {
+		return FSafeFloat(GetValue() - F);
+	}///
+	//
+	FORCEINLINE FSafeFloat operator * (const float &F) const {
+		return FSafeFloat(GetValue() * F);
+	}///
+	//
+	FORCEINLINE FSafeFloat operator / (const float &F) const {
+		return FSafeFloat(GetValue() / F);
+	}///
+	//
+	FORCEINLINE FSafeFloat &operator += (const FSafeFloat &F) {
+		const float SF = (GetValue() + F.GetValue());
+		SetValue(SF);
+		//
 		return *this;
-	}
-	
-	FORCEINLINE FSafeName &operator = (const FName &N) {
-		SetValue(N); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueValue;
-		Ar << Shift;
-		Ar << Internal;
-		return Ar;
-	}
-
-	friend FORCEINLINE uint32 GetTypeHash(const FSafeName &N) {
-		return FCrc::MemCrc32(&N,sizeof(FSafeName));
-	}
-
+	}///
+	//
+	FORCEINLINE FSafeFloat &operator -= (const FSafeFloat &F) {
+		const float SF = (GetValue() - F.GetValue());
+		SetValue(SF);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeFloat &operator += (const float &F) {
+		const float SF = (GetValue() + F);
+		SetValue(SF);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeFloat &operator -= (const float &F) {
+		const float SF = (GetValue() - F);
+		SetValue(SF);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeFloat operator ++ (int) {
+		FSafeFloat SF = *this; (++ *this);
+		//
+		return SF;
+	}///
+	//
+	FORCEINLINE FSafeFloat operator -- (int) {
+		FSafeFloat SF = *this; (-- *this);
+		//
+		return SF;
+	}///
+	//
+	FORCEINLINE FSafeFloat &operator ++ () {
+		float F = GetValue(); F++;
+		SetValue(F);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeFloat &operator -- () {
+		float F = GetValue(); F--;
+		SetValue(F);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << Shift;
+		AR << Base;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeFloat &I) {
+		return FCrc::MemCrc32(&I,sizeof(FSafeFloat));
+	}///
 };
 
-/** {S}: Safe String Property;
+/** Safe String Property;
  Use this data format to store sensible String values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeString {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueValue;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Base;
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Shift;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FString GetRaw() {
-		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
-	}
-
-	void SetRaw(FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	}
-
-	FString GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	const FString GetRaw() const {
+		if (!Shift.IsEmpty()) {return Shift;} else {return Base;}
+	}///
+	//
+	void SetRaw(const FString &Value) {
+		Shift = Value;
+		Base = Value;
+	}///
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const FString GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1; Shift = TrueValue; TrueValue = NULL;
-					return FString::FString(*FDecode(Shift));
+					return FString(*FDecode(Base));
+				break;
 				case 1:
-					Flag = 0; TrueValue = Shift; Shift = NULL;
-					return FString::FString(*FDecode(TrueValue));
-			default:
-				return TEXT("");
-	}}}
-
-	FString GetValue(FString* Key) {
+					return FString(*FDecode(Shift));
+				break;
+			default: return FString();}
+		}///
+	}///
+	//
+	const FString GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1; Shift = TrueValue; TrueValue = NULL;
-				return FString::FString(*FDecode(*Key,Shift));
+				return FString(*FDecode(Key,Base));
+			break;
 			case 1:
-				Flag = 0; TrueValue = Shift; Shift = NULL;
-				return FString::FString(*FDecode(*Key,TrueValue));
-		default:
-			return TEXT("");
-	}}
-
-	void SetValue(FString Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+				return FString(*FDecode(Key,Shift));
+			break;
+		default: return FString();}
+	}///
+	//
+	void SetValue(const FString &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					Shift = *FEncode(Input);
-					Flag = 1; TrueValue = NULL;
+				{
+					Shift = FEncode(Input);
+					Flag = 1; Base.Empty();
+				} break;
 				case 1:
-					TrueValue = *FEncode(Input);
-					Flag = 0; Shift = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, FString Input) {
+				{
+					Base = FEncode(Input);
+					Flag = 0; Shift.Empty();
+				} break;
+			default: break;
+		} Internal=ASCII_KEY;}
+	}///
+	//
+	void SetValue(const FString &Key, const FString &Input) {
 		switch (Flag) {
 			case 0:
-				Shift = *FEncode(*Key,Input);
-				Flag = 1; TrueValue = NULL;
+			{
+				Shift = FEncode(Key,Input);
+				Flag = 1; Base.Empty();
+			} break;
 			case 1:
-				TrueValue = *FEncode(*Key,Input);
-				Flag = 0; Shift = NULL;
-	}Internal=FString(*Key);}
-
+			{
+				Base = FEncode(Key,Input);
+				Flag = 0; Shift.Empty();
+			} break;
+			default: break;
+		} Internal=FString(Key);
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeString() {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = TEXT("");
-		Shift = TEXT("");
+		Internal = FString();
+		Base = FString();
+		Shift = FString();
 		Flag = 0;
-	}
-
-	FSafeString(const FString Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = *FEncode(Input);
-		Shift = *FEncode(Input);
+	}///
+	//
+	FSafeString(const FString &Input) {
+		Internal = FString();
+		Base = FEncode(Input);
+		Shift = FEncode(Input);
 		Flag = 0;
-	}
-
-	FSafeString(FString* Key, const FString Input) {
-		Internal = FString(*Key);
-		TrueValue = *FEncode(*Key,Input);
-		Shift = *FEncode(*Key,Input);
+	}///
+	//
+	FSafeString(const FString &Key, const FString &Input) {
+		Internal = Key;
+		Base = FEncode(Key,Input);
+		Shift = FEncode(Key,Input);
 		Flag = 0;
-	}
-
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeString &operator = (const FSafeString &S) {
 		Internal = S.Internal;
-		TrueValue = S.TrueValue;
 		Shift = S.Shift;
+		Base = S.Base;
 		Flag = S.Flag;
+		//
 		return *this;
-	}
-	
+	}///
+	//
 	FORCEINLINE FSafeString &operator = (const FString &S) {
 		SetValue(S); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueValue;
-		Ar << Shift;
-		Ar << Internal;
-		return Ar;
-	}
-
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeString &S) const {
+		return (GetValue() == S.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeString &S) const {
+		return (GetValue() != S.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeString &S) const {
+		return (GetValue().Len() > S.GetValue().Len());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeString &S) const {
+		return (GetValue().Len() < S.GetValue().Len());
+	}///
+	//
+	FORCEINLINE FSafeString operator + (const FSafeString &S) const {
+		return FSafeString(*(GetValue() + S.GetValue()));
+	}///
+	//
+	FORCEINLINE bool operator == (const FString &S) const {
+		return (GetValue() == S);
+	}///
+	//
+	FORCEINLINE bool operator != (const FString &S) const {
+		return (GetValue() != S);
+	}///
+	//
+	FORCEINLINE bool operator > (const FString &S) const {
+		return (GetValue().Len() > S.Len());
+	}///
+	//
+	FORCEINLINE bool operator < (const FString &S) const {
+		return (GetValue().Len() < S.Len());
+	}///
+	//
+	FORCEINLINE FSafeString operator + (const FString &S) const {
+		return FSafeString(*(GetValue() + S));
+	}///
+	//
+	FORCEINLINE FSafeString &operator += (const FSafeString &S) {
+		const FString SN = FString(*(GetValue() + S.GetValue()));
+		SetValue(SN);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeString &operator += (const FString &S) {
+		const FString SN = FString(*(GetValue() + S));
+		SetValue(SN);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << Shift;
+		AR << Base;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
 	friend FORCEINLINE uint32 GetTypeHash(const FSafeString &S) {
 		return FCrc::MemCrc32(&S,sizeof(FSafeString));
-	}
-
+	}///
 };
 
-/** {S}: Safe Text Property;
+/** Safe Name Property;
+ Use this data format to store sensible Name values you need protected against memory hackers. */
+USTRUCT(BlueprintType)
+struct SCUE4_API FSafeName {
+	GENERATED_USTRUCT_BODY()
+private:
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Internal;
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Base;
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Shift;
+	//
+	UPROPERTY(SaveGame)
+	uint8 Flag;
+public:
+	////////////////////////////////////////////////////////////
+	/// Accessors
+	//
+	const FString GetRaw() const {
+		if (!Shift.IsEmpty()) {return Shift;} else {return Base;}
+	}///
+	//
+	void SetRaw(const FString &Value) {
+		Shift = Value;
+		Base = Value;
+	}///
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const FName GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
+			switch (Flag) {
+				case 0:
+					return FName(*FDecode(Base));
+				break;
+				case 1:
+					return FName(*FDecode(Shift));
+				break;
+			default: return FName();}
+		}///
+	}///
+	//
+	const FName GetValue(const FString &Key) const {
+		switch (Flag) {
+			case 0:
+				return FName(*FDecode(Key,Base));
+			break;
+			case 1:
+				return FName(*FDecode(Key,Shift));
+			break;
+		default: return FName();}
+	}///
+	//
+	void SetValue(const FName &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
+			switch (Flag) {
+				case 0:
+				{
+					Shift = FEncode(Input.ToString());
+					Flag = 1; Base.Empty();
+				} break;
+				case 1:
+				{
+					Base = FEncode(Input.ToString());
+					Flag = 0; Shift.Empty();
+				} break;
+			default: break;
+		} Internal=ASCII_KEY;}
+	}///
+	//
+	void SetValue(const FString &Key, const FName &Input) {
+		switch (Flag) {
+			case 0:
+			{
+				Shift = FEncode(Key,Input.ToString());
+				Flag = 1; Base.Empty();
+			} break;
+			case 1:
+			{
+				Base = FEncode(Key,Input.ToString());
+				Flag = 0; Shift.Empty();
+			} break;
+			default: break;
+		} Internal=FString(Key);
+	}///
+	//
+	////////////////////////////////////////////////////////////
+	/// Constructors
+	//
+	FSafeName() {
+		Internal = FString();
+		Base = FString();
+		Shift = FString();
+		Flag = 0;
+	}///
+	//
+	FSafeName(const FName &Input) {
+		Internal = FString();
+		Base = FEncode(Input.ToString());
+		Shift = FEncode(Input.ToString());
+		Flag = 0;
+	}///
+	//
+	FSafeName(const FString &Key, const FName &Input) {
+		Internal = Key;
+		Base = FEncode(Key,Input.ToString());
+		Shift = FEncode(Key,Input.ToString());
+		Flag = 0;
+	}///
+	//
+	////////////////////////////////////////////////////////////
+	/// Operators
+	//
+	FORCEINLINE FSafeName &operator = (const FSafeName &N) {
+		Internal = N.Internal;
+		Shift = N.Shift;
+		Base = N.Base;
+		Flag = N.Flag;
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeName &operator = (const FName &N) {
+		SetValue(N); return *this;
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeName &N) const {
+		return (GetValue() == N.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeName &N) const {
+		return (GetValue() != N.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeName &N) const {
+		return (GetValue().ToString().Len() > N.GetValue().ToString().Len());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeName &N) const {
+		return (GetValue().ToString().Len() < N.GetValue().ToString().Len());
+	}///
+	//
+	FORCEINLINE FSafeName operator + (const FSafeName &N) const {
+		return FSafeName(*(GetValue().ToString() + N.GetValue().ToString()));
+	}///
+	//
+	FORCEINLINE bool operator == (const FName &N) const {
+		return (GetValue() == N);
+	}///
+	//
+	FORCEINLINE bool operator != (const FName &N) const {
+		return (GetValue() != N);
+	}///
+	//
+	FORCEINLINE bool operator > (const FName &N) const {
+		return (GetValue().ToString().Len() > N.ToString().Len());
+	}///
+	//
+	FORCEINLINE bool operator < (const FName &N) const {
+		return (GetValue().ToString().Len() < N.ToString().Len());
+	}///
+	//
+	FORCEINLINE FSafeName operator + (const FName &N) const {
+		return FSafeName(*(GetValue().ToString() + N.ToString()));
+	}///
+	//
+	FORCEINLINE FSafeName &operator += (const FSafeName &N) {
+		const FName SN = FName(*(GetValue().ToString() + N.GetValue().ToString()));
+		SetValue(SN);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeName &operator += (const FName &N) {
+		const FName SN = FName(*(GetValue().ToString() + N.ToString()));
+		SetValue(SN);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << Shift;
+		AR << Base;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeName &N) {
+		return FCrc::MemCrc32(&N,sizeof(FSafeName));
+	}///
+};
+
+/** Safe Text Property;
  Use this data format to store sensible Text values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeText {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueValue;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
+	FString Base;
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Shift;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FString GetRaw() {
-		if (Shift.Len()>0) {return Shift;} else {return TrueValue;}
-	}
-
-	void SetRaw(FString* Value) {
-		Shift = *Value;
-		TrueValue = *Value;
-	}
-
-	FText GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	const FString GetRaw() const {
+		if (!Shift.IsEmpty()) {return Shift;} else {return Base;}
+	}///
+	//
+	void SetRaw(const FString &Value) {
+		Shift = Value;
+		Base = Value;
+	}///
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const FText GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1; Shift = TrueValue; TrueValue = NULL;
-					return FText::FromString(FDecode(Shift));
+					return FText::FromString(*FDecode(Base));
+				break;
 				case 1:
-					Flag = 0; TrueValue = Shift; Shift = NULL;
-					return FText::FromString(FDecode(TrueValue));
-			default:
-				return FText::GetEmpty();
-	}}}
-
-	FText GetValue(FString* Key) {
+					return FText::FromString(*FDecode(Shift));
+				break;
+			default: return FText();}
+		}///
+	}///
+	//
+	const FText GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1; Shift = TrueValue; TrueValue = NULL;
-				return FText::FromString(FDecode(*Key,Shift));
+				return FText::FromString(*FDecode(Key,Base));
+			break;
 			case 1:
-				Flag = 0; TrueValue = Shift; Shift = NULL;
-				return FText::FromString(FDecode(*Key,TrueValue));
-		default:
-			return FText::GetEmpty();
-	}}
-
-	void SetValue(FText Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+				return FText::FromString(*FDecode(Key,Shift));
+			break;
+		default: return FText();}
+	}///
+	//
+	void SetValue(const FText &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
 			switch (Flag) {
 				case 0:
-					Shift = *FEncode(Input.ToString());
-					Flag = 1; TrueValue = NULL;
+				{
+					Shift = FEncode(Input.ToString());
+					Flag = 1; Base.Empty();
+				} break;
 				case 1:
-					TrueValue = *FEncode(Input.ToString());
-					Flag = 0; Shift = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, FText Input) {
+				{
+					Base = FEncode(Input.ToString());
+					Flag = 0; Shift.Empty();
+				} break;
+			default: break;
+		} Internal=ASCII_KEY;}
+	}///
+	//
+	void SetValue(const FString &Key, const FText &Input) {
 		switch (Flag) {
 			case 0:
-				Shift = *FEncode(*Key,Input.ToString());
-				Flag = 1; TrueValue = NULL;
+			{
+				Shift = FEncode(Key,Input.ToString());
+				Flag = 1; Base.Empty();
+			} break;
 			case 1:
-				TrueValue = *FEncode(*Key,Input.ToString());
-				Flag = 0; Shift = NULL;
-	}Internal=FString(*Key);}
-
+			{
+				Base = FEncode(Key,Input.ToString());
+				Flag = 0; Shift.Empty();
+			} break;
+			default: break;
+		} Internal=FString(Key);
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeText() {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = TEXT("");
-		Shift = TEXT("");
+		Internal = FString();
+		Base = FString();
+		Shift = FString();
 		Flag = 0;
-	}
-
-	FSafeText(const FText Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueValue = *FEncode(Input.ToString());
-		Shift = *FEncode(Input.ToString());
+	}///
+	//
+	FSafeText(const FString &Input) {
+		Internal = FString();
+		Base = FEncode(Input);
+		Shift = FEncode(Input);
 		Flag = 0;
-	}
-
-	FSafeText(FString* Key, const FText Input) {
-		Internal = FString(*Key);
-		TrueValue = *FEncode(*Key,Input.ToString());
-		Shift = *FEncode(*Key,Input.ToString());
+	}///
+	//
+	FSafeText(const FText &Input) {
+		Internal = FString();
+		Base = FEncode(Input.ToString());
+		Shift = FEncode(Input.ToString());
 		Flag = 0;
-	}
-
+	}///
+	//
+	FSafeText(const FString &Key, const FText &Input) {
+		Internal = Key;
+		Base = FEncode(Key,Input.ToString());
+		Shift = FEncode(Key,Input.ToString());
+		Flag = 0;
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeText &operator = (const FSafeText &T) {
 		Internal = T.Internal;
-		TrueValue = T.TrueValue;
 		Shift = T.Shift;
+		Base = T.Base;
 		Flag = T.Flag;
+		//
 		return *this;
-	}
-	
+	}///
+	//
 	FORCEINLINE FSafeText &operator = (const FText &T) {
 		SetValue(T); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueValue;
-		Ar << Shift;
-		Ar << Internal;
-		return Ar;
-	}
-
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeText &T) const {
+		return (GetValue().ToString() == T.GetValue().ToString());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeText &T) const {
+		return (GetValue().ToString() != T.GetValue().ToString());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeText &T) const {
+		return (GetValue().ToString().Len() > T.GetValue().ToString().Len());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeText &T) const {
+		return (GetValue().ToString().Len() < T.GetValue().ToString().Len());
+	}///
+	//
+	FORCEINLINE FSafeText operator + (const FSafeText &T) const {
+		return FSafeText(*(GetValue().ToString() + T.GetValue().ToString()));
+	}///
+	//
+	FORCEINLINE bool operator == (const FText &T) const {
+		return (GetValue().ToString() == T.ToString());
+	}///
+	//
+	FORCEINLINE bool operator != (const FText &T) const {
+		return (GetValue().ToString() != T.ToString());
+	}///
+	//
+	FORCEINLINE bool operator > (const FText &T) const {
+		return (GetValue().ToString().Len() > T.ToString().Len());
+	}///
+	//
+	FORCEINLINE bool operator < (const FText &T) const {
+		return (GetValue().ToString().Len() < T.ToString().Len());
+	}///
+	//
+	FORCEINLINE FSafeText operator + (const FText &T) const {
+		return FSafeText(*(GetValue().ToString() + T.ToString()));
+	}///
+	//
+	FORCEINLINE FSafeText &operator += (const FSafeText &T) {
+		const FText SN = FText::FromString(*(GetValue().ToString() + T.GetValue().ToString()));
+		SetValue(SN);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeText &operator += (const FText &T) {
+		const FText SN = FText::FromString(*(GetValue().ToString() + T.ToString()));
+		SetValue(SN);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << Shift;
+		AR << Base;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeText &T) {
+		return FCrc::MemCrc32(&T,sizeof(FSafeText));
+	}///
 };
 
-/** {S}: Safe Vector2D Property;
+/** Safe Vector2D Property;
  Use this data format to store sensible Vector2D values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeVector2D {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueX;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueY;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftX;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftY;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FVector2D GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const FVector2D GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1;
-					ShiftX = TrueX; ShiftY = TrueY;
-					TrueX = NULL; TrueY = NULL;
-					return FVector2D::FVector2D(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)));
-				case 1:
-					Flag = 0;
-					TrueX = ShiftX; TrueY = ShiftY;
-					ShiftX = NULL; ShiftY = NULL;
 					return FVector2D::FVector2D(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)));
+				case 1:
+					return FVector2D::FVector2D(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)));
 			default:
 				return FVector2D::ZeroVector;
-	}}}
-
-	FVector2D GetValue(FString* Key) {
+			}///
+		}///
+	}///
+	//
+	const FVector2D GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1;
-				ShiftX = TrueX; ShiftY = TrueY;
-				TrueX = NULL; TrueY = NULL;
-				return FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,ShiftX)),FCString::Atof(*FDecode(*Key,ShiftY)));
+				return FVector2D::FVector2D(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)));
+			break;
 			case 1:
-				Flag = 0;
-				TrueX = ShiftX; TrueY = ShiftY;
-				ShiftX = NULL; ShiftY = NULL;
-				return FVector2D::FVector2D(FCString::Atof(*FDecode(*Key,TrueX)),FCString::Atof(*FDecode(*Key,TrueY)));
+				return FVector2D::FVector2D(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)));
+			break;
 		default:
 			return FVector2D::ZeroVector;
-	}}
-
-	void SetValue(FVector2D Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+		}///
+	}///
+	//
+	void SetValue(const float &X, const float &Y) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,FVector2D(X,Y));} else {
 			switch (Flag) {
 				case 0:
+				{
 					Flag = 1;
-					ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-					ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-					TrueX = NULL; TrueY = NULL;
+					ShiftX = FEncode(FString::Printf(TEXT("%f"),X));
+					ShiftY = FEncode(FString::Printf(TEXT("%f"),Y));
+					TrueX.Empty(); TrueY.Empty();
+				} break;
 				case 1:
+				{
 					Flag = 0;
-					TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-					TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-					ShiftX = NULL; ShiftY = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, FVector2D Input) {
+					TrueX = FEncode(FString::Printf(TEXT("%f"),X));
+					TrueY = FEncode(FString::Printf(TEXT("%f"),Y));
+					ShiftX.Empty(); ShiftY.Empty();
+				} break;
+	} Internal=ASCII_KEY;}}
+	//
+	void SetValue(const FVector2D &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
+			switch (Flag) {
+				case 0:
+				{
+					Flag = 1;
+					ShiftX = FEncode(FString::Printf(TEXT("%f"),Input.X));
+					ShiftY = FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					TrueX.Empty(); TrueY.Empty();
+				} break;
+				case 1:
+				{
+					Flag = 0;
+					TrueX = FEncode(FString::Printf(TEXT("%f"),Input.X));
+					TrueY = FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					ShiftX.Empty(); ShiftY.Empty();
+				} break;
+	} Internal=ASCII_KEY;}}
+	//
+	void SetValue(const FString &Key, const FVector2D &Input) {
 		switch (Flag) {
 			case 0:
+			{
 				Flag = 1;
-				ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-				ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-				TrueX = NULL; TrueY = NULL;
+				ShiftX = FEncode(Key,FString::Printf(TEXT("%f"),Input.X));
+				ShiftY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Y));
+				TrueX.Empty(); TrueY.Empty();
+			} break;
 			case 1:
+			{
 				Flag = 0;
-				TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-				TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-				ShiftX = NULL; ShiftY = NULL;
-	}Internal=FString(*Key);}
-
+				TrueX = FEncode(Key,FString::Printf(TEXT("%f"),Input.X));
+				TrueY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Y));
+				ShiftX.Empty(); ShiftY.Empty();
+			} break;
+	} Internal=Key;}
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeVector2D() {
-		Internal = FString(*ASCII_KEY);
-		TrueX = TEXT(""); TrueY = TEXT("");
-		ShiftX = TEXT(""); ShiftY = TEXT("");
+		Internal = FString();
+		TrueX = TEXT("");
+		TrueY = TEXT("");
+		ShiftX = TEXT("");
+		ShiftY = TEXT("");
 		Flag = 0;
-	}
-
-	FSafeVector2D(const float X, const float Y) {
-		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
-		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
-		ShiftX = *FEncode(FString::Printf(TEXT("%f"),X));
-		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
+	}///
+	//
+	FSafeVector2D(const float &X, const float &Y) {
+		Internal = FString();
+		TrueX = FEncode(FString::Printf(TEXT("%f"),X));
+		TrueY = FEncode(FString::Printf(TEXT("%f"),Y));
+		ShiftX = FEncode(FString::Printf(TEXT("%f"),X));
+		ShiftY = FEncode(FString::Printf(TEXT("%f"),Y));
 		Flag = 0;
-	}
-
-	FSafeVector2D(const FVector2D Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
+	}///
+	//
+	FSafeVector2D(const FVector2D &Input) {
+		Internal = FString();
+		TrueX = FEncode(FString::Printf(TEXT("%f"),Input.X));
+		TrueY = FEncode(FString::Printf(TEXT("%f"),Input.Y));
+		ShiftX = FEncode(FString::Printf(TEXT("%f"),Input.X));
+		ShiftY = FEncode(FString::Printf(TEXT("%f"),Input.Y));
 		Flag = 0;
-	}
-
-	FSafeVector2D(FString* Key, const FVector2D Input) {
-		Internal = FString(*Key);
-		TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-		TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-		ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-		ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
+	}///
+	//
+	FSafeVector2D(const FString &Key, const FVector2D &Input) {
+		Internal = Key;
+		TrueX = FEncode(Key,FString::Printf(TEXT("%f"),Input.X));
+		TrueY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Y));
+		ShiftX = FEncode(Key,FString::Printf(TEXT("%f"),Input.X));
+		ShiftY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Y));
 		Flag = 0;
-	}
-
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeVector2D &operator = (const FSafeVector2D &V) {
 		Internal = V.Internal;
-		TrueX = V.TrueX; TrueY = V.TrueY;
-		ShiftX = V.ShiftX; ShiftY = V.ShiftY;
+		ShiftX = V.ShiftX;
+		ShiftY = V.ShiftY;
+		TrueX = V.TrueX;
+		TrueY = V.TrueY;
 		Flag = V.Flag;
+		//
 		return *this;
-	}
-	
+	}///
+	//
 	FORCEINLINE FSafeVector2D &operator = (const FVector2D &V) {
 		SetValue(V); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueX;
-		Ar << TrueY;
-		Ar << ShiftX;
-		Ar << ShiftY;
-		Ar << Internal;
-		return Ar;
-	}
-
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeVector2D &V) const {
+		return (GetValue() == V.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeVector2D &V) const {
+		return (GetValue() != V.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeVector2D &V) const {
+		return (GetValue().Size() > V.GetValue().Size());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeVector2D &V) const {
+		return (GetValue().Size() < V.GetValue().Size());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FSafeVector2D &V) const {
+		return (GetValue().Size() >= V.GetValue().Size());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FSafeVector2D &V) const {
+		return (GetValue().Size() <= V.GetValue().Size());
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator + (const FSafeVector2D &V) const {
+		return (GetValue() + V.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator - (const FSafeVector2D &V) const {
+		return (GetValue() - V.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator * (const FSafeVector2D &V) const {
+		return (GetValue() * V.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator / (const FSafeVector2D &V) const {
+		return (GetValue() / V.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator == (const FVector2D &V) const {
+		return (GetValue() == V);
+	}///
+	//
+	FORCEINLINE bool operator != (const FVector2D &V) const {
+		return (GetValue() != V);
+	}///
+	//
+	FORCEINLINE bool operator > (const FVector2D &V) const {
+		return (GetValue().Size() > V.Size());
+	}///
+	//
+	FORCEINLINE bool operator < (const FVector2D &V) const {
+		return (GetValue().Size() < V.Size());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FVector2D &V) const {
+		return (GetValue().Size() >= V.Size());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FVector2D &V) const {
+		return (GetValue().Size() <= V.Size());
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator + (const FVector2D &V) const {
+		return FSafeVector2D(GetValue() + V);
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator - (const FVector2D &V) const {
+		return FSafeVector2D(GetValue() - V);
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator * (const FVector2D &V) const {
+		return FSafeVector2D(GetValue() * V);
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator / (const FVector2D &V) const {
+		return FSafeVector2D(GetValue() / V);
+	}///
+	//
+	FORCEINLINE FSafeVector2D &operator += (const FSafeVector2D &V) {
+		const FVector2D V2D = (GetValue() + V.GetValue());
+		SetValue(V2D);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector2D &operator -= (const FSafeVector2D &V) {
+		const FVector2D I = (GetValue() - V.GetValue());
+		SetValue(I);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector2D &operator += (const FVector2D &V) {
+		const FVector2D V2D = (GetValue() + V);
+		SetValue(V2D);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector2D &operator -= (const FVector2D &V) {
+		const FVector2D V2D = (GetValue() - V);
+		SetValue(V2D);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator ++ (int) {
+		const FSafeVector2D SV = *this; (++ *this);
+		//
+		return SV;
+	}///
+	//
+	FORCEINLINE FSafeVector2D operator -- (int) {
+		const FSafeVector2D SV = *this; (-- *this);
+		//
+		return SV;
+	}///
+	//
+	FORCEINLINE FSafeVector2D &operator ++ () {
+		const FVector2D V2D = GetValue();
+		const FVector2D V = FVector2D(V2D.X+1.f,V2D.Y+1.f);
+		SetValue(V);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector2D &operator -- () {
+		const FVector2D V2D = GetValue();
+		const FVector2D V = FVector2D(V2D.X-1.f,V2D.Y-1.f);
+		SetValue(V);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << ShiftX;
+		AR << ShiftY;
+		AR << TrueX;
+		AR << TrueY;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
 	friend FORCEINLINE uint32 GetTypeHash(const FSafeVector2D &V) {
 		return FCrc::MemCrc32(&V,sizeof(FSafeVector2D));
-	}
-
+	}///
 };
 
-/** {S}: Safe Vector3D Property;
+/** Safe Vector3D Property;
  Use this data format to store sensible Vector3D values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeVector3D {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueX;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueY;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueZ;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftX;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftY;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftZ;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
-	////////////////////////////////////////////////////////////
-
-	FVector GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
-			switch (Flag) {
-				case 0:
-					Flag = 1;
-					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
-					TrueX = NULL; TrueY = NULL; TrueZ = NULL;
-					return FVector::FVector(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
-				case 1:
-					Flag = 0;
-					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
-					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
-					return FVector::FVector(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
-			default:
-				return FVector::ZeroVector;
-	}}}
-
-	FVector GetValue(FString* Key) {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
-				TrueX = NULL; TrueY = NULL; TrueZ = NULL;
-				return FVector::FVector(FCString::Atof(*FDecode(*Key,ShiftX)),FCString::Atof(*FDecode(*Key,ShiftY)),FCString::Atof(*FDecode(*Key,ShiftZ)));
-			case 1:
-				Flag = 0;
-				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
-				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
-				return FVector::FVector(FCString::Atof(*FDecode(*Key,TrueX)),FCString::Atof(*FDecode(*Key,TrueY)),FCString::Atof(*FDecode(*Key,TrueZ)));
-		default:
-			return FVector::ZeroVector;
-	}}
-
-	void SetValue(FVector Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
-			switch (Flag) {
-				case 0:
-					Flag = 1;
-					ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-					ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-					ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
-					TrueX = NULL; TrueY = NULL; TrueZ = NULL;
-				case 1:
-					Flag = 0;
-					TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-					TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-					TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
-					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, FVector Input) {
-		switch (Flag) {
-			case 0:
-				Flag = 1;
-				ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-				ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-				ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
-				TrueX = NULL; TrueY = NULL; TrueZ = NULL;
-			case 1:
-				Flag = 0;
-				TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-				TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-				TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
-				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
-	}Internal=FString(*Key);}
-
-	////////////////////////////////////////////////////////////
-	/// Constructors
-
-	FSafeVector3D() {
-		Internal = FString(*ASCII_KEY);
-		TrueX = TEXT(""); TrueY = TEXT(""); TrueZ = TEXT("");
-		ShiftX = TEXT(""); ShiftY = TEXT(""); ShiftZ = TEXT("");
-		Flag = 0;
-	}
-
-	FSafeVector3D(const float X, const float Y, const float Z) {
-		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
-		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
-		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Z));
-		ShiftX = *FEncode(FString::Printf(TEXT("%f"),X));
-		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
-		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Z));
-		Flag = 0;
-	}
-
-	FSafeVector3D(const FVector Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
-		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.X));
-		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Y));
-		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Z));
-		Flag = 0;
-	}
-
-	FSafeVector3D(FString* Key, const FVector Input) {
-		Internal = FString(*Key);
-		TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-		TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-		TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
-		ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.X));
-		ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Y));
-		ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Z));
-		Flag = 0;
-	}
-
-	////////////////////////////////////////////////////////////
-	/// Operators
-
-	FORCEINLINE FSafeVector3D &operator = (const FSafeVector3D &V) {
-		Internal = V.Internal;
-		TrueX = V.TrueX; TrueY = V.TrueY; TrueZ = V.TrueZ;
-		ShiftX = V.ShiftX; ShiftY = V.ShiftY; ShiftZ = V.ShiftZ;
-		Flag = V.Flag;
-		return *this;
-	}
-	
-	FORCEINLINE FSafeVector3D &operator = (const FVector &V) {
-		SetValue(V); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueX;
-		Ar << TrueY;
-		Ar << TrueZ;
-		Ar << ShiftX;
-		Ar << ShiftY;
-		Ar << ShiftZ;
-		Ar << Internal;
-		return Ar;
-	}
-
-	friend FORCEINLINE uint32 GetTypeHash(const FSafeVector3D &V) {
-		return FCrc::MemCrc32(&V,sizeof(FSafeVector3D));
-	}
-
-};
-
-/** {S}: Safe Vector4D Property;
- Use this data format to store sensible Vector4D values you need protected against memory hackers. */
-USTRUCT(BlueprintType)
-struct SCUE4_API FSafeVector4D {
-	GENERATED_USTRUCT_BODY()
-private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueX;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueY;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueZ;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString TrueW;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString ShiftX;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString ShiftY;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString ShiftZ;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
-	FString ShiftW;
-
-	UPROPERTY(SaveGame)
-	uint8 Flag;
-
-public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FVector4 GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const FVector GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1;
-					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ; ShiftW = TrueW;
-					TrueX = NULL; TrueY = NULL; TrueZ = NULL; TrueW = NULL;
-					return FVector4::FVector4(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)),FCString::Atof(*FDecode(ShiftW)));
+					return FVector(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
 				case 1:
-					Flag = 0;
-					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ; TrueW = ShiftW;
-					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL; ShiftW = NULL;
-					return FVector4::FVector4(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)),FCString::Atof(*FDecode(TrueW)));
+					return FVector(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
 			default:
-				return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
-	}}}
-
-	FVector4 GetValue(FString* Key) {
+				return FVector::ZeroVector;
+			}///
+		}///
+	}///
+	//
+	const FVector GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1;
-				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ; ShiftW = TrueW;
-				TrueX = NULL; TrueY = NULL; TrueZ = NULL; TrueW = NULL;
-				return FVector4::FVector4(FCString::Atof(*FDecode(*Key,ShiftX)),FCString::Atof(*FDecode(*Key,ShiftY)),FCString::Atof(*FDecode(*Key,ShiftZ)),FCString::Atof(*FDecode(*Key,ShiftW)));
+				return FVector(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)),FCString::Atof(*FDecode(TrueZ)));
+			break;
 			case 1:
-				Flag = 0;
-				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ; TrueW = ShiftW;
-				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL; ShiftW = NULL;
-				return FVector4::FVector4(FCString::Atof(*FDecode(*Key,TrueX)),FCString::Atof(*FDecode(*Key,TrueY)),FCString::Atof(*FDecode(*Key,TrueZ)),FCString::Atof(*FDecode(*Key,TrueW)));
+				return FVector(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)),FCString::Atof(*FDecode(Key,ShiftZ)));
+			break;
 		default:
-			return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);
-	}}
-
-	void SetValue(FVector4* Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+			return FVector::ZeroVector;
+		}///
+	}///
+	//
+	void SetValue(const float &X, const float &Y, const float &Z) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,FVector(X,Y,Z));} else {
 			switch (Flag) {
 				case 0:
+				{
 					Flag = 1;
-					ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
-					ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
-					ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
-					ShiftW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
-					TrueX = NULL; TrueY = NULL; TrueZ = NULL; TrueW = NULL;
+					ShiftX = FEncode(FString::Printf(TEXT("%f"),X));
+					ShiftY = FEncode(FString::Printf(TEXT("%f"),Y));
+					ShiftZ = FEncode(FString::Printf(TEXT("%f"),Z));
+					TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
+				} break;
 				case 1:
+				{
 					Flag = 0;
-					TrueX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
-					TrueY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
-					TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
-					TrueW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
-					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL; ShiftW = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, FVector4* Input) {
+					TrueX = FEncode(FString::Printf(TEXT("%f"),X));
+					TrueY = FEncode(FString::Printf(TEXT("%f"),Y));
+					TrueZ = FEncode(FString::Printf(TEXT("%f"),Z));
+					ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
+				} break;
+	} Internal=ASCII_KEY;}}
+	//
+	void SetValue(const FVector &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
+			switch (Flag) {
+				case 0:
+				{
+					Flag = 1;
+					ShiftX = FEncode(FString::Printf(TEXT("%f"),Input.X));
+					ShiftY = FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					ShiftZ = FEncode(FString::Printf(TEXT("%f"),Input.Z));
+					TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
+				} break;
+				case 1:
+				{
+					Flag = 0;
+					TrueX = FEncode(FString::Printf(TEXT("%f"),Input.X));
+					TrueY = FEncode(FString::Printf(TEXT("%f"),Input.Y));
+					TrueZ = FEncode(FString::Printf(TEXT("%f"),Input.Z));
+					ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
+				} break;
+	} Internal=ASCII_KEY;}}
+	//
+	void SetValue(const FString &Key, const FVector &Input) {
 		switch (Flag) {
 			case 0:
+			{
 				Flag = 1;
-				ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
-				ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
-				ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
-				ShiftW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
-				TrueX = NULL; TrueY = NULL; TrueZ = NULL; TrueW = NULL;
+				ShiftX = FEncode(Key,FString::Printf(TEXT("%f"),Input.X));
+				ShiftY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Y));
+				ShiftZ = FEncode(Key,FString::Printf(TEXT("%f"),Input.Z));
+				TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
+			} break;
 			case 1:
+			{
 				Flag = 0;
-				TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
-				TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
-				TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
-				TrueW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
-				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL; ShiftW = NULL;
-	}Internal=FString(*Key);}
-
+				TrueX = FEncode(Key,FString::Printf(TEXT("%f"),Input.X));
+				TrueY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Y));
+				TrueZ = FEncode(Key,FString::Printf(TEXT("%f"),Input.Z));
+				ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
+			} break;
+	} Internal=Key;}
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
-	FSafeVector4D() {
-		Internal = FString(*ASCII_KEY);
-		TrueX = TEXT(""); TrueY = TEXT(""); TrueZ = TEXT(""); TrueW = TEXT("");
-		ShiftX = TEXT(""); ShiftY = TEXT(""); ShiftZ = TEXT(""); ShiftW = TEXT("");
+	//
+	FSafeVector3D() {
+		Internal = FString();
+		TrueX = TEXT("");
+		TrueY = TEXT("");
+		ShiftX = TEXT("");
+		ShiftY = TEXT("");
 		Flag = 0;
-	}
-
-	FSafeVector4D(const float X, const float Y, const float Z, const float W) {
-		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::Printf(TEXT("%f"),X));
-		TrueY = *FEncode(FString::Printf(TEXT("%f"),Y));
-		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Z));
-		TrueW = *FEncode(FString::Printf(TEXT("%f"),W));
-		ShiftX = *FEncode(FString::Printf(TEXT("%f"),X));
-		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Y));
-		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Z));
-		ShiftW = *FEncode(FString::Printf(TEXT("%f"),W));
+	}///
+	//
+	FSafeVector3D(const float &X, const float &Y, const float &Z) {
+		Internal = FString();
+		TrueX = FEncode(FString::Printf(TEXT("%f"),X));
+		TrueY = FEncode(FString::Printf(TEXT("%f"),Y));
+		ShiftX = FEncode(FString::Printf(TEXT("%f"),X));
+		ShiftY = FEncode(FString::Printf(TEXT("%f"),Y));
 		Flag = 0;
-	}
-
-	FSafeVector4D(FVector4* Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
-		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
-		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
-		TrueW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
-		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input->X));
-		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input->Y));
-		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input->Z));
-		ShiftW = *FEncode(FString::Printf(TEXT("%f"),Input->W));
+	}///
+	//
+	FSafeVector3D(const FVector &Input) {
+		Internal = FString();
+		TrueX = FEncode(FString::Printf(TEXT("%f"),Input.X));
+		TrueY = FEncode(FString::Printf(TEXT("%f"),Input.Y));
+		ShiftX = FEncode(FString::Printf(TEXT("%f"),Input.X));
+		ShiftY = FEncode(FString::Printf(TEXT("%f"),Input.Y));
 		Flag = 0;
-	}
-
-	FSafeVector4D(FString* Key, FVector4* Input) {
-		Internal = FString(*Key);
-		TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
-		TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
-		TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
-		TrueW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
-		ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->X));
-		ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Y));
-		ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->Z));
-		ShiftW = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->W));
+	}///
+	//
+	FSafeVector3D(const FString &Key, const FVector &Input) {
+		Internal = Key;
+		TrueX = FEncode(Key,FString::Printf(TEXT("%f"),Input.X));
+		TrueY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Y));
+		ShiftX = FEncode(Key,FString::Printf(TEXT("%f"),Input.X));
+		ShiftY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Y));
 		Flag = 0;
-	}
-
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
-	FORCEINLINE FSafeVector4D &operator = (const FSafeVector4D &V) {
+	//
+	FORCEINLINE FSafeVector3D &operator = (const FSafeVector3D &V) {
 		Internal = V.Internal;
-		TrueX = V.TrueX; TrueY = V.TrueY; TrueZ = V.TrueZ; TrueW = V.TrueW;
-		ShiftX = V.ShiftX; ShiftY = V.ShiftY; ShiftZ = V.ShiftZ; ShiftW = V.ShiftW;
+		ShiftX = V.ShiftX;
+		ShiftY = V.ShiftY;
+		TrueX = V.TrueX;
+		TrueY = V.TrueY;
 		Flag = V.Flag;
+		//
 		return *this;
-	}
-	
-	FORCEINLINE FSafeVector4D &operator = (FVector4 &V) {
-		SetValue(&V); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueX;
-		Ar << TrueY;
-		Ar << TrueZ;
-		Ar << TrueW;
-		Ar << ShiftX;
-		Ar << ShiftY;
-		Ar << ShiftZ;
-		Ar << ShiftW;
-		Ar << Internal;
-		return Ar;
-	}
-
-	friend FORCEINLINE uint32 GetTypeHash(const FSafeVector4D &V) {
-		return FCrc::MemCrc32(&V,sizeof(FSafeVector4D));
-	}
-
+	}///
+	//
+	FORCEINLINE FSafeVector3D &operator = (const FVector &V) {
+		SetValue(V); return *this;
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeVector3D &V) const {
+		return (GetValue() == V.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeVector3D &V) const {
+		return (GetValue() != V.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeVector3D &V) const {
+		return (GetValue().Size() > V.GetValue().Size());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeVector3D &V) const {
+		return (GetValue().Size() < V.GetValue().Size());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FSafeVector3D &V) const {
+		return (GetValue().Size() >= V.GetValue().Size());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FSafeVector3D &V) const {
+		return (GetValue().Size() <= V.GetValue().Size());
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator + (const FSafeVector3D &V) const {
+		return (GetValue() + V.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator - (const FSafeVector3D &V) const {
+		return (GetValue() - V.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator * (const FSafeVector3D &V) const {
+		return (GetValue() * V.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator / (const FSafeVector3D &V) const {
+		return (GetValue() / V.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator == (const FVector &V) const {
+		return (GetValue() == V);
+	}///
+	//
+	FORCEINLINE bool operator != (const FVector &V) const {
+		return (GetValue() != V);
+	}///
+	//
+	FORCEINLINE bool operator > (const FVector &V) const {
+		return (GetValue().Size() > V.Size());
+	}///
+	//
+	FORCEINLINE bool operator < (const FVector &V) const {
+		return (GetValue().Size() < V.Size());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FVector &V) const {
+		return (GetValue().Size() >= V.Size());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FVector &V) const {
+		return (GetValue().Size() <= V.Size());
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator + (const FVector &V) const {
+		return FSafeVector3D(GetValue() + V);
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator - (const FVector &V) const {
+		return FSafeVector3D(GetValue() - V);
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator * (const FVector &V) const {
+		return FSafeVector3D(GetValue() * V);
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator / (const FVector &V) const {
+		return FSafeVector3D(GetValue() / V);
+	}///
+	//
+	FORCEINLINE FSafeVector3D &operator += (const FSafeVector3D &V) {
+		const FVector V3D = (GetValue() + V.GetValue());
+		SetValue(V3D);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector3D &operator -= (const FSafeVector3D &V) {
+		const FVector V3D = (GetValue() - V.GetValue());
+		SetValue(V3D);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator += (const FVector &V) {
+		const FVector V3D = (GetValue() + V);
+		SetValue(V3D);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator -= (const FVector &V) {
+		const FVector V3D = (GetValue() - V);
+		SetValue(V3D);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator ++ (int) {
+		const FSafeVector3D SV = *this; (++ *this);
+		//
+		return SV;
+	}///
+	//
+	FORCEINLINE FSafeVector3D operator -- (int) {
+		const FSafeVector3D SV = *this; (-- *this);
+		//
+		return SV;
+	}///
+	//
+	FORCEINLINE FSafeVector3D &operator ++ () {
+		const FVector V3D = GetValue();
+		const FVector V = FVector(V3D.X+1.f,V3D.Y+1.f,V3D.Z+1.f);
+		SetValue(V);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeVector3D &operator -- () {
+		const FVector V3D = GetValue();
+		const FVector V = FVector(V3D.X-1.f,V3D.Y-1.f,V3D.Z-1.f);
+		SetValue(V);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << ShiftX;
+		AR << ShiftY;
+		AR << TrueX;
+		AR << TrueY;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
+	friend FORCEINLINE uint32 GetTypeHash(const FSafeVector3D &V) {
+		return FCrc::MemCrc32(&V,sizeof(FSafeVector3D));
+	}///
 };
 
-/** {S}: Safe Color Property;
+/** Safe Color Property;
  Use this data format to store sensible Linear Color values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeColor {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueR;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueG;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueB;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueA;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftR;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftG;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftB;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftA;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FLinearColor GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const FLinearColor GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1;
-					ShiftR = TrueR; ShiftG = TrueG; ShiftB = TrueB; ShiftA = TrueA;
-					TrueR = NULL; TrueG = NULL; TrueB = NULL; TrueA = NULL;
-					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(ShiftR)),FCString::Atof(*FDecode(ShiftG)),FCString::Atof(*FDecode(ShiftB)),FCString::Atof(*FDecode(ShiftA)));
+					return FLinearColor(FCString::Atof(*FDecode(TrueR)),FCString::Atof(*FDecode(TrueG)),FCString::Atof(*FDecode(TrueB)),FCString::Atof(*FDecode(TrueA)));
+				break;
 				case 1:
-					Flag = 0;
-					TrueR = ShiftR; TrueG = ShiftG; TrueB = ShiftB; TrueA = ShiftA;
-					ShiftR = NULL; ShiftG = NULL; ShiftB = NULL; ShiftA = NULL;
-					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(TrueR)),FCString::Atof(*FDecode(TrueG)),FCString::Atof(*FDecode(TrueB)),FCString::Atof(*FDecode(TrueA)));
+					return FLinearColor(FCString::Atof(*FDecode(ShiftR)),FCString::Atof(*FDecode(ShiftG)),FCString::Atof(*FDecode(ShiftB)),FCString::Atof(*FDecode(ShiftA)));
+				break;
 			default:
-				return FLinearColor::FLinearColor();
-	}}}
-
-	FLinearColor GetValue(FString* Key) {
+				return FLinearColor::Black;
+			}///
+		}///
+	}///
+	//
+	const FLinearColor GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1;
-				ShiftR = TrueR; ShiftG = TrueG; ShiftB = TrueB; ShiftA = TrueA;
-				TrueR = NULL; TrueG = NULL; TrueB = NULL; TrueA = NULL;
-				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,ShiftR)),FCString::Atof(*FDecode(*Key,ShiftG)),FCString::Atof(*FDecode(*Key,ShiftB)),FCString::Atof(*FDecode(*Key,ShiftA)));
+				return FLinearColor(FCString::Atof(*FDecode(Key,TrueR)),FCString::Atof(*FDecode(Key,TrueG)),FCString::Atof(*FDecode(Key,TrueB)),FCString::Atof(*FDecode(Key,TrueA)));
+			break;
 			case 1:
-				Flag = 0;
-				TrueR = ShiftR; TrueG = ShiftG; TrueB = ShiftB; TrueA = ShiftA;
-				ShiftR = NULL; ShiftG = NULL; ShiftB = NULL; ShiftA = NULL;
-				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(*Key,TrueR)),FCString::Atof(*FDecode(*Key,TrueG)),FCString::Atof(*FDecode(*Key,TrueB)),FCString::Atof(*FDecode(*Key,TrueA)));
+				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(Key,ShiftR)),FCString::Atof(*FDecode(Key,ShiftG)),FCString::Atof(*FDecode(Key,ShiftB)),FCString::Atof(*FDecode(Key,ShiftA)));
+			break;
 		default:
-			return FLinearColor::FLinearColor();
-	}}
-
-	void SetValue(FLinearColor* Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+			return FLinearColor::Black;
+		}///
+	}///
+	//
+	void SetValue(const FLinearColor &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
 			switch (Flag) {
 				case 0:
 					Flag = 1;
-					ShiftR = *FEncode(FString::Printf(TEXT("%f"),Input->R));
-					ShiftG = *FEncode(FString::Printf(TEXT("%f"),Input->G));
-					ShiftB = *FEncode(FString::Printf(TEXT("%f"),Input->B));
-					ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
-					TrueR = NULL; TrueG = NULL; TrueB = NULL; TrueA = NULL;
+					ShiftR = FEncode(FString::Printf(TEXT("%f"),Input.R));
+					ShiftG = FEncode(FString::Printf(TEXT("%f"),Input.G));
+					ShiftB = FEncode(FString::Printf(TEXT("%f"),Input.B));
+					ShiftA = FEncode(FString::Printf(TEXT("%f"),Input.A));
+					TrueR.Empty(); TrueG.Empty(); TrueB.Empty(); TrueA.Empty();
 				case 1:
 					Flag = 0;
-					TrueR = *FEncode(FString::Printf(TEXT("%f"),Input->R));
-					TrueG = *FEncode(FString::Printf(TEXT("%f"),Input->G));
-					TrueB = *FEncode(FString::Printf(TEXT("%f"),Input->B));
-					TrueA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
-					ShiftR = NULL; ShiftG = NULL; ShiftB = NULL; ShiftA = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, FLinearColor* Input) {
+					TrueR = FEncode(FString::Printf(TEXT("%f"),Input.R));
+					TrueG = FEncode(FString::Printf(TEXT("%f"),Input.G));
+					TrueB = FEncode(FString::Printf(TEXT("%f"),Input.B));
+					TrueA = FEncode(FString::Printf(TEXT("%f"),Input.A));
+					ShiftR.Empty(); ShiftG.Empty(); ShiftB.Empty(); ShiftA.Empty();
+	} Internal=ASCII_KEY;}}
+	//
+	void SetValue(const FString &Key, const FLinearColor &Input) {
 		switch (Flag) {
 			case 0:
 				Flag = 1;
-				ShiftR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->R));
-				ShiftG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->G));
-				ShiftB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->B));
-				ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input->A));
-				TrueR = NULL; TrueG = NULL; TrueB = NULL; TrueA = NULL;
+				ShiftR = FEncode(Key,FString::Printf(TEXT("%f"),Input.R));
+				ShiftG = FEncode(Key,FString::Printf(TEXT("%f"),Input.G));
+				ShiftB = FEncode(Key,FString::Printf(TEXT("%f"),Input.B));
+				ShiftA = FEncode(Key,FString::Printf(TEXT("%f"),Input.A));
+				TrueR.Empty(); TrueG.Empty(); TrueB.Empty(); TrueA.Empty();
 			case 1:
 				Flag = 0;
-				TrueR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->R));
-				TrueG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->G));
-				TrueB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->B));
-				TrueA = *FEncode(*Key,FString::Printf(TEXT("%f"),Input->A));
-				ShiftR = NULL; ShiftG = NULL; ShiftB = NULL; ShiftA = NULL;
-	}Internal=FString(*Key);}
-
+				TrueR = FEncode(Key,FString::Printf(TEXT("%f"),Input.R));
+				TrueG = FEncode(Key,FString::Printf(TEXT("%f"),Input.G));
+				TrueB = FEncode(Key,FString::Printf(TEXT("%f"),Input.B));
+				TrueA = FEncode(Key,FString::Printf(TEXT("%f"),Input.A));
+				ShiftR.Empty(); ShiftG.Empty(); ShiftB.Empty(); ShiftA.Empty();
+	} Internal=Key;}
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeColor() {
-		Internal = FString(*ASCII_KEY);
-		TrueR = TEXT(""); TrueG = TEXT(""); TrueB = TEXT(""); TrueA = TEXT("");
-		ShiftR = TEXT(""); ShiftG = TEXT(""); ShiftB = TEXT(""); ShiftA = TEXT("");
+		Internal = FString();
+		TrueR = TEXT("");
+		TrueG = TEXT("");
+		TrueB = TEXT("");
+		TrueA = TEXT("");
+		ShiftR = TEXT("");
+		ShiftG = TEXT("");
+		ShiftB = TEXT("");
+		ShiftA = TEXT("");
 		Flag = 0;
-	}
-
+	}///
+	//
 	FSafeColor(const FLinearColor Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueR = *FEncode(FString::Printf(TEXT("%f"),Input.R));
-		TrueG = *FEncode(FString::Printf(TEXT("%f"),Input.G));
-		TrueB = *FEncode(FString::Printf(TEXT("%f"),Input.B));
-		TrueA = *FEncode(FString::Printf(TEXT("%f"),Input.A));
-		ShiftR = *FEncode(FString::Printf(TEXT("%f"),Input.R));
-		ShiftG = *FEncode(FString::Printf(TEXT("%f"),Input.G));
-		ShiftB = *FEncode(FString::Printf(TEXT("%f"),Input.B));
-		ShiftA = *FEncode(FString::Printf(TEXT("%f"),Input.A));
+		Internal = FString();
+		TrueR = FEncode(FString::Printf(TEXT("%f"),Input.R));
+		TrueG = FEncode(FString::Printf(TEXT("%f"),Input.G));
+		TrueB = FEncode(FString::Printf(TEXT("%f"),Input.B));
+		TrueA = FEncode(FString::Printf(TEXT("%f"),Input.A));
+		ShiftR = FEncode(FString::Printf(TEXT("%f"),Input.R));
+		ShiftG = FEncode(FString::Printf(TEXT("%f"),Input.G));
+		ShiftB = FEncode(FString::Printf(TEXT("%f"),Input.B));
+		ShiftA = FEncode(FString::Printf(TEXT("%f"),Input.A));
 		Flag = 0;
-	}
-
-	FSafeColor(FString* Key, const FLinearColor Input) {
-		Internal = FString(*Key);
-		TrueR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.R));
-		TrueG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.G));
-		TrueB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.B));
-		TrueA = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.A));
-		ShiftR = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.R));
-		ShiftG = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.G));
-		ShiftB = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.B));
-		ShiftA = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.A));
+	}///
+	//
+	FSafeColor(const FString &Key, const FLinearColor Input) {
+		Internal = Key;
+		TrueR = FEncode(Key,FString::Printf(TEXT("%f"),Input.R));
+		TrueG = FEncode(Key,FString::Printf(TEXT("%f"),Input.G));
+		TrueB = FEncode(Key,FString::Printf(TEXT("%f"),Input.B));
+		TrueA = FEncode(Key,FString::Printf(TEXT("%f"),Input.A));
+		ShiftR = FEncode(Key,FString::Printf(TEXT("%f"),Input.R));
+		ShiftG = FEncode(Key,FString::Printf(TEXT("%f"),Input.G));
+		ShiftB = FEncode(Key,FString::Printf(TEXT("%f"),Input.B));
+		ShiftA = FEncode(Key,FString::Printf(TEXT("%f"),Input.A));
 		Flag = 0;
-	}
-
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeColor &operator = (const FSafeColor &C) {
 		Internal = C.Internal;
-		TrueR = C.TrueR; TrueG = C.TrueG; TrueB = C.TrueB; TrueA = C.TrueA;
-		ShiftR = C.ShiftR; ShiftG = C.ShiftG; ShiftB = C.ShiftB; ShiftA = C.ShiftA;
+		ShiftR = C.ShiftR;
+		ShiftG = C.ShiftG;
+		ShiftB = C.ShiftB;
+		ShiftA = C.ShiftA;
+		TrueR = C.TrueR;
+		TrueG = C.TrueG;
+		TrueB = C.TrueB;
+		TrueA = C.TrueA;
 		Flag = C.Flag;
+		//
 		return *this;
-	}
-	
-	FORCEINLINE FSafeColor &operator = (FLinearColor &C) {
-		SetValue(&C); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueR;
-		Ar << TrueG;
-		Ar << TrueB;
-		Ar << TrueA;
-		Ar << ShiftR;
-		Ar << ShiftG;
-		Ar << ShiftB;
-		Ar << ShiftA;
-		Ar << Internal;
-		return Ar;
-	}
-
+	}///
+	//
+	FORCEINLINE FSafeColor &operator = (const FLinearColor &C) {
+		SetValue(C); return *this;
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeColor &C) const {
+		return (GetValue() == C.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeColor &C) const {
+		return (GetValue() != C.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeColor operator + (const FSafeColor &C) const {
+		return (GetValue() + C.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeColor operator - (const FSafeColor &C) const {
+		return (GetValue() - C.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeColor operator * (const FSafeColor &C) const {
+		return (GetValue() * C.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeColor operator / (const FSafeColor &C) const {
+		return (GetValue() / C.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator == (const FLinearColor &C) const {
+		return (GetValue() == C);
+	}///
+	//
+	FORCEINLINE bool operator != (const FLinearColor &C) const {
+		return (GetValue() != C);
+	}///
+	//
+	FORCEINLINE FSafeColor operator + (const FLinearColor &C) const {
+		return FSafeColor(GetValue() + C);
+	}///
+	//
+	FORCEINLINE FSafeColor operator - (const FLinearColor &C) const {
+		return FSafeColor(GetValue() - C);
+	}///
+	//
+	FORCEINLINE FSafeColor operator * (const FLinearColor &C) const {
+		return FSafeColor(GetValue() * C);
+	}///
+	//
+	FORCEINLINE FSafeColor operator / (const FLinearColor &C) const {
+		return FSafeColor(GetValue() / C);
+	}///
+	//
+	FORCEINLINE FSafeColor &operator += (const FSafeColor &C) {
+		const FLinearColor SC = (GetValue() + C.GetValue());
+		SetValue(SC);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeColor &operator -= (const FSafeColor &C) {
+		const FLinearColor SC = (GetValue() - C.GetValue());
+		SetValue(SC);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeColor operator ++ (int) {
+		const FSafeColor SC = *this; (++ *this);
+		//
+		return SC;
+	}///
+	//
+	FORCEINLINE FSafeColor operator -- (int) {
+		const FSafeColor SC = *this; (-- *this);
+		//
+		return SC;
+	}///
+	//
+	FORCEINLINE FSafeColor &operator ++ () {
+		const FLinearColor L = GetValue();
+		const FLinearColor C = FLinearColor(L.R+1.f,L.G+1.f,L.B+1.f,L.A+1.f);
+		SetValue(C);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeColor &operator -- () {
+		const FLinearColor L = GetValue();
+		const FLinearColor C = FLinearColor(L.R-1.f,L.G-1.f,L.B-1.f,L.A-1.f);
+		SetValue(C);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << ShiftR;
+		AR << ShiftG;
+		AR << ShiftB;
+		AR << ShiftA;
+		AR << TrueR;
+		AR << TrueG;
+		AR << TrueB;
+		AR << TrueA;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
 	friend FORCEINLINE uint32 GetTypeHash(const FSafeColor &C) {
 		return FCrc::MemCrc32(&C,sizeof(FSafeColor));
-	}
-
+	}///
 };
 
-/** {S}: Safe Rotator Property;
+/** Safe Rotator Property;
  Use this data format to store sensible Rotator values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeRotator {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString Internal;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueX;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueY;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString TrueZ;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftX;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftY;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FString ShiftZ;
-
+	//
 	UPROPERTY(SaveGame)
 	uint8 Flag;
-
 public:
-
 	////////////////////////////////////////////////////////////
 	/// Accessors
-
-	FRotator GetValue() {
-		if (Internal.Len()>0) {return GetValue(&Internal);} else {
-			Internal = FString(*ASCII_KEY);
+	//
+	void SetKey(const FString &Key) {
+		Internal = Key;
+	}///
+	//
+	const FRotator GetValue() const {
+		if (!Internal.IsEmpty()) {return GetValue(Internal);} else {
 			switch (Flag) {
 				case 0:
-					Flag = 1;
-					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
-					TrueX = NULL; TrueY = NULL; TrueZ = NULL;
-					return FRotator::FRotator(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
-				case 1:
-					Flag = 0;
-					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
-					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
 					return FRotator::FRotator(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
+				break;
+				case 1:
+					return FRotator::FRotator(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
+				break;
 			default:
 				return FRotator::ZeroRotator;
-	}}}
-
-	FRotator GetValue(FString* Key) {
+			}///
+		}///
+	}///
+	//
+	const FRotator GetValue(const FString &Key) const {
 		switch (Flag) {
 			case 0:
-				Flag = 1;
-				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
-				TrueX = NULL; TrueY = NULL; TrueZ = NULL;
-				return FRotator::FRotator(FCString::Atof(*FDecode(*Key,ShiftX)),FCString::Atof(*FDecode(*Key,ShiftY)),FCString::Atof(*FDecode(*Key,ShiftZ)));
+				return FRotator::FRotator(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)),FCString::Atof(*FDecode(Key,TrueZ)));
 			case 1:
-				Flag = 0;
-				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
-				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
-				return FRotator::FRotator(FCString::Atof(*FDecode(*Key,TrueX)),FCString::Atof(*FDecode(*Key,TrueY)),FCString::Atof(*FDecode(*Key,TrueZ)));
+				return FRotator::FRotator(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)),FCString::Atof(*FDecode(Key,ShiftZ)));
 		default:
 			return FRotator::ZeroRotator;
-	}}
-
-	void SetValue(FRotator Input) {
-		if (Internal.Len()>0) {SetValue(&Internal,Input);} else {
+		}///
+	}///
+	//
+	void SetValue(const FRotator &Input) {
+		if (!Internal.IsEmpty()) {SetValue(Internal,Input);} else {
 			switch (Flag) {
 				case 0:
+				{
 					Flag = 1;
-					ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
-					ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
-					ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
-					TrueX = NULL; TrueY = NULL; TrueZ = NULL;
+					ShiftX = FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+					ShiftY = FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+					ShiftZ = FEncode(FString::Printf(TEXT("%f"),Input.Roll));
+					TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
+				} break;
 				case 1:
+				{
 					Flag = 0;
-					TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
-					TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
-					TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
-					ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
-	}Internal=FString(*ASCII_KEY);}}
-
-	void SetValue(FString* Key, FRotator Input) {
+					TrueX = FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+					TrueY = FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+					TrueZ = FEncode(FString::Printf(TEXT("%f"),Input.Roll));
+					ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
+				} break;
+	} Internal=ASCII_KEY;}}
+	//
+	void SetValue(const FString &Key, const FRotator &Input) {
 		switch (Flag) {
 			case 0:
+			{
 				Flag = 1;
-				ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
-				ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
-				ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
-				TrueX = NULL; TrueY = NULL; TrueZ = NULL;
+				ShiftX = FEncode(Key,FString::Printf(TEXT("%f"),Input.Pitch));
+				ShiftY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Yaw));
+				ShiftZ = FEncode(Key,FString::Printf(TEXT("%f"),Input.Roll));
+				TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
+			} break;
 			case 1:
+			{
 				Flag = 0;
-				TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
-				TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
-				TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
-				ShiftX = NULL; ShiftY = NULL; ShiftZ = NULL;
-	}Internal=FString(*Key);}
-
+				TrueX = FEncode(Key,FString::Printf(TEXT("%f"),Input.Pitch));
+				TrueY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Yaw));
+				TrueZ = FEncode(Key,FString::Printf(TEXT("%f"),Input.Roll));
+				ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
+			} break;
+	} Internal=Key;}
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeRotator() {
-		Internal = FString(*ASCII_KEY);
-		TrueX = TEXT(""); TrueY = TEXT(""); TrueZ = TEXT("");
-		ShiftX = TEXT(""); ShiftY = TEXT(""); ShiftZ = TEXT("");
+		Internal = FString();
+		TrueX = TEXT("");
+		TrueY = TEXT("");
+		TrueZ = TEXT("");
+		ShiftX = TEXT("");
+		ShiftY = TEXT("");
+		ShiftZ = TEXT("");
 		Flag = 0;
-	}
-
-	FSafeRotator(const float Pitch, const float Yall, const float Roll) {
-		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::Printf(TEXT("%f"),Pitch));
-		TrueY = *FEncode(FString::Printf(TEXT("%f"),Yall));
-		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Roll));
-		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Pitch));
-		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Yall));
-		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Roll));
+	}///
+	//
+	FSafeRotator(const float &Pitch, const float &Yaw, const float &Roll) {
+		Internal = FString();
+		TrueX = FEncode(FString::Printf(TEXT("%f"),Pitch));
+		TrueY = FEncode(FString::Printf(TEXT("%f"),Yaw));
+		TrueZ = FEncode(FString::Printf(TEXT("%f"),Roll));
+		ShiftX = FEncode(FString::Printf(TEXT("%f"),Pitch));
+		ShiftY = FEncode(FString::Printf(TEXT("%f"),Yaw));
+		ShiftZ = FEncode(FString::Printf(TEXT("%f"),Roll));
 		Flag = 0;
-	}
-
-	FSafeRotator(const FRotator Input) {
-		Internal = FString(*ASCII_KEY);
-		TrueX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
-		TrueY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
-		TrueZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
-		ShiftX = *FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
-		ShiftY = *FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
-		ShiftZ = *FEncode(FString::Printf(TEXT("%f"),Input.Roll));
+	}///
+	//
+	FSafeRotator(const FRotator &Input) {
+		Internal = FString();
+		TrueX = FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+		TrueY = FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+		TrueZ = FEncode(FString::Printf(TEXT("%f"),Input.Roll));
+		ShiftX = FEncode(FString::Printf(TEXT("%f"),Input.Pitch));
+		ShiftY = FEncode(FString::Printf(TEXT("%f"),Input.Yaw));
+		ShiftZ = FEncode(FString::Printf(TEXT("%f"),Input.Roll));
 		Flag = 0;
-	}
-
-	FSafeRotator(FString* Key, const FRotator Input) {
-		Internal = FString(*Key);
-		TrueX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
-		TrueY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
-		TrueZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
-		ShiftX = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Pitch));
-		ShiftY = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Yaw));
-		ShiftZ = *FEncode(*Key,FString::Printf(TEXT("%f"),Input.Roll));
+	}///
+	//
+	FSafeRotator(const FString &Key, const FRotator &Input) {
+		Internal = Key;
+		TrueX = FEncode(Key,FString::Printf(TEXT("%f"),Input.Pitch));
+		TrueY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Yaw));
+		TrueZ = FEncode(Key,FString::Printf(TEXT("%f"),Input.Roll));
+		ShiftX = FEncode(Key,FString::Printf(TEXT("%f"),Input.Pitch));
+		ShiftY = FEncode(Key,FString::Printf(TEXT("%f"),Input.Yaw));
+		ShiftZ = FEncode(Key,FString::Printf(TEXT("%f"),Input.Roll));
 		Flag = 0;
-	}
-
+	}//
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeRotator &operator = (const FSafeRotator &R) {
 		Internal = R.Internal;
 		TrueX = R.TrueX; TrueY = R.TrueY; TrueZ = R.TrueZ;
 		ShiftX = R.ShiftX; ShiftY = R.ShiftY; ShiftZ = R.ShiftZ;
 		Flag = R.Flag;
 		return *this;
-	}
-	
+	}//
+	//
 	FORCEINLINE FSafeRotator &operator = (const FRotator &R) {
 		SetValue(R); return *this;
-	}
-
-	FORCEINLINE FArchive &operator << (FArchive &Ar) { 
-		Ar << Flag;
-		Ar << TrueX;
-		Ar << TrueY;
-		Ar << TrueZ;
-		Ar << ShiftX;
-		Ar << ShiftY;
-		Ar << ShiftZ;
-		Ar << Internal;
-		return Ar;
-	}
-
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeRotator &R) const {
+		return (GetValue() == R.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeRotator &R) const {
+		return (GetValue() != R.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator > (const FSafeRotator &R) const {
+		return (GetValue().Vector().Size() > R.GetValue().Vector().Size());
+	}///
+	//
+	FORCEINLINE bool operator < (const FSafeRotator &R) const {
+		return (GetValue().Vector().Size() < R.GetValue().Vector().Size());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FSafeRotator &R) const {
+		return (GetValue().Vector().Size() >= R.GetValue().Vector().Size());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FSafeRotator &R) const {
+		return (GetValue().Vector().Size() <= R.GetValue().Vector().Size());
+	}///
+	//
+	FORCEINLINE FSafeRotator operator + (const FSafeRotator &R) const {
+		return (GetValue() + R.GetValue());
+	}///
+	//
+	FORCEINLINE FSafeRotator operator - (const FSafeRotator &R) const {
+		return (GetValue() - R.GetValue());
+	}///
+	//
+	FORCEINLINE bool operator == (const FRotator &R) const {
+		return (GetValue() == R);
+	}///
+	//
+	FORCEINLINE bool operator != (const FRotator &R) const {
+		return (GetValue() != R);
+	}///
+	//
+	FORCEINLINE bool operator > (const FRotator &R) const {
+		return (GetValue().Vector().Size() > R.Vector().Size());
+	}///
+	//
+	FORCEINLINE bool operator < (const FRotator &R) const {
+		return (GetValue().Vector().Size() < R.Vector().Size());
+	}///
+	//
+	FORCEINLINE bool operator >= (const FRotator &R) const {
+		return (GetValue().Vector().Size() >= R.Vector().Size());
+	}///
+	//
+	FORCEINLINE bool operator <= (const FRotator &R) const {
+		return (GetValue().Vector().Size() <= R.Vector().Size());
+	}///
+	//
+	FORCEINLINE FSafeRotator operator + (const FRotator &R) const {
+		return FSafeRotator(GetValue() + R);
+	}///
+	//
+	FORCEINLINE FSafeRotator operator - (const FRotator &R) const {
+		return FSafeRotator(GetValue() - R);
+	}///
+	//
+	FORCEINLINE FSafeRotator &operator += (const FSafeRotator &R) {
+		const FRotator SR = (GetValue() + R.GetValue());
+		SetValue(SR);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeRotator &operator -= (const FSafeRotator &R) {
+		const FRotator SR = (GetValue() - R.GetValue());
+		SetValue(SR);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeRotator operator += (const FRotator &R) {
+		const FRotator SR = (GetValue() + R);
+		SetValue(SR);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeRotator operator -= (const FRotator &R) {
+		const FRotator SR = (GetValue() - R);
+		SetValue(SR);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeRotator operator ++ (int) {
+		const FSafeRotator SR = *this; (++ *this);
+		//
+		return SR;
+	}///
+	//
+	FORCEINLINE FSafeRotator operator -- (int) {
+		const FSafeRotator SR = *this; (-- *this);
+		//
+		return SR;
+	}///
+	//
+	FORCEINLINE FSafeRotator &operator ++ () {
+		const FRotator SR = GetValue();
+		const FRotator R = FRotator(SR.Pitch+1.f,SR.Yaw+1.f,SR.Roll+1.f);
+		SetValue(R);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FSafeRotator &operator -- () {
+		const FRotator SR = GetValue();
+		const FRotator R = FRotator(SR.Pitch-1.f,SR.Yaw-1.f,SR.Roll-1.f);
+		SetValue(R);
+		//
+		return *this;
+	}///
+	//
+	FORCEINLINE FArchive &operator << (FArchive &AR) {
+		AR << Internal;
+		AR << ShiftX;
+		AR << ShiftY;
+		AR << ShiftZ;
+		AR << TrueX;
+		AR << TrueY;
+		AR << TrueZ;
+		AR << Flag;
+		//
+		return AR;
+	}///
+	//
 	friend FORCEINLINE uint32 GetTypeHash(const FSafeRotator &R) {
 		return FCrc::MemCrc32(&R,sizeof(FSafeRotator));
-	}
-
+	}///
 };
 
-/** {S}: Safe Transform Property;
+/** Safe Transform Property;
  Use this data format to store sensible Transform values you need protected against memory hackers. */
 USTRUCT(BlueprintType)
 struct SCUE4_API FSafeTransform {
 	GENERATED_USTRUCT_BODY()
 private:
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FSafeVector3D Scale;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FSafeVector3D Position;
-
-	UPROPERTY(Category = "Security", VisibleAnywhere, SaveGame)
+	//
+	UPROPERTY(Category="Security", VisibleAnywhere, SaveGame)
 	FSafeRotator Rotation;
-
 public:
-
 	////////////////////////////////////////////////////////////
-
-	FTransform GetValue() {
-		return FTransform::FTransform(Rotation.GetValue(),Position.GetValue(),Scale.GetValue());
-	}
-
-	FTransform GetValue(FString* Key) {
-		return FTransform::FTransform(Rotation.GetValue(*&Key),Position.GetValue(*&Key),Scale.GetValue(*&Key));
-	}
-
-	void SetValue(FTransform* Input) {
-		Scale.SetValue(Input->GetScale3D());
-		Position.SetValue(Input->GetLocation());
-		Rotation.SetValue(Input->GetRotation().Rotator());
-	}
-
-	void SetValue(FString* Key, FTransform* Input) {
-		Scale.SetValue(*&Key,Input->GetScale3D());
-		Position.SetValue(*&Key,Input->GetLocation());
-		Rotation.SetValue(*&Key,Input->GetRotation().Rotator());
-	}
-
+	/// Accessors
+	//
+	const FTransform GetValue() const {
+		return FTransform(Rotation.GetValue(),Position.GetValue(),Scale.GetValue());
+	}///
+	//
+	const FTransform GetValue(const FString &Key) const {
+		return FTransform(Rotation.GetValue(Key),Position.GetValue(Key),Scale.GetValue(Key));
+	}///
+	//
+	void SetValue(const FTransform &Input) {
+		Rotation.SetValue(Input.GetRotation().Rotator());
+		Position.SetValue(Input.GetLocation());
+		Scale.SetValue(Input.GetScale3D());
+	}///
+	//
+	void SetValue(const FString &Key, const FTransform &Input) {
+		Rotation.SetValue(Key,Input.GetRotation().Rotator());
+		Position.SetValue(Key,Input.GetLocation());
+		Scale.SetValue(Key,Input.GetScale3D());
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Constructors
-
+	//
 	FSafeTransform() {
 		Scale = FSafeVector3D::FSafeVector3D();
-		Position = FSafeVector3D::FSafeVector3D();
 		Rotation = FSafeRotator::FSafeRotator();
-	}
-
-	FSafeTransform(FTransform* Input) {
-		Scale = FSafeVector3D::FSafeVector3D(Input->GetScale3D());
-		Position = FSafeVector3D::FSafeVector3D(Input->GetLocation());
-		Rotation = FSafeRotator::FSafeRotator(Input->Rotator());
-	}
-
-	FSafeTransform(FString* Key, FTransform* Input) {
-		Scale = FSafeVector3D::FSafeVector3D(*&Key,Input->GetScale3D());
-		Position = FSafeVector3D::FSafeVector3D(*&Key,Input->GetLocation());
-		Rotation = FSafeRotator::FSafeRotator(*&Key,Input->Rotator());
-	}
-
+		Position = FSafeVector3D::FSafeVector3D();
+	}///
+	//
+	FSafeTransform(const FTransform &Input) {
+		Scale = FSafeVector3D::FSafeVector3D(Input.GetScale3D());
+		Rotation = FSafeRotator::FSafeRotator(Input.Rotator());
+		Position = FSafeVector3D::FSafeVector3D(Input.GetLocation());
+	}///
+	//
+	FSafeTransform(const FString &Key, const FTransform &Input) {
+		Scale = FSafeVector3D::FSafeVector3D(Key,Input.GetScale3D());
+		Rotation = FSafeRotator::FSafeRotator(Key,Input.Rotator());
+		Position = FSafeVector3D::FSafeVector3D(Key,Input.GetLocation());
+	}///
+	//
 	////////////////////////////////////////////////////////////
 	/// Operators
-
+	//
 	FORCEINLINE FSafeTransform &operator = (const FSafeTransform &T) {
-		Scale = T.Scale;
 		Position = T.Position;
 		Rotation = T.Rotation;
+		Scale = T.Scale;
+		//
 		return *this;
-	}
-	
+	}///
+	//
 	FORCEINLINE FSafeTransform &operator = (const FTransform &T) {
-		Scale = T.GetScale3D();
 		Position = T.GetLocation();
 		Rotation = T.Rotator();
+		Scale = T.GetScale3D();
+		//
 		return *this;
-	}
-
+	}///
+	//
+	FORCEINLINE bool operator == (const FSafeTransform &T) const {
+		return (
+			Scale == T.Scale &&
+			Position == T.Position &&
+			Rotation == T.Rotation
+		);///
+	}///
+	//
+	FORCEINLINE bool operator != (const FSafeTransform &T) const {
+		return (
+			Scale != T.Scale ||
+			Position != T.Position ||
+			Rotation != T.Rotation
+		);///
+	}///
+	//
+	FORCEINLINE bool operator == (const FTransform &T) const {
+		return (
+			Scale.GetValue() == T.GetScale3D() &&
+			Position.GetValue() == T.GetLocation() &&
+			Rotation.GetValue().Vector() == T.GetRotation().Vector()
+		);///
+	}///
+	//
+	FORCEINLINE bool operator != (const FTransform &T) const {
+		return (
+			Scale.GetValue() != T.GetScale3D() ||
+			Position.GetValue() != T.GetLocation() ||
+			Rotation.GetValue().Vector() != T.GetRotation().Vector()
+		);///
+	}///
+	//
 	friend FORCEINLINE uint32 GetTypeHash(const FSafeTransform &T) {
 		return FCrc::MemCrc32(&T,sizeof(FSafeTransform));
-	}
-
+	}///
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if PLATFORM_WINDOWS
-#pragma endregion CUSTOM TYPES
-#pragma region OPERATORS
-#endif
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Operators:: Adding support for custom 'Safe Type' operations
-
-// FSBool
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeBool &FSB, FSafeBool &B) { // CONST!  CHANGE ALL GET() and SET() to CONST TOO!!
-	return  (FSB.GetValue()==B.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeBool &FSB, FSafeBool &B) {
-	return (FSB.GetValue()!=B.GetValue());
-}
-
-FORCEINLINE bool operator && (FSafeBool &FSB, FSafeBool &B) {
-	return (FSB.GetValue()&&B.GetValue());
-}
-
-FORCEINLINE bool operator || (FSafeBool &FSB, FSafeBool &B) {
-	return (FSB.GetValue()||B.GetValue());
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeBool &FSB, const bool &B) {
-	return (FSB.GetValue()==B);
-}
-
-FORCEINLINE bool operator != (FSafeBool &FSB, const bool &B) {
-	return (FSB.GetValue()!=B);
-}
-
-FORCEINLINE bool operator && (FSafeBool &FSB, const bool &B) {
-	return (FSB.GetValue()&&B);
-}
-
-FORCEINLINE bool operator || (FSafeBool &FSB, const bool &B) {
-	return (FSB.GetValue()||B);
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const bool &B, FSafeBool &FSB) {
-	return (B==FSB.GetValue());
-}
-
-FORCEINLINE bool operator != (const bool &B, FSafeBool &FSB) {
-	return (B!=FSB.GetValue());
-}
-
-FORCEINLINE bool operator && (const bool &B, FSafeBool &FSB) {
-	return (B&&FSB.GetValue());
-}
-
-FORCEINLINE bool operator || (const bool &B, FSafeBool &FSB) {
-	return (B||FSB.GetValue());
-}
-
-// FSByte
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeByte &FSB, FSafeByte &B) {
-	return (FSB.GetValue()==B.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeByte &FSB, FSafeByte &B) {
-	return (FSB.GetValue()!=B.GetValue());
-}
-
-FORCEINLINE bool operator > (FSafeByte &FSB, FSafeByte &B) {
-	return (FSB.GetValue()>B.GetValue());
-}
-
-FORCEINLINE bool operator < (FSafeByte &FSB, FSafeByte &B) {
-	return (FSB.GetValue()<B.GetValue());
-}
-
-FORCEINLINE bool operator >= (FSafeByte &FSB, FSafeByte &B) {
-	return (FSB.GetValue()>=B.GetValue());
-}
-
-FORCEINLINE bool operator <= (FSafeByte &FSB, FSafeByte &B) {
-	return (FSB.GetValue()<=B.GetValue());
-}
-
-FORCEINLINE FSafeByte operator + (FSafeByte &FSB, FSafeByte &B) {
-	return FSafeByte(FSB.GetValue()+B.GetValue());
-}
-
-FORCEINLINE FSafeByte operator - (FSafeByte &FSB, FSafeByte &B) {
-	return FSafeByte(FSB.GetValue()-B.GetValue());
-}
-
-FORCEINLINE FSafeByte operator * (FSafeByte &FSB, FSafeByte &B) {
-	return FSafeByte(FSB.GetValue()*B.GetValue());
-}
-
-FORCEINLINE FSafeByte operator / (FSafeByte &FSB, FSafeByte &B) {
-	return FSafeByte(FSB.GetValue()/B.GetValue());
-}
-
-FORCEINLINE FSafeByte operator ++ (FSafeByte &FSB) {
-	auto Local = FSB.GetValue(); Local++;
-	return FSafeByte(Local);
-}
-
-FORCEINLINE FSafeByte operator -- (FSafeByte &FSB) {
-	auto Local = FSB.GetValue(); Local--;
-	return FSafeByte(Local);
-}
-
-FORCEINLINE FSafeByte operator ~ (FSafeByte &FSB) {
-	auto Local = FSB.GetValue();
-	return FSafeByte(~Local);
-}
-
-FORCEINLINE FSafeByte operator += (FSafeByte &FSB, FSafeByte &B) {
-	auto Local = FSB.GetValue(); auto Plus = B.GetValue();
-	return FSafeByte((Local+=Plus));
-}
-
-FORCEINLINE FSafeByte operator -= (FSafeByte &FSB, FSafeByte &B) {
-	auto Local = FSB.GetValue(); auto Minus = B.GetValue();
-	return FSafeByte((Local-=Minus));
-}
-
-FORCEINLINE FSafeByte operator % (FSafeByte &FSB, FSafeByte &B) {
-	auto Local = FSB.GetValue(); auto Mod = B.GetValue();
-	return FSafeByte((Local%Mod));
-}
-
-FORCEINLINE FSafeByte operator & (FSafeByte &FSB, FSafeByte &B) {
-	auto Local = FSB.GetValue(); auto An = B.GetValue();
-	return FSafeByte((Local&An));
-}
-
-FORCEINLINE FSafeByte operator | (FSafeByte &FSB, FSafeByte &B) {
-	auto Local = FSB.GetValue(); auto Orr = B.GetValue();
-	return FSafeByte((Local|Orr));
-}
-
-FORCEINLINE FSafeByte operator ^ (FSafeByte &FSB, FSafeByte &B) {
-	auto Local = FSB.GetValue(); auto To = B.GetValue();
-	return FSafeByte((Local^To));
-}
-
-FORCEINLINE FSafeByte operator >> (FSafeByte &FSB, FSafeByte &B) {
-	auto Local = FSB.GetValue(); auto To = B.GetValue();
-	return FSafeByte((Local>>To));
-}
-
-FORCEINLINE FSafeByte operator << (FSafeByte &FSB, FSafeByte &B) {
-	auto Local = FSB.GetValue(); auto To = B.GetValue();
-	return FSafeByte((Local<<To));
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeByte &FSB, const uint8 &B) {
-	return (FSB.GetValue()==B);
-}
-
-FORCEINLINE bool operator != (FSafeByte &FSB, const uint8 &B) {
-	return (FSB.GetValue()!=B);
-}
-
-FORCEINLINE bool operator > (FSafeByte &FSB, const uint8 &B) {
-	return (FSB.GetValue()>B);
-}
-
-FORCEINLINE bool operator < (FSafeByte &FSB, const uint8 &B) {
-	return (FSB.GetValue()<B);
-}
-
-FORCEINLINE bool operator >= (FSafeByte &FSB, const uint8 &B) {
-	return (FSB.GetValue()>=B);
-}
-
-FORCEINLINE bool operator <= (FSafeByte &FSB, const uint8 &B) {
-	return (FSB.GetValue()<=B);
-}
-
-FORCEINLINE FSafeByte operator + (FSafeByte &FSB, const uint8 &B) {
-	return FSafeByte(FSB.GetValue()+B);
-}
-
-FORCEINLINE FSafeByte operator - (FSafeByte &FSB, const uint8 &B) {
-	return FSafeByte(FSB.GetValue()-B);
-}
-
-FORCEINLINE FSafeByte operator * (FSafeByte &FSB, const uint8 &B) {
-	return FSafeByte(FSB.GetValue()*B);
-}
-
-FORCEINLINE FSafeByte operator / (FSafeByte &FSB, const uint8 &B) {
-	return FSafeByte(FSB.GetValue()/B);
-}
-
-FORCEINLINE FSafeByte operator += (FSafeByte &FSB, const uint8 &B) {
-	auto Local = FSB.GetValue();
-	return FSafeByte((Local+=B));
-}
-
-FORCEINLINE FSafeByte operator -= (FSafeByte &FSB, const uint8 &B) {
-	auto Local = FSB.GetValue();
-	return FSafeByte((Local-=B));
-}
-
-FORCEINLINE FSafeByte operator % (FSafeByte &FSB, const uint8 &B) {
-	auto Local = FSB.GetValue();
-	return FSafeByte((Local%B));
-}
-
-FORCEINLINE FSafeByte operator & (FSafeByte &FSB, const uint8 &B) {
-	auto Local = FSB.GetValue();
-	return FSafeByte((Local&B));
-}
-
-FORCEINLINE FSafeByte operator | (FSafeByte &FSB, const uint8 &B) {
-	auto Local = FSB.GetValue();
-	return FSafeByte((Local|B));
-}
-
-FORCEINLINE FSafeByte operator ^ (FSafeByte &FSB, const uint8 &B) {
-	auto Local = FSB.GetValue();
-	return FSafeByte((Local^B));
-}
-
-FORCEINLINE FSafeByte operator >> (FSafeByte &FSB, const uint8 &B) {
-	auto Local = FSB.GetValue();
-	return FSafeByte((Local>>B));
-}
-
-FORCEINLINE FSafeByte operator << (FSafeByte &FSB, const uint8 &B) {
-	auto Local = FSB.GetValue();
-	return FSafeByte((Local<<B));
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const uint8 &B, FSafeByte &FSB) {
-	return (B==FSB.GetValue());
-}
-
-FORCEINLINE bool operator != (const uint8 &B, FSafeByte &FSB) {
-	return (B!=FSB.GetValue());
-}
-
-FORCEINLINE bool operator > (const uint8 &B, FSafeByte &FSB) {
-	return (B>FSB.GetValue());
-}
-
-FORCEINLINE bool operator < (const uint8 &B, FSafeByte &FSB) {
-	return (B<FSB.GetValue());
-}
-
-FORCEINLINE bool operator >= (const uint8 &B, FSafeByte &FSB) {
-	return (B>=FSB.GetValue());
-}
-
-FORCEINLINE bool operator <= (const uint8 &B, FSafeByte &FSB) {
-	return (B<=FSB.GetValue());
-}
-
-FORCEINLINE uint8 operator + (uint8 &B, FSafeByte &FSB) {
-	return (B+FSB.GetValue());
-}
-
-FORCEINLINE uint8 operator - (uint8 &B, FSafeByte &FSB) {
-	return (B-FSB.GetValue());
-}
-
-FORCEINLINE uint8 operator * (uint8 &B, FSafeByte &FSB) {
-	return (B*FSB.GetValue());
-}
-
-FORCEINLINE uint8 operator / (uint8 &B, FSafeByte &FSB) {
-	return (B/FSB.GetValue());
-}
-
-FORCEINLINE uint8 operator += (uint8 &B, FSafeByte &FSB) {
-	auto Local = FSB.GetValue();
-	return ((B+=Local));
-}
-
-FORCEINLINE uint8 operator -= (uint8 &B, FSafeByte &FSB) {
-	auto Local = FSB.GetValue();
-	return ((B-=Local));
-}
-
-FORCEINLINE uint8 operator % (uint8 &B, FSafeByte &FSB) {
-	auto Mod = FSB.GetValue();
-	return ((B%Mod));
-}
-
-FORCEINLINE uint8 operator & (uint8 &B, FSafeByte &FSB) {
-	auto Local = FSB.GetValue();
-	return ((B&Local));
-}
-
-FORCEINLINE uint8 operator | (uint8 &B, FSafeByte &FSB) {
-	auto Local = FSB.GetValue();
-	return ((B|Local));
-}
-
-FORCEINLINE uint8 operator ^ (uint8 &B, FSafeByte &FSB) {
-	auto Local = FSB.GetValue();
-	return ((B^Local));
-}
-
-FORCEINLINE uint8 operator >> (uint8 &B, FSafeByte &FSB) {
-	auto Local = FSB.GetValue();
-	return ((B>>Local));
-}
-
-FORCEINLINE uint8 operator << (uint8 &B, FSafeByte &FSB) {
-	auto Local = FSB.GetValue();
-	return ((B<<Local));
-}
-
-// FSInt
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeInt &FSI, FSafeInt &I) {
-	return (FSI.GetValue() == I.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeInt &FSI, FSafeInt &I) {
-	return (FSI.GetValue()!=I.GetValue());
-}
-
-FORCEINLINE bool operator > (FSafeInt &FSI, FSafeInt &I) {
-	return (FSI.GetValue()>I.GetValue());
-}
-
-FORCEINLINE bool operator < (FSafeInt &FSI, FSafeInt &I) {
-	return (FSI.GetValue()<I.GetValue());
-}
-
-FORCEINLINE bool operator >= (FSafeInt &FSI, FSafeInt &I) {
-	return (FSI.GetValue()>=I.GetValue());
-}
-
-FORCEINLINE bool operator <= (FSafeInt &FSI, FSafeInt &I) {
-	return (FSI.GetValue()<=I.GetValue());
-}
-
-FORCEINLINE FSafeInt operator + (FSafeInt &FSI, FSafeInt &I) {
-	return FSafeInt(FSI.GetValue()+I.GetValue());
-}
-
-FORCEINLINE FSafeInt operator - (FSafeInt &FSI, FSafeInt &I) {
-	return FSafeInt(FSI.GetValue()-I.GetValue());
-}
-
-FORCEINLINE FSafeInt operator * (FSafeInt &FSI, FSafeInt &I) {
-	return FSafeInt(FSI.GetValue()*I.GetValue());
-}
-
-FORCEINLINE FSafeInt operator / (FSafeInt &FSI, FSafeInt &I) {
-	return FSafeInt(FSI.GetValue()/I.GetValue());
-}
-
-FORCEINLINE FSafeInt operator ++ (FSafeInt &FSI) {
-	auto Local = FSI.GetValue(); Local++;
-	return FSafeInt(Local);
-}
-
-FORCEINLINE FSafeInt operator -- (FSafeInt &FSI) {
-	auto Local = FSI.GetValue(); Local--;
-	return FSafeInt(Local);
-}
-
-FORCEINLINE FSafeInt operator ~ (FSafeInt &FSI) {
-	auto Local = FSI.GetValue();
-	return FSafeInt(~Local);
-}
-
-FORCEINLINE FSafeInt operator += (FSafeInt &FSI, FSafeInt &I) {
-	auto Local = FSI.GetValue(); auto Plus = I.GetValue();
-	return FSafeInt((Local+=Plus));
-}
-
-FORCEINLINE FSafeInt operator -= (FSafeInt &FSI, FSafeInt &I) {
-	auto Local = FSI.GetValue(); auto Minus = I.GetValue();
-	return FSafeInt((Local-=Minus));
-}
-
-FORCEINLINE FSafeInt operator % (FSafeInt &FSI, FSafeInt &I) {
-	auto Local = FSI.GetValue(); auto Mod = I.GetValue();
-	return FSafeInt((Local%Mod));
-}
-
-FORCEINLINE FSafeInt operator & (FSafeInt &FSI, FSafeInt &I) {
-	auto Local = FSI.GetValue(); auto An = I.GetValue();
-	return FSafeInt((Local&An));
-}
-
-FORCEINLINE FSafeInt operator | (FSafeInt &FSI, FSafeInt &I) {
-	auto Local = FSI.GetValue(); auto Orr = I.GetValue();
-	return FSafeInt((Local|Orr));
-}
-
-FORCEINLINE FSafeInt operator ^ (FSafeInt &FSI, FSafeInt &I) {
-	auto Local = FSI.GetValue(); auto To = I.GetValue();
-	return FSafeInt((Local^To));
-}
-
-FORCEINLINE FSafeInt operator >> (FSafeInt &FSI, FSafeInt &I) {
-	auto Local = FSI.GetValue(); auto To = I.GetValue();
-	return FSafeInt((Local>>To));
-}
-
-FORCEINLINE FSafeInt operator << (FSafeInt &FSI, FSafeInt &I) {
-	auto Local = FSI.GetValue(); auto To = I.GetValue();
-	return FSafeInt((Local<<To));
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeInt &FSI, const int32 &I) {
-	return (FSI.GetValue()==I);
-}
-
-FORCEINLINE bool operator != (FSafeInt &FSI, const int32 &I) {
-	return (FSI.GetValue()!=I);
-}
-
-FORCEINLINE bool operator > (FSafeInt &FSI, const int32 &I) {
-	return (FSI.GetValue()>I);
-}
-
-FORCEINLINE bool operator < (FSafeInt &FSI, const int32 &I) {
-	return (FSI.GetValue()<I);
-}
-
-FORCEINLINE bool operator >= (FSafeInt &FSI, const int32 &I) {
-	return (FSI.GetValue()>=I);
-}
-
-FORCEINLINE bool operator <= (FSafeInt &FSI, const int32 &I) {
-	return (FSI.GetValue()<=I);
-}
-
-FORCEINLINE FSafeInt operator + (FSafeInt &FSI, const int32 &I) {
-	return FSafeInt(FSI.GetValue()+I);
-}
-
-FORCEINLINE FSafeInt operator - (FSafeInt &FSI, const int32 &I) {
-	return FSafeInt(FSI.GetValue()-I);
-}
-
-FORCEINLINE FSafeInt operator * (FSafeInt &FSI, const int32 &I) {
-	return FSafeInt(FSI.GetValue()*I);
-}
-
-FORCEINLINE FSafeInt operator / (FSafeInt &FSI, const int32 &I) {
-	return FSafeInt(FSI.GetValue()/I);
-}
-
-FORCEINLINE FSafeInt operator += (FSafeInt &FSI, const int32 &I) {
-	auto Local = FSI.GetValue();
-	return FSafeInt((Local+=I));
-}
-
-FORCEINLINE FSafeInt operator -= (FSafeInt &FSI, const int32 &I) {
-	auto Local = FSI.GetValue();
-	return FSafeInt((Local-=I));
-}
-
-FORCEINLINE FSafeInt operator % (FSafeInt &FSI, const int32 &I) {
-	auto Local = FSI.GetValue();
-	return FSafeInt((Local%I));
-}
-
-FORCEINLINE FSafeInt operator & (FSafeInt &FSI, const int32 &I) {
-	auto Local = FSI.GetValue();
-	return FSafeInt((Local&I));
-}
-
-FORCEINLINE FSafeInt operator | (FSafeInt &FSI, const int32 &I) {
-	auto Local = FSI.GetValue();
-	return FSafeInt((Local|I));
-}
-
-FORCEINLINE FSafeInt operator ^ (FSafeInt &FSI, const int32 &I) {
-	auto Local = FSI.GetValue();
-	return FSafeInt((Local^I));
-}
-
-FORCEINLINE FSafeInt operator >> (FSafeInt &FSI, const int32 &I) {
-	auto Local = FSI.GetValue();
-	return FSafeInt((Local>>I));
-}
-
-FORCEINLINE FSafeInt operator << (FSafeInt &FSI, const int32 &I) {
-	auto Local = FSI.GetValue();
-	return FSafeInt((Local<<I));
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const int32 &I, FSafeInt &FSI) {
-	return (I==FSI.GetValue());
-}
-
-FORCEINLINE bool operator != (const int32 &I, FSafeInt &FSI) {
-	return (I!=FSI.GetValue());
-}
-
-FORCEINLINE bool operator > (const int32 &I, FSafeInt &FSI) {
-	return (I>FSI.GetValue());
-}
-
-FORCEINLINE bool operator < (const int32 &I, FSafeInt &FSI) {
-	return (I<FSI.GetValue());
-}
-
-FORCEINLINE bool operator >= (const int32 &I, FSafeInt &FSI) {
-	return (I>=FSI.GetValue());
-}
-
-FORCEINLINE bool operator <= (const int32 &I, FSafeInt &FSI) {
-	return (I<=FSI.GetValue());
-}
-
-FORCEINLINE int32 operator + (int32 &I, FSafeInt &FSI) {
-	return (I+FSI.GetValue());
-}
-
-FORCEINLINE int32 operator - (int32 &I, FSafeInt &FSI) {
-	return (I-FSI.GetValue());
-}
-
-FORCEINLINE int32 operator * (int32 &I, FSafeInt &FSI) {
-	return (I*FSI.GetValue());
-}
-
-FORCEINLINE int32 operator / (int32 &I, FSafeInt &FSI) {
-	return (I/FSI.GetValue());
-}
-
-FORCEINLINE int32 operator += (int32 &I, FSafeInt &FSI) {
-	auto Local = FSI.GetValue();
-	return ((I+=Local));
-}
-
-FORCEINLINE int32 operator -= (int32 &I, FSafeInt &FSI) {
-	auto Local = FSI.GetValue();
-	return ((I-=Local));
-}
-
-FORCEINLINE int32 operator % (int32 &I, FSafeInt &FSI) {
-	auto Mod = FSI.GetValue();
-	return ((I%Mod));
-}
-
-FORCEINLINE int32 operator & (int32 &I, FSafeInt &FSI) {
-	auto Local = FSI.GetValue();
-	return ((I&Local));
-}
-
-FORCEINLINE int32 operator | (int32 &I, FSafeInt &FSI) {
-	auto Local = FSI.GetValue();
-	return ((I|Local));
-}
-
-FORCEINLINE int32 operator ^ (int32 &I, FSafeInt &FSI) {
-	auto Local = FSI.GetValue();
-	return ((I^Local));
-}
-
-FORCEINLINE int32 operator >> (int32 &I, FSafeInt &FSI) {
-	auto Local = FSI.GetValue();
-	return ((I>>Local));
-}
-
-FORCEINLINE int32 operator << (int32 &I, FSafeInt &FSI) {
-	auto Local = FSI.GetValue();
-	return ((I<<Local));
-}
-
-// FSFloat
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeFloat &FSF, FSafeFloat &F) {
-	return (FSF.GetValue()==F.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeFloat &FSF, FSafeFloat &F) {
-	return (FSF.GetValue()!=F.GetValue());
-}
-
-FORCEINLINE bool operator > (FSafeFloat &FSF, FSafeFloat &F) {
-	return (FSF.GetValue()>F.GetValue());
-}
-
-FORCEINLINE bool operator < (FSafeFloat &FSF, FSafeFloat &F) {
-	return (FSF.GetValue()<F.GetValue());
-}
-
-FORCEINLINE bool operator >= (FSafeFloat &FSF, FSafeFloat &F) {
-	return (FSF.GetValue()>=F.GetValue());
-}
-
-FORCEINLINE bool operator <= (FSafeFloat &FSF, FSafeFloat &F) {
-	return (FSF.GetValue()<=F.GetValue());
-}
-
-FORCEINLINE FSafeFloat operator + (FSafeFloat &FSF, FSafeFloat &F) {
-	return FSafeFloat(FSF.GetValue()+F.GetValue());
-}
-
-FORCEINLINE FSafeFloat operator - (FSafeFloat &FSF, FSafeFloat &F) {
-	return FSafeFloat(FSF.GetValue()-F.GetValue());
-}
-
-FORCEINLINE FSafeFloat operator * (FSafeFloat &FSF, FSafeFloat &F) {
-	return FSafeFloat(FSF.GetValue()*F.GetValue());
-}
-
-FORCEINLINE FSafeFloat operator / (FSafeFloat &FSF, FSafeFloat &F) {
-	return FSafeFloat(FSF.GetValue()/F.GetValue());
-}
-
-FORCEINLINE FSafeFloat operator ++ (FSafeFloat &FSF) {
-	auto Local = FSF.GetValue(); Local++;
-	return FSafeFloat(Local);
-}
-
-FORCEINLINE FSafeFloat operator -- (FSafeFloat &FSF) {
-	auto Local = FSF.GetValue(); Local--;
-	return FSafeFloat(Local);
-}
-
-FORCEINLINE FSafeFloat operator += (FSafeFloat &FSF, FSafeFloat &F) {
-	auto Local = FSF.GetValue(); auto Plus = F.GetValue();
-	return FSafeFloat((Local+=Plus));
-}
-
-FORCEINLINE FSafeFloat operator -= (FSafeFloat &FSF, FSafeFloat &F) {
-	auto Local = FSF.GetValue(); auto Minus = F.GetValue();
-	return FSafeFloat((Local-=Minus));
-}
-
-FORCEINLINE FSafeFloat operator % (FSafeFloat &FSF, FSafeFloat &F) {
-	auto Local = FSF.GetValue(); auto Mod = F.GetValue();
-	return FSafeFloat(FGenericPlatformMath::Fmod(Local,Mod));
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeFloat &FSF, const float &F) {
-	return (FSF.GetValue()==F);
-}
-
-FORCEINLINE bool operator != (FSafeFloat &FSF, const float &F) {
-	return (FSF.GetValue()!=F);
-}
-
-FORCEINLINE bool operator > (FSafeFloat &FSF, const float &F) {
-	return (FSF.GetValue()>F);
-}
-
-FORCEINLINE bool operator < (FSafeFloat &FSF, const float &F) {
-	return (FSF.GetValue()<F);
-}
-
-FORCEINLINE bool operator >= (FSafeFloat &FSF, const float &F) {
-	return (FSF.GetValue()>=F);
-}
-
-FORCEINLINE bool operator <= (FSafeFloat &FSF, const float &F) {
-	return (FSF.GetValue()<=F);
-}
-
-FORCEINLINE FSafeFloat operator + (FSafeFloat &FSF, const float &F) {
-	return FSafeFloat(FSF.GetValue()+F);
-}
-
-FORCEINLINE FSafeFloat operator - (FSafeFloat &FSF, const float &F) {
-	return FSafeFloat(FSF.GetValue()-F);
-}
-
-FORCEINLINE FSafeFloat operator * (FSafeFloat &FSF, const float &F) {
-	return FSafeFloat(FSF.GetValue()*F);
-}
-
-FORCEINLINE FSafeFloat operator / (FSafeFloat &FSF, const float &F) {
-	return FSafeFloat(FSF.GetValue()/F);
-}
-
-FORCEINLINE FSafeFloat operator += (FSafeFloat &FSF, const float &F) {
-	auto Local = FSF.GetValue();
-	return FSafeFloat((Local+=F));
-}
-
-FORCEINLINE FSafeFloat operator -= (FSafeFloat &FSF, const float &F) {
-	auto Local = FSF.GetValue();
-	return FSafeFloat((Local-=F));
-}
-
-FORCEINLINE FSafeFloat operator % (FSafeFloat &FSF, const float &F) {
-	auto Local = FSF.GetValue();
-	return FSafeFloat(FGenericPlatformMath::Fmod(Local,F));
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const float &F, FSafeFloat &FSF) {
-	return (F==FSF.GetValue());
-}
-
-FORCEINLINE bool operator != (const float &F, FSafeFloat &FSF) {
-	return (F!=FSF.GetValue());
-}
-
-FORCEINLINE bool operator > (const float &F, FSafeFloat &FSF) {
-	return (F>FSF.GetValue());
-}
-
-FORCEINLINE bool operator < (const float &F, FSafeFloat &FSF) {
-	return (F<FSF.GetValue());
-}
-
-FORCEINLINE bool operator >= (const float &F, FSafeFloat &FSF) {
-	return (F>=FSF.GetValue());
-}
-
-FORCEINLINE bool operator <= (const float &F, FSafeFloat &FSF) {
-	return (F<=FSF.GetValue());
-}
-
-FORCEINLINE float operator + (float &F, FSafeFloat &FSF) {
-	return (F+FSF.GetValue());
-}
-
-FORCEINLINE float operator - (float &F, FSafeFloat &FSF) {
-	return (F-FSF.GetValue());
-}
-
-FORCEINLINE float operator * (float &F, FSafeFloat &FSF) {
-	return (F*FSF.GetValue());
-}
-
-FORCEINLINE float operator / (float &F, FSafeFloat &FSF) {
-	return (F/FSF.GetValue());
-}
-
-FORCEINLINE float operator += (float &F, FSafeFloat &FSF) {
-	auto Local = FSF.GetValue();
-	return ((F+=Local));
-}
-
-FORCEINLINE float operator -= (float &F, FSafeFloat &FSF) {
-	auto Local = FSF.GetValue();
-	return ((F-=Local));
-}
-
-FORCEINLINE float operator % (float &F, FSafeFloat &FSF) {
-	auto Mod = FSF.GetValue();
-	return (FGenericPlatformMath::Fmod(F,Mod));
-}
-
-// FSName
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeName &FSN, FSafeName &N) {
-	return (FSN.GetValue().IsEqual(N.GetValue(),ENameCase::CaseSensitive,true));
-}
-
-FORCEINLINE bool operator != (FSafeName &FSN, FSafeName &N) {
-	return (!FSN.GetValue().IsEqual(N.GetValue(),ENameCase::CaseSensitive,true));
-}
-
-FORCEINLINE bool operator > (FSafeName &FSN, FSafeName &N) {
-	return (FSN.GetValue()>N.GetValue());
-}
-
-FORCEINLINE bool operator < (FSafeName &FSN, FSafeName &N) {
-	return (FSN.GetValue()<N.GetValue());
-}
-
-FORCEINLINE FSafeName operator + (FSafeName &FSN, FSafeName &N) {
-	return FSafeName(*(FSN.GetValue().ToString().Append(N.GetValue().ToString())));
-}
-
-FORCEINLINE FSafeName operator += (FSafeName &FSN, FSafeName &N) {
-	*&FSN = FSafeName(*(FSN.GetValue().ToString().Append(N.GetValue().ToString()))); return *&FSN;
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeName &FSN, FName &N) {
-	return (FSN.GetValue().IsEqual(N,ENameCase::CaseSensitive,true));
-}
-
-FORCEINLINE bool operator != (FSafeName &FSN, FName &N) {
-	return (!FSN.GetValue().IsEqual(N,ENameCase::CaseSensitive,true));
-}
-
-FORCEINLINE bool operator > (FSafeName &FSN, FName &N) {
-	return (FSN.GetValue()>N);
-}
-
-FORCEINLINE bool operator < (FSafeName &FSN, FName &N) {
-	return (FSN.GetValue()<N);
-}
-
-FORCEINLINE FSafeName operator + (FSafeName &FSN, FName &N) {
-	return FSafeName(*(FSN.GetValue().ToString().Append(N.ToString())));
-}
-
-FORCEINLINE FSafeName operator += (FSafeName &FSN, FName &N) {
-	*&FSN = FSafeName(*(FSN.GetValue().ToString().Append(N.ToString()))); return *&FSN;
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (FName &N, FSafeName &FSN) {
-	return (N.IsEqual(FSN.GetValue(),ENameCase::CaseSensitive,true));
-}
-
-FORCEINLINE bool operator != (FName &N, FSafeName &FSN) {
-	return (!N.IsEqual(FSN.GetValue(),ENameCase::CaseSensitive,true));
-}
-
-FORCEINLINE bool operator > (FName &N, FSafeName &FSN) {
-	return (N>FSN.GetValue());
-}
-
-FORCEINLINE bool operator < (FName &N, FSafeName &FSN) {
-	return (N<FSN.GetValue());
-}
-
-FORCEINLINE FName operator + (FName &N, FSafeName &FSN) {
-	return FName(*(N.ToString().Append(FSN.GetValue().ToString())));
-}
-
-FORCEINLINE FName operator += (FName &N, FSafeName &FSN) {
-	*&N = FName(*(N.ToString().Append(FSN.GetValue().ToString()))); return *&N;
-}
-
-// FSText
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeText &FST, FSafeText &T) {
-	return (FST.GetValue().EqualTo(T.GetValue()));
-}
-
-FORCEINLINE bool operator != (FSafeText &FST, FSafeText &T) {
-	return (!FST.GetValue().EqualTo(T.GetValue()));
-}
-
-FORCEINLINE bool operator > (FSafeText &FST, FSafeText &T) {
-	return (FST.GetValue().ToString()>T.GetValue().ToString());
-}
-
-FORCEINLINE bool operator < (FSafeText &FST, FSafeText &T) {
-	return (FST.GetValue().ToString()<T.GetValue().ToString());
-}
-
-FORCEINLINE FSafeText operator + (FSafeText &FST, FSafeText &T) {
-	return FSafeText(FText::Format(FST.GetValue(),T.GetValue()));
-}
-
-FORCEINLINE FSafeText operator += (FSafeText &FST, FSafeText &T) {
-	*&FST = FSafeText(FText::Format(FST.GetValue(),T.GetValue())); return *&FST;
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeText &FST, FText &T) {
-	return (FST.GetValue().EqualTo(T));
-}
-
-FORCEINLINE bool operator != (FSafeText &FST, FText &T) {
-	return (!FST.GetValue().EqualTo(T));
-}
-
-FORCEINLINE bool operator > (FSafeText &FST, FText &T) {
-	return (FST.GetValue().ToString()>T.ToString());
-}
-
-FORCEINLINE bool operator < (FSafeText &FST, FText &T) {
-	return (FST.GetValue().ToString()<T.ToString());
-}
-
-FORCEINLINE FSafeText operator + (FSafeText &FST, FText &T) {
-	return FSafeText(FText::Format(FST.GetValue(),T));
-}
-
-FORCEINLINE FSafeText operator += (FSafeText &FST, FText &T) {
-	*&FST = FSafeText(FText::Format(FST.GetValue(),T)); return *&FST;
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (FText &T, FSafeText &FST) {
-	return (T.EqualTo(FST.GetValue()));
-}
-
-FORCEINLINE bool operator != (FText &T, FSafeText &FST) {
-	return (!T.EqualTo(FST.GetValue()));
-}
-
-FORCEINLINE bool operator > (FText &T, FSafeText &FST) {
-	return (T.ToString()>FST.GetValue().ToString());
-}
-
-FORCEINLINE bool operator < (FText &T, FSafeText &FST) {
-	return (T.ToString()<FST.GetValue().ToString());
-}
-
-FORCEINLINE FText operator + (FText &T, FSafeText &FST) {
-	return FText::Format(T,FST.GetValue());
-}
-
-FORCEINLINE FText operator += (FText &T, FSafeText &FST) {
-	*&T = FText::Format(T,FST.GetValue()); return *&T;
-}
-
-// FSString
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeString &FSS, FSafeString &S) {
-	return (FSS.GetValue().Equals(S.GetValue(),ESearchCase::CaseSensitive));
-}
-
-FORCEINLINE bool operator != (FSafeString &FSS, FSafeString &S) {
-	return (!FSS.GetValue().Equals(S.GetValue(),ESearchCase::CaseSensitive));
-}
-
-FORCEINLINE bool operator > (FSafeString &FSS, FSafeString &S) {
-	return (FSS.GetValue()>S.GetValue());
-}
-
-FORCEINLINE bool operator < (FSafeString &FSS, FSafeString &S) {
-	return (FSS.GetValue()<S.GetValue());
-}
-
-FORCEINLINE FSafeString operator + (FSafeString &FSS, FSafeString &S) {
-	return FSafeString(*(FSS.GetValue().Append(S.GetValue()))); return *&FSS;
-}
-
-FORCEINLINE FSafeString operator += (FSafeString &FSS, FSafeString &S) {
-	*&FSS = FSafeString(*(FSS.GetValue().Append(S.GetValue()))); return *&FSS;
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeString &FSS, FString &S) {
-	return (FSS.GetValue().Equals(S,ESearchCase::CaseSensitive));
-}
-
-FORCEINLINE bool operator != (FSafeString &FSS, FString &S) {
-	return (!FSS.GetValue().Equals(S,ESearchCase::CaseSensitive));
-}
-
-FORCEINLINE bool operator > (FSafeString &FSS, FString &S) {
-	return (FSS.GetValue()>S);
-}
-
-FORCEINLINE bool operator < (FSafeString &FSS, FString &S) {
-	return (FSS.GetValue()<S);
-}
-
-FORCEINLINE FSafeString operator + (FSafeString &FSS, FString &S) {
-	return FSafeString(*(FSS.GetValue().Append(S)));
-}
-
-FORCEINLINE FSafeString operator += (FSafeString &FSS, FString &S) {
-	*&FSS = FSafeString(*(FSS.GetValue().Append(S))); return *&FSS;
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (FString &S, FSafeString &FSS) {
-	return (S.Equals(FSS.GetValue(),ESearchCase::CaseSensitive));
-}
-
-FORCEINLINE bool operator != (FString &S, FSafeString &FSS) {
-	return (!S.Equals(FSS.GetValue(),ESearchCase::CaseSensitive));
-}
-
-FORCEINLINE bool operator > (FString &S, FSafeString &FSS) {
-	return (S>FSS.GetValue());
-}
-
-FORCEINLINE bool operator < (FString &S, FSafeString &FSS) {
-	return (S<FSS.GetValue());
-}
-
-FORCEINLINE FString operator + (FString &S, FSafeString &FSS) {
-	return FString(*(S.Append(FSS.GetValue())));
-}
-
-FORCEINLINE FString operator += (FString &S, FSafeString &FSS) {
-	*&S = FString(*(S.Append(FSS.GetValue()))); return *&S;
-}
-
-// FSVector2D
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return (FSV.GetValue()==V.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return (FSV.GetValue()!=V.GetValue());
-}
-
-FORCEINLINE bool operator > (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return (FSV.GetValue()>V.GetValue());
-}
-
-FORCEINLINE bool operator < (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return (FSV.GetValue()<V.GetValue());
-}
-
-FORCEINLINE bool operator >= (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return (FSV.GetValue()>=V.GetValue());
-}
-
-FORCEINLINE bool operator <= (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return (FSV.GetValue()<=V.GetValue());
-}
-
-FORCEINLINE FSafeVector2D operator + (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return FSafeVector2D(FSV.GetValue()+V.GetValue());
-}
-
-FORCEINLINE FSafeVector2D operator - (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return FSafeVector2D(FSV.GetValue()-V.GetValue());
-}
-
-FORCEINLINE FSafeVector2D operator * (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return FSafeVector2D(FSV.GetValue()*V.GetValue());
-}
-
-FORCEINLINE FSafeVector2D operator / (FSafeVector2D &FSV, FSafeVector2D &V) {
-	return FSafeVector2D(FSV.GetValue()/V.GetValue());
-}
-
-FORCEINLINE FSafeVector2D operator ++ (FSafeVector2D &FSV) {
-	auto Local = FSV.GetValue();
-	*&FSV = FSafeVector2D(Local.X+1,Local.Y+1); return *&FSV;
-}
-
-FORCEINLINE FSafeVector2D operator -- (FSafeVector2D &FSV) {
-	auto Local = FSV.GetValue();
-	*&FSV = FSafeVector2D(Local.X-1,Local.Y-1); return *&FSV;
-}
-
-FORCEINLINE FSafeVector2D operator += (FSafeVector2D &FSV, FSafeVector2D &V) {
-	auto Local = FSV.GetValue(); auto Plus = V.GetValue();
-	return FSafeVector2D((Local+=Plus));
-}
-
-FORCEINLINE FSafeVector2D operator -= (FSafeVector2D &FSV, FSafeVector2D &V) {
-	auto Local = FSV.GetValue(); auto Minus = V.GetValue();
-	return FSafeVector2D((Local-=Minus));
-}
-
-FORCEINLINE FSafeVector2D operator % (FSafeVector2D &FSV, FSafeVector2D &V) {
-	auto Local = FSV.GetValue(); auto Mod = V.GetValue();
-	auto X = Local.X; auto Y = Local.Y; auto MX = Mod.X; auto MY = Mod.Y; 
-	return FSafeVector2D(FVector2D(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY)));
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeVector2D &FSV, const FVector2D &V) {
-	return (FSV.GetValue()==V);
-}
-
-FORCEINLINE bool operator != (FSafeVector2D &FSV, const FVector2D &V) {
-	return (FSV.GetValue()!=V);
-}
-
-FORCEINLINE bool operator > (FSafeVector2D &FSV, const FVector2D &V) {
-	return (FSV.GetValue()>V);
-}
-
-FORCEINLINE bool operator < (FSafeVector2D &FSV, const FVector2D &V) {
-	return (FSV.GetValue()<V);
-}
-
-FORCEINLINE bool operator >= (FSafeVector2D &FSV, const FVector2D &V) {
-	return (FSV.GetValue()>=V);
-}
-
-FORCEINLINE bool operator <= (FSafeVector2D &FSV, const FVector2D &V) {
-	return (FSV.GetValue()<=V);
-}
-
-FORCEINLINE FSafeVector2D operator + (FSafeVector2D &FSV, const FVector2D &V) {
-	return FSafeVector2D(FSV.GetValue()+V);
-}
-
-FORCEINLINE FSafeVector2D operator - (FSafeVector2D &FSV, const FVector2D &V) {
-	return FSafeVector2D(FSV.GetValue()-V);
-}
-
-FORCEINLINE FSafeVector2D operator * (FSafeVector2D &FSV, const FVector2D &V) {
-	return FSafeVector2D(FSV.GetValue()*V);
-}
-
-FORCEINLINE FSafeVector2D operator / (FSafeVector2D &FSV, const FVector2D &V) {
-	return FSafeVector2D(FSV.GetValue()/V);
-}
-
-FORCEINLINE FSafeVector2D operator += (FSafeVector2D &FSV, const FVector2D &V) {
-	auto Local = FSV.GetValue();
-	return FSafeVector2D((Local+=V));
-}
-
-FORCEINLINE FSafeVector2D operator -= (FSafeVector2D &FSV, const FVector2D &V) {
-	auto Local = FSV.GetValue();
-	return FSafeVector2D((Local-=V));
-}
-
-FORCEINLINE FSafeVector2D operator % (FSafeVector2D &FSV, const FVector2D &V) {
-	auto Local = FSV.GetValue();
-	auto X = Local.X; auto Y = Local.Y;
-	auto MX = V.X; auto MY = V.Y; 
-	return FSafeVector2D(FVector2D(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY)));
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V==FSV.GetValue());
-}
-
-FORCEINLINE bool operator != (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V!=FSV.GetValue());
-}
-
-FORCEINLINE bool operator > (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V>FSV.GetValue());
-}
-
-FORCEINLINE bool operator < (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V<FSV.GetValue());
-}
-
-FORCEINLINE bool operator >= (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V>=FSV.GetValue());
-}
-
-FORCEINLINE bool operator <= (const FVector2D &V, FSafeVector2D &FSV) {
-	return (FSV.GetValue()<=V);
-}
-
-FORCEINLINE FVector2D operator + (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V+FSV.GetValue());
-}
-
-FORCEINLINE FVector2D operator - (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V-FSV.GetValue());
-}
-
-FORCEINLINE FVector2D operator * (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V*FSV.GetValue());
-}
-
-FORCEINLINE FVector2D operator / (const FVector2D &V, FSafeVector2D &FSV) {
-	return (V/FSV.GetValue());
-}
-
-FORCEINLINE FVector2D operator += (FVector2D &V, FSafeVector2D &FSV) {
-	auto Local = FSV.GetValue();
-	return (V+=Local);
-}
-
-FORCEINLINE FVector2D operator -= (FVector2D &V, FSafeVector2D &FSV) {
-	auto Local = FSV.GetValue();
-	return (V-=Local);
-}
-
-FORCEINLINE FVector2D operator % (const FVector2D &V, FSafeVector2D &FSV) {
-	auto Local = FSV.GetValue();
-	auto X = V.X; auto Y = V.Y; 
-	auto MX = Local.X; auto MY = Local.Y;
-	return FVector2D(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY));
-}
-
-// FSVector3D
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return (FSV.GetValue()==V.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return (FSV.GetValue()!=V.GetValue());
-}
-
-FORCEINLINE bool operator > (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return ((FSV.GetValue().X>V.GetValue().X)&&(FSV.GetValue().Y>V.GetValue().Y)&&(FSV.GetValue().Z>V.GetValue().Z));
-}
-
-FORCEINLINE bool operator < (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return ((FSV.GetValue().X<V.GetValue().X)&&(FSV.GetValue().Y<V.GetValue().Y)&&(FSV.GetValue().Z<V.GetValue().Z));
-}
-
-FORCEINLINE bool operator >= (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return ((FSV.GetValue().X>=V.GetValue().X)&&(FSV.GetValue().Y>=V.GetValue().Y)&&(FSV.GetValue().Z>=V.GetValue().Z));
-}
-
-FORCEINLINE bool operator <= (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return ((FSV.GetValue().X<=V.GetValue().X)&&(FSV.GetValue().Y<=V.GetValue().Y)&&(FSV.GetValue().Z<=V.GetValue().Z));
-}
-
-FORCEINLINE FSafeVector3D operator + (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return FSafeVector3D(FSV.GetValue()+V.GetValue());
-}
-
-FORCEINLINE FSafeVector3D operator - (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return FSafeVector3D(FSV.GetValue()-V.GetValue());
-}
-
-FORCEINLINE FSafeVector3D operator * (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return FSafeVector3D(FSV.GetValue()*V.GetValue());
-}
-
-FORCEINLINE FSafeVector3D operator / (FSafeVector3D &FSV, FSafeVector3D &V) {
-	return FSafeVector3D(FSV.GetValue()/V.GetValue());
-}
-
-FORCEINLINE FSafeVector3D operator ++ (FSafeVector3D &FSV) {
-	auto Local = FSV.GetValue();
-	*&FSV = FSafeVector3D(Local.X+1,Local.Y+1,Local.Z+1); return *&FSV;
-}
-
-FORCEINLINE FSafeVector3D operator -- (FSafeVector3D &FSV) {
-	auto Local = FSV.GetValue();
-	*&FSV = FSafeVector3D(Local.X-1,Local.Y-1,Local.Z-1); return *&FSV;
-}
-
-FORCEINLINE FSafeVector3D operator += (FSafeVector3D &FSV, FSafeVector3D &V) {
-	auto Local = FSV.GetValue(); auto Plus = V.GetValue();
-	return FSafeVector3D((Local+=Plus));
-}
-
-FORCEINLINE FSafeVector3D operator -= (FSafeVector3D &FSV, FSafeVector3D &V) {
-	auto Local = FSV.GetValue(); auto Minus = V.GetValue();
-	return FSafeVector3D((Local-=Minus));
-}
-
-FORCEINLINE FSafeVector3D operator % (FSafeVector3D &FSV, FSafeVector3D &V) {
-	auto Local = FSV.GetValue(); auto Mod = V.GetValue();
-	auto X = Local.X; auto Y = Local.Y; auto Z = Local.Z;
-	auto MX = Mod.X; auto MY = Mod.Y;  auto MZ = Mod.Z;
-	return FSafeVector3D(FVector(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ)));
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeVector3D &FSV, const FVector &V) {
-	return (FSV.GetValue()==V);
-}
-
-FORCEINLINE bool operator != (FSafeVector3D &FSV, const FVector &V) {
-	return (FSV.GetValue()!=V);
-}
-
-FORCEINLINE bool operator > (FSafeVector3D &FSV, const FVector &V) {
-	return ((FSV.GetValue().X>V.X)&&(FSV.GetValue().Y>V.Y)&&(FSV.GetValue().Z>V.Z));
-}
-
-FORCEINLINE bool operator < (FSafeVector3D &FSV, const FVector &V) {
-	return ((FSV.GetValue().X<V.X)&&(FSV.GetValue().Y<V.Y)&&(FSV.GetValue().Z<V.Z));
-}
-
-FORCEINLINE bool operator >= (FSafeVector3D &FSV, const FVector &V) {
-	return ((FSV.GetValue().X>=V.X)&&(FSV.GetValue().Y>=V.Y)&&(FSV.GetValue().Z>=V.Z));
-}
-
-FORCEINLINE bool operator <= (FSafeVector3D &FSV, const FVector &V) {
-	return ((FSV.GetValue().X<=V.X)&&(FSV.GetValue().Y<=V.Y)&&(FSV.GetValue().Z<=V.Z));
-}
-
-FORCEINLINE FSafeVector3D operator + (FSafeVector3D &FSV, const FVector &V) {
-	return FSafeVector3D(FSV.GetValue()+V);
-}
-
-FORCEINLINE FSafeVector3D operator - (FSafeVector3D &FSV, const FVector &V) {
-	return FSafeVector3D(FSV.GetValue()-V);
-}
-
-FORCEINLINE FSafeVector3D operator * (FSafeVector3D &FSV, const FVector &V) {
-	return FSafeVector3D(FSV.GetValue()*V);
-}
-
-FORCEINLINE FSafeVector3D operator / (FSafeVector3D &FSV, const FVector &V) {
-	return FSafeVector3D(FSV.GetValue()/V);
-}
-
-FORCEINLINE FSafeVector3D operator += (FSafeVector3D &FSV, const FVector &V) {
-	auto Local = FSV.GetValue();
-	return FSafeVector3D((Local+=V));
-}
-
-FORCEINLINE FSafeVector3D operator -= (FSafeVector3D &FSV, const FVector &V) {
-	auto Local = FSV.GetValue();
-	return FSafeVector3D((Local-=V));
-}
-
-FORCEINLINE FSafeVector3D operator % (FSafeVector3D &FSV, const FVector &V) {
-	auto Local = FSV.GetValue();
-	auto X = Local.X; auto Y = Local.Y; auto Z = Local.Z;
-	auto MX = V.X; auto MY = V.Y; auto MZ = V.Z;
-	return FSafeVector3D(FVector(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ)));
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const FVector &V, FSafeVector3D &FSV) {
-	return (V==FSV.GetValue());
-}
-
-FORCEINLINE bool operator != (const FVector &V, FSafeVector3D &FSV) {
-	return (V!=FSV.GetValue());
-}
-
-FORCEINLINE bool operator > (const FVector &V, FSafeVector3D &FSV) {
-	return ((V.X>FSV.GetValue().X)&&(V.Y>FSV.GetValue().Y)&&(V.Z>FSV.GetValue().Z));
-}
-
-FORCEINLINE bool operator < (const FVector &V, FSafeVector3D &FSV) {
-	return ((V.X<FSV.GetValue().X)&&(V.Y<FSV.GetValue().Y)&&(V.Z<FSV.GetValue().Z));
-}
-
-FORCEINLINE bool operator >= (const FVector &V, FSafeVector3D &FSV) {
-	return ((V.X>=FSV.GetValue().X)&&(V.Y>=FSV.GetValue().Y)&&(V.Z>=FSV.GetValue().Z));
-}
-
-FORCEINLINE bool operator <= (const FVector &V, FSafeVector3D &FSV) {
-	return ((V.X<=FSV.GetValue().X)&&(V.Y<=FSV.GetValue().Y)&&(V.Z<=FSV.GetValue().Z));
-}
-
-FORCEINLINE FVector operator + (const FVector &V, FSafeVector3D &FSV) {
-	return (V+FSV.GetValue());
-}
-
-FORCEINLINE FVector operator - (const FVector &V, FSafeVector3D &FSV) {
-	return (V-FSV.GetValue());
-}
-
-FORCEINLINE FVector operator * (const FVector &V, FSafeVector3D &FSV) {
-	return (V*FSV.GetValue());
-}
-
-FORCEINLINE FVector operator / (const FVector &V, FSafeVector3D &FSV) {
-	return (V/FSV.GetValue());
-}
-
-FORCEINLINE FVector operator += (FVector &V, FSafeVector3D &FSV) {
-	auto Local = FSV.GetValue();
-	return (V+=Local);
-}
-
-FORCEINLINE FVector operator -= (FVector &V, FSafeVector3D &FSV) {
-	auto Local = FSV.GetValue();
-	return (V-=Local);
-}
-
-FORCEINLINE FVector operator % (const FVector &V, FSafeVector3D &FSV) {
-	auto Local = FSV.GetValue();
-	auto X = V.X; auto Y = V.Y; auto Z = V.Z;
-	auto MX = Local.X; auto MY = Local.Y; auto MZ = Local.Z;
-	return FVector(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ));
-}
-
-// FSVector4D
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeVector4D &FSV, FSafeVector4D &V) {
-	return (FSV.GetValue()==V.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeVector4D &FSV, FSafeVector4D &V) {
-	return (FSV.GetValue()!=V.GetValue());
-}
-
-FORCEINLINE bool operator > (FSafeVector4D &FSV, FSafeVector4D &V) {
-	return ((FSV.GetValue().X>V.GetValue().X)&&(FSV.GetValue().Y>V.GetValue().Y)&&(FSV.GetValue().Z>V.GetValue().Z)&&(FSV.GetValue().W>V.GetValue().W));
-}
-
-FORCEINLINE bool operator < (FSafeVector4D &FSV, FSafeVector4D &V) {
-	return ((FSV.GetValue().X<V.GetValue().X)&&(FSV.GetValue().Y<V.GetValue().Y)&&(FSV.GetValue().Z<V.GetValue().Z)&&(FSV.GetValue().W<V.GetValue().W));
-}
-
-FORCEINLINE bool operator >= (FSafeVector4D &FSV, FSafeVector4D &V) {
-	return ((FSV.GetValue().X>=V.GetValue().X)&&(FSV.GetValue().Y>=V.GetValue().Y)&&(FSV.GetValue().Z>=V.GetValue().Z)&&(FSV.GetValue().W>=V.GetValue().W));
-}
-
-FORCEINLINE bool operator <= (FSafeVector4D &FSV, FSafeVector4D &V) {
-	return ((FSV.GetValue().X<=V.GetValue().X)&&(FSV.GetValue().Y<=V.GetValue().Y)&&(FSV.GetValue().Z<=V.GetValue().Z)&&(FSV.GetValue().W<=V.GetValue().W));
-}
-
-FORCEINLINE FSafeVector4D operator + (FSafeVector4D &FSV, FSafeVector4D &V) {
-	auto Local = (FSV.GetValue()+V.GetValue());
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator - (FSafeVector4D &FSV, FSafeVector4D &V) {
-	auto Local = (FSV.GetValue()-V.GetValue());
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator * (FSafeVector4D &FSV, FSafeVector4D &V) {
-	auto Local = (FSV.GetValue()*V.GetValue());
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator / (FSafeVector4D &FSV, FSafeVector4D &V) {
-	auto Local = (FSV.GetValue()/V.GetValue());
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator ++ (FSafeVector4D &FSV) {
-	auto Local = FSV.GetValue();
-	*&FSV = FSafeVector4D(Local.X+1,Local.Y+1,Local.Z+1,Local.W+1); return *&FSV;
-}
-
-FORCEINLINE FSafeVector4D operator -- (FSafeVector4D &FSV) {
-	auto Local = FSV.GetValue();
-	*&FSV = FSafeVector4D(Local.X-1,Local.Y-1,Local.Z-1,Local.W-1); return *&FSV;
-}
-
-FORCEINLINE FSafeVector4D operator += (FSafeVector4D &FSV, FSafeVector4D &V) {
-	auto L = FSV.GetValue(); auto R = V.GetValue(); auto Local = (L+=R);
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator -= (FSafeVector4D &FSV, FSafeVector4D &V) {
-	auto L = FSV.GetValue(); auto R = V.GetValue();
-	auto Local = FVector4((L.X-=R.X),(L.Y-=R.Y),(L.Z-=R.Z),(L.W-=R.W));
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator % (FSafeVector4D &FSV, FSafeVector4D &V) {
-	auto Local = FSV.GetValue(); auto Mod = V.GetValue();
-	auto X = Local.X; auto Y = Local.Y; auto Z = Local.Z; auto W = Local.W;
-	auto MX = Mod.X; auto MY = Mod.Y;  auto MZ = Mod.Z; auto MW = Mod.W;
-	auto F4D = FVector4(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ),FGenericPlatformMath::Fmod(W,MW));
-	return FSafeVector4D(F4D.X,F4D.Y,F4D.Z,F4D.W);
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeVector4D &FSV, const FVector4 &V) {
-	return (FSV.GetValue()==V);
-}
-
-FORCEINLINE bool operator != (FSafeVector4D &FSV, const FVector4 &V) {
-	return (FSV.GetValue()!=V);
-}
-
-FORCEINLINE bool operator > (FSafeVector4D &FSV, const FVector4 &V) {
-	return ((FSV.GetValue().X>V.X)&&(FSV.GetValue().Y>V.Y)&&(FSV.GetValue().Z>V.Z)&&(FSV.GetValue().W>V.W));
-}
-
-FORCEINLINE bool operator < (FSafeVector4D &FSV, const FVector4 &V) {
-	return ((FSV.GetValue().X<V.X)&&(FSV.GetValue().Y<V.Y)&&(FSV.GetValue().Z<V.Z)&&(FSV.GetValue().W>V.W));
-}
-
-FORCEINLINE bool operator >= (FSafeVector4D &FSV, const FVector4 &V) {
-	return ((FSV.GetValue().X>=V.X)&&(FSV.GetValue().Y>=V.Y)&&(FSV.GetValue().Z>=V.Z));
-}
-
-FORCEINLINE bool operator <= (FSafeVector4D &FSV, const FVector4 &V) {
-	return ((FSV.GetValue().X<=V.X)&&(FSV.GetValue().Y<=V.Y)&&(FSV.GetValue().Z<=V.Z));
-}
-
-FORCEINLINE FSafeVector4D operator + (FSafeVector4D &FSV, const FVector4 &V) {
-	auto Local = (FSV.GetValue()+V);
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator - (FSafeVector4D &FSV, const FVector4 &V) {
-	auto Local = (FSV.GetValue()-V);
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator * (FSafeVector4D &FSV, const FVector4 &V) {
-	auto Local = (FSV.GetValue()*V);
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator / (FSafeVector4D &FSV, const FVector4 &V) {
-	auto Local = (FSV.GetValue()/V);
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator += (FSafeVector4D &FSV, const FVector4 &V) {
-	auto L = FSV.GetValue(); auto Local = (L+=V);
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator -= (FSafeVector4D &FSV, const FVector4 &V) {
-	auto L = FSV.GetValue();
-	auto Local = FVector4((L.X-=V.X),(L.Y-=V.Y),(L.Z-=V.Z),(L.W-=V.W));
-	return FSafeVector4D(Local.X,Local.Y,Local.Z,Local.W);
-}
-
-FORCEINLINE FSafeVector4D operator % (FSafeVector4D &FSV, const FVector4 &V) {
-	auto Local = FSV.GetValue();
-	auto MX = V.X; auto MY = V.Y;  auto MZ = V.Z; auto MW = V.W;
-	auto X = Local.X; auto Y = Local.Y; auto Z = Local.Z; auto W = Local.W;
-	auto F4D = FVector4(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ),FGenericPlatformMath::Fmod(W,MW));
-	return FSafeVector4D(F4D.X,F4D.Y,F4D.Z,F4D.W);
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const FVector4 &V, FSafeVector4D &FSV) {
-	return (V==FSV.GetValue());
-}
-
-FORCEINLINE bool operator != (const FVector4 &V, FSafeVector4D &FSV) {
-	return (V!=FSV.GetValue());
-}
-
-FORCEINLINE bool operator > (const FVector4 &V, FSafeVector4D &FSV) {
-	return ((V.X>FSV.GetValue().X)&&(V.Y>FSV.GetValue().Y)&&(V.Z>FSV.GetValue().Z)&&(V.W>FSV.GetValue().W));
-}
-
-FORCEINLINE bool operator < (const FVector4 &V, FSafeVector4D &FSV) {
-	return ((V.X<FSV.GetValue().X)&&(V.Y<FSV.GetValue().Y)&&(V.Z<FSV.GetValue().Z)&&(V.W<FSV.GetValue().W));
-}
-
-FORCEINLINE bool operator >= (const FVector4 &V, FSafeVector4D &FSV) {
-	return ((V.X>=FSV.GetValue().X)&&(V.Y>=FSV.GetValue().Y)&&(V.Z>=FSV.GetValue().Z)&&(V.W>=FSV.GetValue().W));
-}
-
-FORCEINLINE bool operator <= (const FVector4 &V, FSafeVector4D &FSV) {
-	return ((V.X<=FSV.GetValue().X)&&(V.Y<=FSV.GetValue().Y)&&(V.Z<=FSV.GetValue().Z)&&(V.W<=FSV.GetValue().W));
-}
-
-FORCEINLINE FVector4 operator + (const FVector4 &V, FSafeVector4D &FSV) {
-	return (V+FSV.GetValue());
-}
-
-FORCEINLINE FVector4 operator - (const FVector4 &V, FSafeVector4D &FSV) {
-	return (V-FSV.GetValue());
-}
-
-FORCEINLINE FVector4 operator * (const FVector4 &V, FSafeVector4D &FSV) {
-	return (V*FSV.GetValue());
-}
-
-FORCEINLINE FVector4 operator / (const FVector4 &V, FSafeVector4D &FSV) {
-	return (V/FSV.GetValue());
-}
-
-FORCEINLINE FVector4 operator += (FVector4 &V, FSafeVector4D &FSV) {
-	auto Local = FSV.GetValue();
-	return (V+=Local);
-}
-
-FORCEINLINE FVector4 operator -= (FVector4 &V, FSafeVector4D &FSV) {
-	auto Local = FSV.GetValue(); V = (V-Local); return Local;
-}
-
-FORCEINLINE FVector4 operator % (const FVector4 &V, FSafeVector4D &FSV) {
-	auto Local = FSV.GetValue();
-	auto X = V.X; auto Y = V.Y; auto Z = V.Z; auto W = V.W;
-	auto MX = Local.X; auto MY = Local.Y; auto MZ = Local.Z; auto MW = Local.W;
-	return FVector4(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ),FGenericPlatformMath::Fmod(W,MW));
-}
-
-// FSColor
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeColor &FSC, FSafeColor &C) {
-	return (FSC.GetValue()==C.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeColor &FSC, FSafeColor &C) {
-	return (FSC.GetValue()!=C.GetValue());
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeColor &FSC, const FLinearColor &C) {
-	return (FSC.GetValue()==C);
-}
-
-FORCEINLINE bool operator != (FSafeColor &FSC, const FLinearColor &C) {
-	return (FSC.GetValue()!=C);
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const FLinearColor &C, FSafeColor &FSC) {
-	return (C==FSC.GetValue());
-}
-
-FORCEINLINE bool operator != (const FLinearColor &C, FSafeColor &FSC) {
-	return (C!=FSC.GetValue());
-}
-
-// FSRotator
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeRotator &FSR, FSafeRotator &R) {
-	return (FSR.GetValue()==R.GetValue());
-}
-
-FORCEINLINE bool operator != (FSafeRotator &FSR, FSafeRotator &R) {
-	return (FSR.GetValue()!=R.GetValue());
-}
-
-FORCEINLINE bool operator > (FSafeRotator &FSR, FSafeRotator &R) {
-	return ((FSR.GetValue().Pitch>R.GetValue().Pitch)&&(FSR.GetValue().Yaw>R.GetValue().Yaw)&&(FSR.GetValue().Roll>R.GetValue().Roll));
-}
-
-FORCEINLINE bool operator < (FSafeRotator &FSR, FSafeRotator &R) {
-	return ((FSR.GetValue().Pitch<R.GetValue().Pitch)&&(FSR.GetValue().Yaw<R.GetValue().Yaw)&&(FSR.GetValue().Roll<R.GetValue().Roll));
-}
-
-FORCEINLINE bool operator >= (FSafeRotator &FSR, FSafeRotator &R) {
-	return ((FSR.GetValue().Pitch>=R.GetValue().Pitch)&&(FSR.GetValue().Yaw>=R.GetValue().Yaw)&&(FSR.GetValue().Roll>=R.GetValue().Roll));
-}
-
-FORCEINLINE bool operator <= (FSafeRotator &FSR, FSafeRotator &R) {
-	return ((FSR.GetValue().Pitch<=R.GetValue().Pitch)&&(FSR.GetValue().Yaw<=R.GetValue().Yaw)&&(FSR.GetValue().Roll<=R.GetValue().Roll));
-}
-
-FORCEINLINE FSafeRotator operator + (FSafeRotator &FSR, FSafeRotator &R) {
-	return FSafeRotator(FSR.GetValue()+R.GetValue());
-}
-
-FORCEINLINE FSafeRotator operator - (FSafeRotator &FSR, FSafeRotator &R) {
-	return FSafeRotator(FSR.GetValue()-R.GetValue());
-}
-
-FORCEINLINE FSafeRotator operator * (FSafeRotator &FSR, FSafeRotator &R) {
-	auto A = FSR.GetValue(); auto B = R.GetValue();
-	auto Rotator = FRotator(A.Pitch*B.Pitch,A.Yaw*B.Yaw,A.Roll*B.Roll);
-	return FSafeRotator(Rotator);
-}
-
-FORCEINLINE FSafeRotator operator / (FSafeRotator &FSR, FSafeRotator &R) {
-	auto A = FSR.GetValue(); auto B = R.GetValue();
-	auto Rotator = FRotator(A.Pitch/B.Pitch,A.Yaw/B.Yaw,A.Roll/B.Roll);
-	return FSafeRotator(Rotator);
-}
-
-FORCEINLINE FSafeRotator operator ++ (FSafeRotator &FSR) {
-	auto Local = FSR.GetValue();
-	*&FSR = FSafeRotator(Local.Pitch+1,Local.Yaw+1,Local.Roll+1); return *&FSR;
-}
-
-FORCEINLINE FSafeRotator operator -- (FSafeRotator &FSR) {
-	auto Local = FSR.GetValue();
-	*&FSR = FSafeRotator(Local.Pitch-1,Local.Yaw-1,Local.Roll-1); return *&FSR;
-}
-
-FORCEINLINE FSafeRotator operator += (FSafeRotator &FSR, FSafeRotator &R) {
-	auto Local = FSR.GetValue(); auto Plus = R.GetValue();
-	return FSafeRotator((Local+=Plus));
-}
-
-FORCEINLINE FSafeRotator operator -= (FSafeRotator &FSR, FSafeRotator &R) {
-	auto Local = FSR.GetValue(); auto Minus = R.GetValue();
-	return FSafeRotator((Local-=Minus));
-}
-
-FORCEINLINE FSafeRotator operator % (FSafeRotator &FSR, FSafeRotator &R) {
-	auto Local = FSR.GetValue(); auto Mod = R.GetValue();
-	auto X = Local.Pitch; auto Y = Local.Yaw; auto Z = Local.Roll;
-	auto MX = Mod.Pitch; auto MY = Mod.Yaw;  auto MZ = Mod.Roll;
-	return FSafeRotator(FRotator(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ)));
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeRotator &FSR, const FRotator &R) {
-	return (FSR.GetValue()==R);
-}
-
-FORCEINLINE bool operator != (FSafeRotator &FSR, const FRotator &R) {
-	return (FSR.GetValue()!=R);
-}
-
-FORCEINLINE bool operator > (FSafeRotator &FSR, const FRotator &R) {
-	return ((FSR.GetValue().Pitch>R.Pitch)&&(FSR.GetValue().Yaw>R.Yaw)&&(FSR.GetValue().Roll>R.Roll));
-}
-
-FORCEINLINE bool operator < (FSafeRotator &FSR, const FRotator &R) {
-	return ((FSR.GetValue().Pitch<R.Pitch)&&(FSR.GetValue().Yaw<R.Yaw)&&(FSR.GetValue().Roll<R.Roll));
-}
-
-FORCEINLINE bool operator >= (FSafeRotator &FSR, const FRotator &R) {
-	return ((FSR.GetValue().Pitch>=R.Pitch)&&(FSR.GetValue().Yaw>=R.Yaw)&&(FSR.GetValue().Roll>=R.Roll));
-}
-
-FORCEINLINE bool operator <= (FSafeRotator &FSR, const FRotator &R) {
-	return ((FSR.GetValue().Pitch<=R.Pitch)&&(FSR.GetValue().Yaw<=R.Yaw)&&(FSR.GetValue().Roll<=R.Roll));
-}
-
-FORCEINLINE FSafeRotator operator + (FSafeRotator &FSR, const FRotator &R) {
-	return FSafeRotator(FSR.GetValue()+R);
-}
-
-FORCEINLINE FSafeRotator operator - (FSafeRotator &FSR, const FRotator &R) {
-	return FSafeRotator(FSR.GetValue()-R);
-}
-
-FORCEINLINE FSafeRotator operator * (FSafeRotator &FSR, const FRotator &R) {
-	auto Local = FSR.GetValue();
-	auto Rotator = FRotator(Local.Pitch*R.Pitch,Local.Yaw*R.Yaw,Local.Roll*R.Roll);
-	return FSafeRotator(Rotator);
-}
-
-FORCEINLINE FSafeRotator operator / (FSafeRotator &FSR, const FRotator &R) {
-	auto Local = FSR.GetValue();
-	auto Rotator = FRotator(Local.Pitch/R.Pitch,Local.Yaw/R.Yaw,Local.Roll/R.Roll);
-	return FSafeRotator(Rotator);
-}
-
-FORCEINLINE FSafeRotator operator += (FSafeRotator &FSR, const FRotator &R) {
-	auto Local = FSR.GetValue();
-	return FSafeRotator((Local+=R));
-}
-
-FORCEINLINE FSafeRotator operator -= (FSafeRotator &FSR, const FRotator &R) {
-	auto Local = FSR.GetValue();
-	return FSafeRotator((Local-=R));
-}
-
-FORCEINLINE FSafeRotator operator % (FSafeRotator &FSR, const FRotator &R) {
-	auto Local = FSR.GetValue();
-	auto X = Local.Pitch; auto Y = Local.Yaw; auto Z = Local.Roll;
-	auto MX = R.Pitch; auto MY = R.Yaw; auto MZ = R.Roll;
-	return FSafeRotator(FRotator(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ)));
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const FRotator &R, FSafeRotator &FSR) {
-	return (R==FSR.GetValue());
-}
-
-FORCEINLINE bool operator != (const FRotator &R, FSafeRotator &FSR) {
-	return (R!=FSR.GetValue());
-}
-
-FORCEINLINE bool operator > (const FRotator &R, FSafeRotator &FSR) {
-	return ((R.Pitch>FSR.GetValue().Pitch)&&(R.Yaw>FSR.GetValue().Yaw)&&(R.Roll>FSR.GetValue().Roll));
-}
-
-FORCEINLINE bool operator < (const FRotator &R, FSafeRotator &FSR) {
-	return ((R.Pitch<FSR.GetValue().Pitch)&&(R.Yaw<FSR.GetValue().Yaw)&&(R.Roll<FSR.GetValue().Roll));
-}
-
-FORCEINLINE bool operator >= (const FRotator &R, FSafeRotator &FSR) {
-	return ((R.Pitch>=FSR.GetValue().Pitch)&&(R.Yaw>=FSR.GetValue().Yaw)&&(R.Roll>=FSR.GetValue().Roll));
-}
-
-FORCEINLINE bool operator <= (const FRotator &R, FSafeRotator &FSR) {
-	return ((R.Pitch<=FSR.GetValue().Pitch)&&(R.Yaw<=FSR.GetValue().Yaw)&&(R.Roll<=FSR.GetValue().Roll));
-}
-
-FORCEINLINE FRotator operator + (const FRotator &R, FSafeRotator &FSR) {
-	return (R+FSR.GetValue());
-}
-
-FORCEINLINE FRotator operator - (const FRotator &R, FSafeRotator &FSR) {
-	return (R-FSR.GetValue());
-}
-
-FORCEINLINE FRotator operator * (const FRotator &R, FSafeRotator &FSR) {
-	auto Local = FSR.GetValue();
-	return FRotator(R.Pitch*Local.Pitch,R.Yaw*Local.Yaw,R.Roll*Local.Roll);
-}
-
-FORCEINLINE FRotator operator / (const FRotator &R, FSafeRotator &FSR) {
-	auto Local = FSR.GetValue();
-	return FRotator(R.Pitch/Local.Pitch,R.Yaw/Local.Yaw,R.Roll/Local.Roll);
-}
-
-FORCEINLINE FRotator operator += (FRotator &R, FSafeRotator &FSR) {
-	auto Local = FSR.GetValue();
-	return (R+=Local);
-}
-
-FORCEINLINE FRotator operator -= (FRotator &R, FSafeRotator &FSR) {
-	auto Local = FSR.GetValue();
-	return (R-=Local);
-}
-
-FORCEINLINE FRotator operator % (const FRotator &R, FSafeRotator &FSR) {
-	auto Local = FSR.GetValue();
-	auto X = R.Pitch; auto Y = R.Yaw; auto Z = R.Roll;
-	auto MX = Local.Pitch; auto MY = Local.Yaw; auto MZ = Local.Roll;
-	return FRotator(FGenericPlatformMath::Fmod(X,MX),FGenericPlatformMath::Fmod(Y,MY),FGenericPlatformMath::Fmod(Z,MZ));
-}
-
-// FSTransform
-
-/* FSafe -> FSafe */
-
-FORCEINLINE bool operator == (FSafeTransform &FST, FSafeTransform &T) {
-	auto Local = FST.GetValue(); auto To = T.GetValue();
-	return ((Local.GetLocation()==To.GetLocation())&&(Local.GetRotation()==To.GetRotation())&&(Local.GetScale3D()==To.GetScale3D()));
-}
-
-FORCEINLINE bool operator != (FSafeTransform &FST, FSafeTransform &T) {
-	auto Local = FST.GetValue(); auto To = T.GetValue();
-	return ((Local.GetLocation()!=To.GetLocation())&&(Local.GetRotation()!=To.GetRotation())&&(Local.GetScale3D()!=To.GetScale3D()));
-}
-
-/* Native -> FSafe */
-
-FORCEINLINE bool operator == (FSafeTransform &FST, const FTransform &T) {
-	auto Local = FST.GetValue();
-	return ((Local.GetLocation()==T.GetLocation())&&(Local.GetRotation()==T.GetRotation())&&(Local.GetScale3D()==T.GetScale3D()));
-}
-
-FORCEINLINE bool operator != (FSafeTransform &FST, const FTransform &T) {
-	auto Local = FST.GetValue();
-	return ((Local.GetLocation()!=T.GetLocation())&&(Local.GetRotation()!=T.GetRotation())&&(Local.GetScale3D()!=T.GetScale3D()));
-}
-
-/* FSafe -> Native */
-
-FORCEINLINE bool operator == (const FTransform &T, FSafeTransform &FST) {
-	auto Local = FST.GetValue();
-	return ((T.GetLocation()==Local.GetLocation())&&(T.GetRotation()==Local.GetRotation())&&(T.GetScale3D()==Local.GetScale3D()));
-}
-
-FORCEINLINE bool operator != (const FTransform &T, FSafeTransform &FST) {
-	auto Local = FST.GetValue();
-	return ((T.GetLocation()!=Local.GetLocation())&&(T.GetRotation()!=Local.GetRotation())&&(T.GetScale3D()!=Local.GetScale3D()));
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if PLATFORM_WINDOWS
-#pragma endregion OPERATORS
-#pragma region GAME INSTANCE
-#endif
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// Utility
-
-static FORCEINLINE int32 GetFullScreenMode() {
-	static const auto ScreenMode = IConsoleManager::Get().FindTConsoleVariableDataInt(TEXT("r.FullScreenMode"));
-	return ScreenMode->GetValueOnGameThread();
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Game Instance:: Runs anti-cheat, anti-debugging methods
 
-/// {S}: Safe Game Instance; Secure-Client is a C++ Plugin designed to provide anti-cheat capability to your games.
+/// Safe Game Instance; Secure-Client is a C++ Plugin designed to provide anti-cheat capability to your games.
 /// Other custom Game Instance classes, when used, should have this class as a parent for effective use.
-UCLASS(ClassGroup = Security, Category = "Security", hideCategories = (Activation, Socket, Tick, Thumbnail), meta = (BlueprintType, DisplayName = "{S} Safe Game Instance", ShortTooltip = "{S} Safe Game Instance Class. Check documentation for more information."))
+UCLASS(ClassGroup = Security, Category="Security", hideCategories = (Activation, Socket, Tick, Thumbnail), meta = (BlueprintType, DisplayName = "{S} Safe Game Instance", ShortTooltip = "{S} Safe Game Instance Class. Check documentation for more information."))
 class SCUE4_API USafeGameInstance : public UGameInstance {
 	GENERATED_BODY()
 public:
 	/* Sets visibility of Game-Guard console window.
 	Console is only visible in Editor Mode, on packaged games it's always hidden. */
-	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category="Security", EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool HideGameGuard = true;
 	//
 	/* To increase defenses against memory readers, uncheck this option when you're ready to
 	ship final standalone game build. If disabled, option won't allow Debuggers attach to the game process. */
-	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category="Security", EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool AllowDebugging = true;
 	//
 	/** Interval, in seconds, for Internal Process Scanner to be automatically invoked. */
-	UPROPERTY(Category = "Security", EditAnywhere, meta = (AllowPrivateAccess = "true", ClampMin = "10", ClampMax = "1000", UIMin = "10", UIMax = "1000"))
+	UPROPERTY(Category="Security", EditAnywhere, meta = (AllowPrivateAccess = "true", ClampMin = "10", ClampMax = "1000", UIMin = "10", UIMax = "1000"))
 	uint32 ScannerInterval = 30.f;
 	//
 	/* Sets visibility of Game-Guard console window.
 	Console is only visible in Editor Mode, on packaged games it's always hidden. */
-	UFUNCTION(Category = "Security", BlueprintCallable, meta = (DisplayName = "{S}:: Hide Game-Guard Console", Keywords = "Security Guard"))
+	UFUNCTION(Category="Security", BlueprintCallable, meta = (DisplayName = "{S}:: Hide Game-Guard Console", Keywords = "Security Guard"))
 	void HideGameGuardConsole(bool Set);
 	//
 	//
@@ -3937,6 +3289,7 @@ public:
 	const TCHAR* Guardx86 = TEXT("SCUE4x86.exe");
 	const TCHAR* Guardx64 = TEXT("SCUE4x64.exe");
 	const TCHAR* Editor = TEXT("EDITOR");
+	//
 	const TCHAR* Game = FApp::GetProjectName();
 	//
 	FTimerHandle THInvokeGuard;
@@ -3954,18 +3307,15 @@ public:
 		#endif
 		//
 		Super::Init();
-	}
+	}///
 	//
 	virtual void Shutdown() override {
 		#if PLATFORM_WINDOWS
 		FPlatformProcess::TerminateProc(GuardProcess);
 		#endif
 		Super::Shutdown();
-	}
+	}///
 	//
-	//
-	/* ~Le Vsauce is real cool.
-	This external process scanner is just distraction. */
 	void InvokeGuard() {
 	#if PLATFORM_WINDOWS
 		#if WITH_EDITOR
@@ -3987,7 +3337,6 @@ public:
 	#endif
 	}
 	//
-	/* ~Le Vsauce is real cool. */
 	void GameGuard() {
 	#if PLATFORM_WINDOWS && !WITH_EDITOR
 		if (!GuardProcess.IsValid() || !FPlatformProcess::IsProcRunning(GuardProcess)) {InvokeGuard();}
@@ -3995,7 +3344,6 @@ public:
 	#endif
 	}
 	//
-	/* ~Le Vsauce is real cool. */
 	bool IsDebuggerPresent() {
 	#if PLATFORM_WINDOWS && !WITH_EDITOR
 		HINSTANCE Kernel = LoadLibraryEx(TEXT("kernel32.dll"),NULL,0);
@@ -4007,7 +3355,6 @@ public:
 	#endif
 	}
 	//
-	/* ~Le Vsauce is real cool. */
 	FORCEINLINE bool HasDebugger() {
 	#if PLATFORM_WINDOWS
 		#if !WITH_EDITOR && PLATFORM_32BITS
@@ -4026,12 +3373,10 @@ public:
 	#endif
 	}
 	//
-	/* ~Le Vsauce is real cool. */
 	FORCEINLINE bool HasThreat() {
 	#if PLATFORM_WINDOWS
 		#if !WITH_EDITOR
 		if (OpenFileMapping(FILE_MAP_READ|FILE_MAP_WRITE,false,L"CEHYPERSCANSETTINGS")!=0) {return true;}
-		if (GetFullScreenMode()==0) {return false;}
 		auto HND = FindWindowA((LPCSTR)"WinDbgFrameClass",NULL); if (HND) {return true;}
 		HND = FindWindowA((LPCSTR)"WinDbgFrameClass",NULL); if (HND) {return true;}
 		HND = FindWindowA((LPCSTR)"OLLYDBG",NULL); if (HND) {return true;}
@@ -4044,18 +3389,14 @@ public:
 	#endif
 	}
 	//
-	/* ~Le Vsauce is real cool. */
 	void ScanProcesses() {
 	#if PLATFORM_WINDOWS
 		#if !WITH_EDITOR && !WITH_SERVER_CODE
-		if (GetFullScreenMode()>0) {FSCUE4_Enumerate();}
+		FSCUE4_Enumerate();
 		#endif
 	#endif
 	}
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if PLATFORM_WINDOWS
-#pragma endregion GAME INSTANCE
-#endif
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

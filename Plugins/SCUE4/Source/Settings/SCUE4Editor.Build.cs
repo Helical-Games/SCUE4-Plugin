@@ -1,4 +1,5 @@
 using UnrealBuildTool;
+using System.IO;
 
 public class SCUE4Editor : ModuleRules {
 	public SCUE4Editor(ReadOnlyTargetRules Target) : base(Target) {
@@ -20,10 +21,10 @@ public class SCUE4Editor : ModuleRules {
 				"LevelEditor",
 				"CoreUObject",
 				"PropertyEditor"
-			}
-		);
+			}///
+		);//
 		//
-		PrivateIncludePaths.AddRange(new string[] {"Settings/Private"});
-		PublicIncludePaths.AddRange(new string[] {"Settings/Public"});
-	}
+		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory,"Private"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory,"Public"));
+	}///
 }
