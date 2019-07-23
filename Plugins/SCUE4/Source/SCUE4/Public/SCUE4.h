@@ -3325,8 +3325,8 @@ public:
 			#if !PLATFORM_64BITS
 			//if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
 			//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
-			if (!FPaths::FileExists(FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
-			GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+			if (!FPaths::FileExists(FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
+			GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
 			#else
 			//if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
 			//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
