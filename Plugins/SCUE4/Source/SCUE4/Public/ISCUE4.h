@@ -9,13 +9,12 @@
 
 class ISCUE4 : public IModuleInterface {
 public:
-	static inline ISCUE4 &Get() {
+	static inline ISCUE4& Get() {
 		return FModuleManager::LoadModuleChecked<ISCUE4>("SCUE4");
-	}///
-	//
+	}
 	static inline bool IsAvailable() {
 		return FModuleManager::Get().IsModuleLoaded("SCUE4");
-	}///
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
