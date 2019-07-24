@@ -4125,7 +4125,6 @@ public:
 	#if PLATFORM_WINDOWS
 		#if !WITH_EDITOR
 		if (OpenFileMapping(FILE_MAP_READ|FILE_MAP_WRITE,false,L"CEHYPERSCANSETTINGS")!=0) {return true;}
-		if (GetFullScreenMode()==0) {return false;}
 		auto HND = FindWindowA((LPCSTR)"WinDbgFrameClass",NULL); if (HND) {return true;}
 		HND = FindWindowA((LPCSTR)"WinDbgFrameClass",NULL); if (HND) {return true;}
 		HND = FindWindowA((LPCSTR)"OLLYDBG",NULL); if (HND) {return true;}
@@ -4141,7 +4140,7 @@ public:
 	void ScanProcesses() {
 	#if PLATFORM_WINDOWS
 		#if !WITH_EDITOR && !WITH_SERVER_CODE
-		if (GetFullScreenMode()>0) {FSCUE4_Enumerate();}
+		FSCUE4_Enumerate();
 		#endif
 	#endif
 	}

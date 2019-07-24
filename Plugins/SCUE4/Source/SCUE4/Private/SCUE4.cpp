@@ -86,7 +86,7 @@ void FSCUE4_Enumerate() {
 			MB_ICONWARNING | MB_OK | MB_DEFBUTTON1
 		); FGenericPlatformMisc::RequestExit(false);
 	  #endif
-	} else {CloseHandle(Hwnd);}
+	}///
 }///
 //
 #include "Windows/HideWindowsPlatformTypes.h"
