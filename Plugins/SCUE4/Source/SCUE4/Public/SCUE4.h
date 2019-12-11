@@ -4,7 +4,6 @@
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 #if PLATFORM_WINDOWS
  #include "Windows/AllowWindowsPlatformTypes.h"
  #include <Windows.h>
@@ -3128,11 +3127,11 @@ FORCEINLINE bool operator != (FSafeName &FSN, FSafeName &N) {
 }
 
 FORCEINLINE bool operator > (FSafeName &FSN, FSafeName &N) {
-	return (FSN.GetValue()>N.GetValue());
+	return (N.GetValue().FastLess(FSN.GetValue()));
 }
 
 FORCEINLINE bool operator < (FSafeName &FSN, FSafeName &N) {
-	return (FSN.GetValue()<N.GetValue());
+	return (FSN.GetValue().FastLess(N.GetValue()));
 }
 
 FORCEINLINE FSafeName operator + (FSafeName &FSN, FSafeName &N) {
@@ -3150,11 +3149,11 @@ FORCEINLINE bool operator != (FSafeName &FSN, FName &N) {
 }
 
 FORCEINLINE bool operator > (FSafeName &FSN, FName &N) {
-	return (FSN.GetValue()>N);
+	return N.FastLess(FSN.GetValue());
 }
 
 FORCEINLINE bool operator < (FSafeName &FSN, FName &N) {
-	return (FSN.GetValue()<N);
+	return FSN.GetValue().FastLess(N);
 }
 
 FORCEINLINE FSafeName operator + (FSafeName &FSN, FName &N) {
@@ -3172,11 +3171,11 @@ FORCEINLINE bool operator != (FName &N, FSafeName &FSN) {
 }
 
 FORCEINLINE bool operator > (FName &N, FSafeName &FSN) {
-	return (N>FSN.GetValue());
+	return FSN.GetValue().FastLess(N);
 }
 
 FORCEINLINE bool operator < (FName &N, FSafeName &FSN) {
-	return (N<FSN.GetValue());
+	return N.FastLess(FSN.GetValue());
 }
 
 FORCEINLINE FName operator + (FName &N, FSafeName &FSN) {
