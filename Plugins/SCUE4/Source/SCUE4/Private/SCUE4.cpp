@@ -10,12 +10,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void USafeGameInstance::HideGameGuardConsole(bool Set) {
-	this->HideGameGuard = Set;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 USCUE4Settings::USCUE4Settings(const FObjectInitializer& OBJ) : Super(OBJ) {
 	KeyGeneratorPath = FPaths::Combine(*IPluginManager::Get().FindPlugin(TEXT("SCUE4"))->GetBaseDir(),TEXT("Source/ThirdParty/"),TEXT("SCUE4_Key-Generator.exe"));
 	//
@@ -91,6 +85,34 @@ void FSCUE4_Enumerate() {
 //
 #include "Windows/HideWindowsPlatformTypes.h"
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void USafeGameInstanceSubsystem::Initialize(FSubsystemCollectionBase &Collection) {
+	AllowDebugging = !UE_BUILD_SHIPPING;
+	//
+	#if PLATFORM_WINDOWS
+	 const FTimerDelegate TimerScanProcesses = FTimerDelegate::CreateUObject(this,&USafeGameInstanceSubsystem::ScanProcesses);
+	 const FTimerDelegate TimerInvokeGuard = FTimerDelegate::CreateUObject(this,&USafeGameInstanceSubsystem::GameGuard);
+	 //
+	 GetGameInstance()->GetTimerManager().SetTimer(THScanner,TimerScanProcesses,ScannerInterval,true);
+	 GetGameInstance()->GetTimerManager().SetTimer(THInvokeGuard,TimerInvokeGuard,5,true);
+	 //
+	 InvokeGuard();
+	#endif
+}
+
+void USafeGameInstanceSubsystem::Deinitialize() {
+	#if PLATFORM_WINDOWS
+	 FPlatformProcess::TerminateProc(GuardProcess);
+	#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void USafeGameInstanceSubsystem::HideGameGuardConsole(bool Set) {
+	this->HideGameGuard = Set;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

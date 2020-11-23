@@ -16,6 +16,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "UObject/WeakObjectPtr.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 #include "Runtime/Engine/Classes/Engine/Engine.h"
 
 #include "Runtime/Core/Public/Misc/App.h"
@@ -991,12 +992,12 @@ public:
 			case 0:
 			{
 				Flag = 1; Shift = Base; Base.Empty();
-				return FName::FName(*FDecode(Shift));
+				return FName(*FDecode(Shift));
 			} break;
 			case 1:
 			{
 				Flag = 0; Base = Shift; Shift.Empty();
-				return FName::FName(*FDecode(Base));
+				return FName(*FDecode(Base));
 			} break;
 			default: return TEXT("");}
 		}
@@ -1007,12 +1008,12 @@ public:
 			case 0:
 			{
 				Flag = 1; Shift = Base; Base.Empty();
-				return FName::FName(*FDecode(Key,Shift));
+				return FName(*FDecode(Key,Shift));
 			} break;
 			case 1:
 			{
 				Flag = 0; Base = Shift; Shift.Empty();
-				return FName::FName(*FDecode(Key,Base));
+				return FName(*FDecode(Key,Base));
 			} break;
 		default: return TEXT("");}
 	}
@@ -1141,12 +1142,12 @@ public:
 				case 0:
 				{
 					Flag = 1; Shift = Base; Base.Empty();
-					return FString::FString(*FDecode(Shift));
+					return FString(*FDecode(Shift));
 				} break;
 				case 1:
 				{
 					Flag = 0; Base = Shift; Shift.Empty();
-					return FString::FString(*FDecode(Base));
+					return FString(*FDecode(Base));
 				} break;
 			default: return TEXT("");}
 		}
@@ -1157,12 +1158,12 @@ public:
 			case 0:
 			{
 				Flag = 1; Shift = Base; Base.Empty();
-				return FString::FString(*FDecode(Key,Shift));
+				return FString(*FDecode(Key,Shift));
 			} break;
 			case 1:
 			{
 				Flag = 0; Base = Shift; Shift.Empty();
-				return FString::FString(*FDecode(Key,Base));
+				return FString(*FDecode(Key,Base));
 			} break;
 		default: return TEXT("");}
 	}
@@ -1436,14 +1437,14 @@ public:
 					Flag = 1;
 					ShiftX = TrueX; ShiftY = TrueY;
 					TrueX.Empty(); TrueY.Empty();
-					return FVector2D::FVector2D(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)));
+					return FVector2D(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)));
 				} break;
 				case 1:
 				{
 					Flag = 0;
 					TrueX = ShiftX; TrueY = ShiftY;
 					ShiftX.Empty(); ShiftY.Empty();
-					return FVector2D::FVector2D(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)));
+					return FVector2D(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)));
 				} break;
 			default: return FVector2D::ZeroVector;}
 		}
@@ -1456,14 +1457,14 @@ public:
 				Flag = 1;
 				ShiftX = TrueX; ShiftY = TrueY;
 				TrueX.Empty(); TrueY.Empty();
-				return FVector2D::FVector2D(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)));
+				return FVector2D(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)));
 			} break;
 			case 1:
 			{
 				Flag = 0;
 				TrueX = ShiftX; TrueY = ShiftY;
 				ShiftX.Empty(); ShiftY.Empty();
-				return FVector2D::FVector2D(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)));
+				return FVector2D(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)));
 			} break;
 		default: return FVector2D::ZeroVector;}
 	}
@@ -1619,14 +1620,14 @@ public:
 					Flag = 1;
 					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
 					TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
-					return FVector::FVector(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
+					return FVector(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
 				} break;
 				case 1:
 				{
 					Flag = 0;
 					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
 					ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
-					return FVector::FVector(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
+					return FVector(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
 				} break;
 			default: return FVector::ZeroVector;}
 		}
@@ -1639,14 +1640,14 @@ public:
 				Flag = 1;
 				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
 				TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
-				return FVector::FVector(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)),FCString::Atof(*FDecode(Key,ShiftZ)));
+				return FVector(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)),FCString::Atof(*FDecode(Key,ShiftZ)));
 			} break;
 			case 1:
 			{
 				Flag = 0;
 				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
 				ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
-				return FVector::FVector(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)),FCString::Atof(*FDecode(Key,TrueZ)));
+				return FVector(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)),FCString::Atof(*FDecode(Key,TrueZ)));
 			} break;
 		default: return FVector::ZeroVector;}
 	}
@@ -1821,16 +1822,16 @@ public:
 					Flag = 1;
 					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ; ShiftW = TrueW;
 					TrueX.Empty(); TrueY.Empty(); TrueZ.Empty(); TrueW.Empty();
-					return FVector4::FVector4(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)),FCString::Atof(*FDecode(ShiftW)));
+					return FVector4(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)),FCString::Atof(*FDecode(ShiftW)));
 				} break;
 				case 1:
 				{
 					Flag = 0;
 					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ; TrueW = ShiftW;
 					ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty(); ShiftW.Empty();
-					return FVector4::FVector4(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)),FCString::Atof(*FDecode(TrueW)));
+					return FVector4(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)),FCString::Atof(*FDecode(TrueW)));
 				} break;
-			default: return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);}
+			default: return FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);}
 		}
 	}
 
@@ -1841,16 +1842,16 @@ public:
 				Flag = 1;
 				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ; ShiftW = TrueW;
 				TrueX.Empty(); TrueY.Empty(); TrueZ.Empty(); TrueW.Empty();
-				return FVector4::FVector4(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)),FCString::Atof(*FDecode(Key,ShiftZ)),FCString::Atof(*FDecode(Key,ShiftW)));
+				return FVector4(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)),FCString::Atof(*FDecode(Key,ShiftZ)),FCString::Atof(*FDecode(Key,ShiftW)));
 			} break;
 			case 1:
 			{
 				Flag = 0;
 				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ; TrueW = ShiftW;
 				ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty(); ShiftW.Empty();
-				return FVector4::FVector4(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)),FCString::Atof(*FDecode(Key,TrueZ)),FCString::Atof(*FDecode(Key,TrueW)));
+				return FVector4(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)),FCString::Atof(*FDecode(Key,TrueZ)),FCString::Atof(*FDecode(Key,TrueW)));
 			} break;
-		default: return FVector4::FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);}
+		default: return FVector4(FVector2D::ZeroVector,FVector2D::ZeroVector);}
 	}
 
 	void SetValue(FVector4* Input) {
@@ -2035,14 +2036,14 @@ public:
 					Flag = 1;
 					ShiftR = TrueR; ShiftG = TrueG; ShiftB = TrueB; ShiftA = TrueA;
 					TrueR.Empty(); TrueG.Empty(); TrueB.Empty(); TrueA.Empty();
-					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(ShiftR)),FCString::Atof(*FDecode(ShiftG)),FCString::Atof(*FDecode(ShiftB)),FCString::Atof(*FDecode(ShiftA)));
+					return FLinearColor(FCString::Atof(*FDecode(ShiftR)),FCString::Atof(*FDecode(ShiftG)),FCString::Atof(*FDecode(ShiftB)),FCString::Atof(*FDecode(ShiftA)));
 				} break;
 				case 1:
 				{
 					Flag = 0;
 					TrueR = ShiftR; TrueG = ShiftG; TrueB = ShiftB; TrueA = ShiftA;
 					ShiftR.Empty(); ShiftG.Empty(); ShiftB.Empty(); ShiftA.Empty();
-					return FLinearColor::FLinearColor(FCString::Atof(*FDecode(TrueR)),FCString::Atof(*FDecode(TrueG)),FCString::Atof(*FDecode(TrueB)),FCString::Atof(*FDecode(TrueA)));
+					return FLinearColor(FCString::Atof(*FDecode(TrueR)),FCString::Atof(*FDecode(TrueG)),FCString::Atof(*FDecode(TrueB)),FCString::Atof(*FDecode(TrueA)));
 				} break;
 				default: return FLinearColor::Black;}
 		}
@@ -2055,14 +2056,14 @@ public:
 				Flag = 1;
 				ShiftR = TrueR; ShiftG = TrueG; ShiftB = TrueB; ShiftA = TrueA;
 				TrueR.Empty(); TrueG.Empty(); TrueB.Empty(); TrueA.Empty();
-				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(Key,ShiftR)),FCString::Atof(*FDecode(Key,ShiftG)),FCString::Atof(*FDecode(Key,ShiftB)),FCString::Atof(*FDecode(Key,ShiftA)));
+				return FLinearColor(FCString::Atof(*FDecode(Key,ShiftR)),FCString::Atof(*FDecode(Key,ShiftG)),FCString::Atof(*FDecode(Key,ShiftB)),FCString::Atof(*FDecode(Key,ShiftA)));
 			} break;
 			case 1:
 			{
 				Flag = 0;
 				TrueR = ShiftR; TrueG = ShiftG; TrueB = ShiftB; TrueA = ShiftA;
 				ShiftR.Empty(); ShiftG.Empty(); ShiftB.Empty(); ShiftA.Empty();
-				return FLinearColor::FLinearColor(FCString::Atof(*FDecode(Key,TrueR)),FCString::Atof(*FDecode(Key,TrueG)),FCString::Atof(*FDecode(Key,TrueB)),FCString::Atof(*FDecode(Key,TrueA)));
+				return FLinearColor(FCString::Atof(*FDecode(Key,TrueR)),FCString::Atof(*FDecode(Key,TrueG)),FCString::Atof(*FDecode(Key,TrueB)),FCString::Atof(*FDecode(Key,TrueA)));
 			} break;
 		default: return FLinearColor::Black;}
 	}
@@ -2230,14 +2231,14 @@ public:
 					Flag = 1;
 					ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
 					TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
-					return FRotator::FRotator(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
+					return FRotator(FCString::Atof(*FDecode(ShiftX)),FCString::Atof(*FDecode(ShiftY)),FCString::Atof(*FDecode(ShiftZ)));
 				} break;
 				case 1:
 				{
 					Flag = 0;
 					TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
 					ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
-					return FRotator::FRotator(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
+					return FRotator(FCString::Atof(*FDecode(TrueX)),FCString::Atof(*FDecode(TrueY)),FCString::Atof(*FDecode(TrueZ)));
 				} break;
 			default: return FRotator::ZeroRotator;}
 		}
@@ -2250,14 +2251,14 @@ public:
 				Flag = 1;
 				ShiftX = TrueX; ShiftY = TrueY; ShiftZ = TrueZ;
 				TrueX.Empty(); TrueY.Empty(); TrueZ.Empty();
-				return FRotator::FRotator(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)),FCString::Atof(*FDecode(Key,ShiftZ)));
+				return FRotator(FCString::Atof(*FDecode(Key,ShiftX)),FCString::Atof(*FDecode(Key,ShiftY)),FCString::Atof(*FDecode(Key,ShiftZ)));
 			} break;
 			case 1:
 			{
 				Flag = 0;
 				TrueX = ShiftX; TrueY = ShiftY; TrueZ = ShiftZ;
 				ShiftX.Empty(); ShiftY.Empty(); ShiftZ.Empty();
-				return FRotator::FRotator(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)),FCString::Atof(*FDecode(Key,TrueZ)));
+				return FRotator(FCString::Atof(*FDecode(Key,TrueX)),FCString::Atof(*FDecode(Key,TrueY)),FCString::Atof(*FDecode(Key,TrueZ)));
 			} break;
 		default: return FRotator::ZeroRotator;}
 	}
@@ -2403,11 +2404,11 @@ public:
 	////////////////////////////////////////////////////////////
 
 	FTransform GetValue() {
-		return FTransform::FTransform(Rotation.GetValue(),Position.GetValue(),Scale.GetValue());
+		return FTransform(Rotation.GetValue(),Position.GetValue(),Scale.GetValue());
 	}
 
 	FTransform GetValue(const FString &Key) {
-		return FTransform::FTransform(Rotation.GetValue(*&Key),Position.GetValue(*&Key),Scale.GetValue(*&Key));
+		return FTransform(Rotation.GetValue(*&Key),Position.GetValue(*&Key),Scale.GetValue(*&Key));
 	}
 
 	void SetValue(FTransform* Input) {
@@ -4008,9 +4009,28 @@ FORCEINLINE bool operator != (const FTransform &T, FSafeTransform &FST) {
 
 /// Safe Game Instance; Secure-Client is a C++ Plugin designed to provide anti-cheat capability to your games.
 /// Other custom Game Instance classes, when used, should have this class as a parent for effective use.
-UCLASS(ClassGroup = Security, Category = "Security", hideCategories = (Activation, Socket, Tick, Thumbnail), meta = (BlueprintType, DisplayName = "{S} Safe Game Instance", ShortTooltip = "{S} Safe Game Instance Class. Check documentation for more information."))
+UCLASS(ClassGroup = Security, Category = "Security", Blueprintable, hideCategories = (Activation), meta = (DisplayName = "{S} Safe Game Instance", ShortTooltip = "{S} Safe Game Instance Class. Check documentation for more information."))
 class SCUE4_API USafeGameInstance : public UGameInstance {
 	GENERATED_BODY()
+};
+
+/// Moving SCUE4 logic from Game Instance to a Subsystem, for better compatibility:
+UCLASS(ClassGroup = Security, Category = "Security", Blueprintable, hideCategories = (Activation))
+class SCUE4_API USafeGameInstanceSubsystem : public UGameInstanceSubsystem {
+	GENERATED_BODY()
+protected:
+	FProcHandle GuardProcess;
+	const TCHAR* Editor = TEXT("EDITOR");
+	const TCHAR* Guardx86 = TEXT("SCUE4x86.exe");
+	const TCHAR* Guardx64 = TEXT("SCUE4x64.exe");
+	const TCHAR* Game = FApp::GetProjectName();
+	//
+	FTimerHandle THInvokeGuard;
+	FTimerHandle THScanner;
+	uint32 GuardPID = 0;
+public:
+	virtual void Initialize(FSubsystemCollectionBase &Collection) override;
+	virtual void Deinitialize() override;
 public:
 	/* Sets visibility of Game-Guard console window.
 	Console is only visible in Editor Mode, on packaged games it's always hidden. */
@@ -4030,69 +4050,37 @@ public:
 	Console is only visible in Editor Mode, on packaged games it's always hidden. */
 	UFUNCTION(Category = "Security", BlueprintCallable, meta = (DisplayName = "{S}:: Hide Game-Guard Console", Keywords = "Security Guard"))
 	void HideGameGuardConsole(bool Set);
-	//
-	//
-	FProcHandle GuardProcess;
-	const TCHAR* Editor = TEXT("EDITOR");
-	const TCHAR* Guardx86 = TEXT("SCUE4x86.exe");
-	const TCHAR* Guardx64 = TEXT("SCUE4x64.exe");
-	const TCHAR* Game = FApp::GetProjectName();
-	//
-	FTimerHandle THInvokeGuard;
-	FTimerHandle THScanner;
-	uint32 GuardPID = 0;
-	//
-	//
-	virtual void Init() override {
-		#if PLATFORM_WINDOWS
-		const FTimerDelegate TimerScanProcesses = FTimerDelegate::CreateUObject(this,&USafeGameInstance::ScanProcesses);
-		const FTimerDelegate TimerInvokeGuard = FTimerDelegate::CreateUObject(this,&USafeGameInstance::GameGuard);
-		GetTimerManager().SetTimer(THScanner,TimerScanProcesses,ScannerInterval,true);
-		GetTimerManager().SetTimer(THInvokeGuard,TimerInvokeGuard,5,true);
-		InvokeGuard();
-		#endif
-		//
-		Super::Init();
-	}///
-	//
-	virtual void Shutdown() override {
-		#if PLATFORM_WINDOWS
-		FPlatformProcess::TerminateProc(GuardProcess);
-		#endif
-		Super::Shutdown();
-	}///
-	//
-	//
+public:
 	void InvokeGuard() {
 	#if PLATFORM_WINDOWS
 		#if WITH_EDITOR
-		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
-		//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
+		//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
+		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
 		#else
 			#if !PLATFORM_64BITS
-			if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
-			GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
-			//if (!FPaths::FileExists(FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
-			//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+			//if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
+			//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+			if (!FPaths::FileExists(FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
+			GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x86/"),Guardx86),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
 			#else
-			if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
-			GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
-			//if (!FPaths::FileExists(FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
-			//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+			//if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
+			//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
+			if (!FPaths::FileExists(FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x64/"),Guardx64))) {FGenericPlatformMisc::RequestExit(false);}
+			GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x64/"),Guardx64),Game,false,true,true,&GuardPID,0,nullptr,nullptr);
 			#endif
 		#endif
 	#endif
 	}
 	//
 	void GameGuard() {
-	#if PLATFORM_WINDOWS && !WITH_EDITOR
+	#if PLATFORM_WINDOWS && UE_BUILD_SHIPPING
 		if (!GuardProcess.IsValid() || !FPlatformProcess::IsProcRunning(GuardProcess)) {InvokeGuard();}
 		if (!AllowDebugging) {if (IsDebuggerPresent() || HasDebugger() || HasThreat()) {FGenericPlatformMisc::RequestExit(false);}}
 	#endif
 	}
 	//
 	bool IsDebuggerPresent() {
-	#if PLATFORM_WINDOWS && !WITH_EDITOR
+	#if PLATFORM_WINDOWS && UE_BUILD_SHIPPING
 		HINSTANCE Kernel = LoadLibraryEx(TEXT("kernel32.dll"),NULL,0);
 		FARPROC IDebuggerPresent = GetProcAddress(Kernel,"IsDebuggerPresent");
 		if(IDebuggerPresent && IDebuggerPresent()) {FreeLibrary(Kernel); return true;}
@@ -4104,7 +4092,7 @@ public:
 	//
 	FORCEINLINE bool HasDebugger() {
 	#if PLATFORM_WINDOWS
-		#if !WITH_EDITOR && PLATFORM_32BITS
+		#if UE_BUILD_SHIPPING && PLATFORM_32BITS
 			__try {
 				__asm __emit 0xF3
 				__asm __emit 0x64
@@ -4138,7 +4126,7 @@ public:
 	//
 	void ScanProcesses() {
 	#if PLATFORM_WINDOWS
-		#if !WITH_EDITOR && !WITH_SERVER_CODE
+		#if UE_BUILD_SHIPPING && !WITH_SERVER_CODE
 		FSCUE4_Enumerate();
 		#endif
 	#endif
