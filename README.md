@@ -77,16 +77,10 @@ https://forums.unrealengine.com/showthread.php?97229-Plugin-Anti-Cheat-System
 
 --------------------------------------------------
 
-**Copyright(C) 2016 Bruno Xavier B. Leite.**
-
-For general or commercial inquiries, contact me at 
-http://brunoxavierleite.com
-
+**Copyright(C) Bruno Xavier B. Leite.**
 
 
 #### LICENSE
-
-AS OF DECEMBER 21st 2016
 
 THIS SYSTEM IS NOW PUBLISHED ON UNREAL ENGINE's MARKETPLACE
 AND THE SAME THERMS FROM THEM APPLIES.
