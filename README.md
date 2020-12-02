@@ -1,19 +1,5 @@
 # {SCUE4}: Anti-Cheat Plugin for Unreal Engine 4
 
-* This Anti-Cheat system implements a variety of techniques I've learned along the time (while making, playing and cheating games), to invalidate any memory injection into your most important stored values during game runtime.
-Just like CheatEngine injects code in your game, this Plugin enables you to fight back and punch the cheater in totally non intrusive ways. There's no data collected from hardware, no player privacy infringement or anything like that involved.
-A great solution to keep cheaters away from your game front-end client with ease.
-And best thing is: you don't need to be an software engineer to use it!  I love how far Epic Games allow us to go with Blueprints, it's amazing.
-
-All you need for a start (very good step forward) to defend your UE4 game project against cheat creators and 100% BLOCK 'script kiddies' from cheating on your Windows games ever again with http://www.cheatengine.org/
-If you're making a game based on Windows and you don't know what Cheat-Engine is, you'd probably like to take a crash course here: http://forum.cheatengine.org/viewtopic.php?t=542093&sid=6ecd088ee59218ad0b8e5abb4ea928d0
-
-You can see the basics of how the tools work, in this video:
-http://www.youtube.com/watch?v=7qVIwZydW-g
-
-Cheating in Candy Crush with Cheat-Engine: http://sendvid.com/89re93xu
-
-
 ###Known Limitations:
 * Build for UE4 Windows games only (32bit & 64bit); (but it won't break packaging for other platforms).
 * Only default ASCII characters are supported for text/string encryption.
