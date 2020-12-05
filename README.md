@@ -1,16 +1,16 @@
 # {SCUE4}: Anti-Cheat Plugin for Unreal Engine 4
 
-###Known Limitations:
+## Known Limitations:
 * Build for UE4 Windows games only (32bit & 64bit); (but it won't break packaging for other platforms).
 * Only default ASCII characters are supported for text/string encryption.
 
 
-###Requirements:
+## Requirements:
 * Both Key Generator and the External Scanner requires VS2015 runtime dependencies to run.
 * External Scanner also requires .NET 4 runtime dependencies.
 
 
-###How To Use:
+## How To Use:
 * Close UE4, unzip the files provided within the 'Plugins' directory into your UE4 game project's folder. Executable libraries and code will be added to your project's Plugins folder;
 Then right click your .uproject file and choose 'Generate Visual Studio project files'. Then open the .uproject file; around ~1.6GB of C++ code will be generated, so be patient.
 You may have to convert your project to C++ project first, simply adding an empty C++ Class to your game.
@@ -25,7 +25,7 @@ This will activate the anti-cheat system for your game. If you want the anti-che
 - You most likely don't want to block debugging while developing your game, uncheck it only when packaging in Shipping Mode and ready to publish.
 
 
-###FAQs:
+## FAQs:
 ° What is the performance impact in game when using SC Safe Types in Blueprint graphs?
 - The Safe Types provided to encrypt Blueprint properties have a very insignificant impact in your game code;
 - Each call to a Get/Set node has a function footprint ranging from 0.00ms to 0.01 milliseconds. In comparison: a single Tick Event call can sometimes eat up to 4.00ms.
@@ -77,16 +77,10 @@ https://forums.unrealengine.com/showthread.php?97229-Plugin-Anti-Cheat-System
 
 --------------------------------------------------
 
-**Copyright(C) 2016 Bruno Xavier B. Leite.**
-
-For general or commercial inquiries, contact me at 
-http://brunoxavierleite.com
-
+**Copyright(C) Bruno Xavier B. Leite.**
 
 
 #### LICENSE
-
-AS OF DECEMBER 21st 2016
 
 THIS SYSTEM IS NOW PUBLISHED ON UNREAL ENGINE's MARKETPLACE
 AND THE SAME THERMS FROM THEM APPLIES.
