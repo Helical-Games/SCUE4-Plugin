@@ -4054,8 +4054,8 @@ public:
 	void InvokeGuard() {
 	#if PLATFORM_WINDOWS
 		#if WITH_EDITOR
-		//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
-		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
+		GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
+		//GuardProcess = FPlatformProcess::CreateProc(*FPaths::Combine(*FPaths::ProjectPluginsDir(),TEXT("SCUE4/Source/ThirdParty/x64"),Guardx64),Editor,false,HideGameGuard,HideGameGuard,&GuardPID,0,nullptr,nullptr);
 		#else
 			#if !PLATFORM_64BITS
 			//if (!FPaths::FileExists(FPaths::Combine(*FPaths::EnginePluginsDir(),TEXT("Marketplace/SCUE4/Source/ThirdParty/x86/"),Guardx86))) {FGenericPlatformMisc::RequestExit(false);}
