@@ -73,7 +73,7 @@ You don't have to config anything for this, it's automatic; Just setup the requi
 
 [More Info]:
 
-https://forums.unrealengine.com/showthread.php?97229-Plugin-Anti-Cheat-System
+https://forums.unrealengine.com/t/plugin-anti-cheat-system/213948
 
 --------------------------------------------------
 
