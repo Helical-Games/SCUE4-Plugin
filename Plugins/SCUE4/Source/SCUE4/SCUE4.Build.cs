@@ -2,18 +2,23 @@ using UnrealBuildTool;
 using System.IO;
 
 public class SCUE4 : ModuleRules {
-	public SCUE4(TargetInfo Target) {
+	public SCUE4(ReadOnlyTargetRules Target) : base(Target) {
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		PrivatePCHHeaderFile = "Private/SCUE4PrivatePCH.h";
+		bEnforceIWYU = true;
+		//
 		PublicDependencyModuleNames.AddRange(
 			new string[] {
-				"SCUE4X",
 				"Core",
 				"Engine",
+				"SCUE4X",
+				"Projects",
 				"CoreUObject"
-			}
-		);
+			}///
+		);//
 		//
-		//
-		string DIRx86 = Path.Combine(ModuleDirectory,"../ThirdParty","x86");
-		string DIRx64 = Path.Combine(ModuleDirectory,"../ThirdParty","x64");
-	}
+		PublicDefinitions.Add("WITH_ANTI_CHEAT");
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory,"Public"));
+		PrivateIncludePaths.Add(Path.Combine(ModuleDirectory,"Private"));
+	}///
 }
